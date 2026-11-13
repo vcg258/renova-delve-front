@@ -1,29 +1,62 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { resetScene, setScene } from '../utils/scene';
 import { useNavigate } from 'react-router-dom';
 import {
-  buyItem, chooseEncounter, getCurrentGame, getShop, leaveShop,
-  nextNode, selectReward, useConsumable, useSkill,
+  buyItem, chooseEncounter, chooseRest, getCurrentGame, getShop, guardTurn, leaveShop,
+  nextNode, rerollShop, selectReward, useConsumable, useSkill,
 } from '../api/game';
 import { errorMessage } from '../api/client';
 import type {
-  BattleMonster, EncounterInfo, ItemType, NodeType, Phase, RewardView, ShopItem, SkillDTO, StatusDTO, TurnResult,
+  BattleMonster, EncounterInfo, ItemType, NodeType, PathChoice, Phase, RestChoice, RewardView, ShopItem, SkillDTO, StatusDTO,
+  TurnResult,
 } from '../api/types';
 import StatusBar from '../components/StatusBar';
 import MonsterCard, { type FxKind } from '../components/MonsterCard';
 import TypewriterText from '../components/TypewriterText';
 import GuideChat from '../components/GuideChat';
-import { consumableIcon, relicIcon, shopIcon, skillIcon } from '../utils/icons';
+import PixelSprite from '../components/PixelSprite';
+import Px from '../components/Px';
+import { consumableSprite, relicSprite, shopSprite, skillSprite } from '../utils/sprites';
 
-const NODE_LABEL: Record<NodeType, string> = {
-  BATTLE: '⚔ 전투', ELITE: '💀 강적', BOSS: '👑 보스', ENCOUNTER: '❔ 조우',
+const NODE_LABEL: Record<NodeType, { icon: string; label: string }> = {
+  BATTLE: { icon: 'sword', label: '전투' }, ELITE: { icon: 'skull', label: '강적' },
+  BOSS: { icon: 'crown', label: '보스' }, ENCOUNTER: { icon: 'question', label: '조우' },
 };
 
 const ADVANCE_MESSAGES = [
-  '운명의 실이 엮이는 중...',
-  '어둠이 다음 장을 쓰고 있다...',
-  '복도 끝에서 무언가 꿈틀거린다...',
-  '촛불이 흔들린다...',
+  '당신의 선택이 다음 장을 쓰고 있다...',
+  '머리 위에서 희미한 종소리가 울린다...',
+  '발밑에서 낮은 속삭임이 따라온다...',
+  '빛과 그림자가 당신을 지켜본다...',
 ];
+
+/** 갈림길 선택지 (수치는 서버 PathChoice와 동일. 실제 적용은 서버가 한다) */
+const PATHS: { value: PathChoice; icon: string; title: string; desc: string; className: string }[] = [
+  { value: 'SAFE', icon: 'door', title: '정면으로 나아간다', desc: '위험도 보상도 그대로', className: '' },
+  { value: 'DANGER', icon: 'drop', title: '피 냄새가 짙은 길', desc: '적 HP·공격 +25% · 점수·골드 +50% · 유물 후보 +1', className: 'danger' },
+  { value: 'AMBUSH', icon: 'moon', title: '그림자 속 샛길', desc: '기습: 적이 첫 턴에 움직이지 못한다 · 점수·골드 -30%', className: 'ambush' },
+];
+
+/** 조우 선택지의 세력별 표시. 결과는 서버만 알고 있으며, 여기서는 세력의 경향만 알려준다 */
+const FACTION_STYLE: Record<string, { label: string; icon: string; className: string; hint: string }> = {
+  HEAVEN: { label: '천상의 방식', icon: 'wings', className: 'faction-heaven', hint: '질서와 자비. 대체로 안전하지만 무언가를 내려놓아야 할 수 있다.' },
+  ABYSS: { label: '마계의 방식', icon: 'flame', className: 'faction-abyss', hint: '욕망과 거래. 크게 얻거나 크게 잃는다.' },
+  HUMAN: { label: '인간의 방식', icon: 'sword', className: 'faction-human', hint: '의지와 실리. 누구의 힘도 빌리지 않는다.' },
+};
+
+const REST_RESULT: Record<RestChoice, string> = {
+  HEAL: '모닥불 곁에서 눈을 붙였다. 상처가 조금 아물었다.',
+  TRAIN: '쉬지 않고 검을 갈았다. 손에 쥔 무게가 달라졌다.',
+  HEAVEN: '불빛 너머의 흰 빛에 무릎을 꿇었다.',
+  ABYSS: '불씨 속의 속삭임에 이름을 내주었다.',
+  HUMAN: '누구에게도 빌지 않고 스스로에게 맹세했다.',
+};
+
+const PATH_ENTRY_LOG: Record<PathChoice, string | null> = {
+  SAFE: null,
+  DANGER: '피 냄새가 짙다. 이곳의 적은 평소보다 강하다. (보상 +50%)',
+  AMBUSH: '그림자 속에서 기습했다! 적이 첫 턴에 움직이지 못한다. (보상 -30%)',
+};
 
 /** 스킬 정보 -> 이펙트 종류 결정 */
 function resolveFxKind(skill: SkillDTO): FxKind {
@@ -48,13 +81,26 @@ export default function GamePage() {
 
   const [phase, setPhase] = useState<Phase>('EXPLORE');
   const [status, setStatus] = useState<StatusDTO | null>(null);
-  const [story, setStory] = useState('황폐한 왕궁의 입구. 썩은 공기가 목을 조여온다.');
+  const [story, setStory] = useState('레노바 왕궁의 무너진 정문. 하늘에는 정화를 기다리는 흰 빛이, 발밑에는 마계의 숨결이 흐른다.');
   const [nodeType, setNodeType] = useState<NodeType>('BATTLE');
   const [monsters, setMonsters] = useState<BattleMonster[]>([]);
   const [encounter, setEncounter] = useState<EncounterInfo | null>(null);
   const [reward, setReward] = useState<RewardView | null>(null);
   const [shop, setShop] = useState<ShopItem[]>([]);
+  const [rerollCost, setRerollCost] = useState<number | null>(null);
   const [battleLog, setBattleLog] = useState<string[]>([]);
+
+  // 배경 장면: 스테이지 깊이 / 가호 세력 / 보스전 / 모닥불에 따라 달라진다
+  useEffect(() => {
+    if (!status) return;
+    setScene({
+      stage: status.stateDTO.currentStage,
+      faction: status.alignment?.dominant ?? null,
+      boss: nodeType === 'BOSS' && phase === 'BATTLE',
+      rest: phase === 'REST',
+    });
+  }, [status, nodeType, phase]);
+  useEffect(() => resetScene, []);
   const [selectedTarget, setSelectedTarget] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [advancing, setAdvancing] = useState(false);
@@ -115,6 +161,7 @@ export default function GamePage() {
     }
     setReward(view.reward);
     setShop(view.shop ?? []);
+    setRerollCost(view.shopRerollCost);
   }, [navigate]);
 
   useEffect(() => {
@@ -146,14 +193,14 @@ export default function GamePage() {
 
   /* ===== 행동들 ===== */
 
-  const advance = () => guard(async () => {
+  const advance = (path: PathChoice) => guard(async () => {
     setAdvancing(true);
     setAdvanceMsg(ADVANCE_MESSAGES[Math.floor(Math.random() * ADVANCE_MESSAGES.length)]);
     setBattleLog([]);
     setSelectedTarget(null);
     setFx(null);
     setDamageMap({});
-    const node = await nextNode();
+    const node = await nextNode(path);
     setStory(node.story ?? '');
     setNodeType(node.nodeType);
     if (node.nodeType === 'ENCOUNTER') {
@@ -164,6 +211,8 @@ export default function GamePage() {
       setMonsters(node.monsters ?? []);
       setEncounter(null);
       setPhase('BATTLE');
+      const entryLog = PATH_ENTRY_LOG[path];
+      if (entryLog) setBattleLog([entryLog]);
     }
     const view = await getCurrentGame();
     setStatus(view.status);
@@ -215,6 +264,12 @@ export default function GamePage() {
     handleTurnResult(await useSkill(slotId, targetsParam), before, prevHp);
   });
 
+  const takeGuard = () => guard(async () => {
+    const before = monsters;
+    const prevHp = status?.characterDTO?.currentHp ?? 0;
+    handleTurnResult(await guardTurn(), before, prevHp);
+  });
+
   const drinkConsumable = (inventorySlotId: number) => guard(async () => {
     const inv = status?.consumableInventoryDTO.find((c) => c.slotId === inventorySlotId);
     const before = monsters;
@@ -250,8 +305,18 @@ export default function GamePage() {
     const newStatus = await selectReward(itemType, itemId);
     setStatus(newStatus);
     setReward(null);
-    setShop(await getShop());
+    // 재고와 재입고 비용을 서버 뷰에서 함께 받는다
+    const view = await getCurrentGame();
+    setShop(view.shop ?? await getShop());
+    setRerollCost(view.shopRerollCost);
     setPhase('SHOP');
+  });
+
+  const reroll = () => guard(async () => {
+    const view = await rerollShop();
+    if (view.status) setStatus(view.status);
+    setShop(view.shop ?? []);
+    setRerollCost(view.shopRerollCost);
   });
 
   const purchase = (item: ShopItem) => guard(async () => {
@@ -266,7 +331,18 @@ export default function GamePage() {
     setStatus(view.status);
     setShop([]);
     setBattleLog([]);
-    setPhase('EXPLORE');
+    // 보스를 쓰러뜨린 직후라면 서버가 모닥불(REST) 단계로 보낸다
+    setPhase(view.phase);
+    if (view.phase === 'REST') {
+      setStory('쓰러진 보스 곁에 모닥불을 피웠다. 더 깊은 곳으로 내려가기 전, 단 한 가지만 할 수 있다.');
+    }
+  });
+
+  const rest = (choice: RestChoice) => guard(async () => {
+    const view = await chooseRest(choice);
+    if (view.status) setStatus(view.status);
+    setStory(REST_RESULT[choice]);
+    setPhase(view.phase);
   });
 
   if (!status) {
@@ -277,13 +353,18 @@ export default function GamePage() {
             <p className="error-text">{error}</p>
             <button className="primary" onClick={() => resync().catch(() => navigate('/'))}>다시 시도</button>
           </>
-        ) : '왕궁의 어둠 속으로 들어가는 중...'}
+        ) : '천상과 마계 사이, 왕궁의 어둠 속으로 들어가는 중...'}
       </div>
     );
   }
 
   const usableConsumables = status.consumableInventoryDTO ?? [];
   const isBossNode = nodeType === 'BOSS';
+  const banner = phase === 'EXPLORE' ? { icon: 'door', label: '탐험' }
+    : phase === 'SHOP' ? { icon: 'pouch', label: '상점' }
+    : phase === 'REWARD' ? { icon: 'chest', label: '전리품' }
+    : phase === 'REST' ? { icon: 'candle', label: '모닥불' }
+    : NODE_LABEL[nodeType];
 
   return (
     <div className={`page game-page ${isBossNode && phase === 'BATTLE' ? 'boss-mode' : ''}`}>
@@ -294,7 +375,7 @@ export default function GamePage() {
 
       <div className="node-banner animate-in">
         <span className={`node-label ${isBossNode && phase === 'BATTLE' ? 'boss-label' : ''}`}>
-          {phase === 'EXPLORE' ? '🧭 탐험' : phase === 'SHOP' ? '🏪 상점' : phase === 'REWARD' ? '🎁 전리품' : NODE_LABEL[nodeType]}
+          <Px s={banner.icon} /> {banner.label}
         </span>
       </div>
 
@@ -322,14 +403,22 @@ export default function GamePage() {
                 <button key={c.slotId} className="chip" disabled={busy}
                   title={c.consumable.description}
                   onClick={() => drinkConsumable(c.slotId)}>
-                  {consumableIcon(c.consumable.effectType)} {c.consumable.name}
+                  <Px s={consumableSprite(c.consumable.effectType, c.consumable.name)} /> {c.consumable.name}
                 </button>
               ))}
             </div>
           )}
-          <button className="primary big glow" onClick={advance} disabled={busy}>
-            더 깊이 전진한다 →
-          </button>
+          <p className="path-heading">갈림길 — 어느 길로 나아갈 것인가</p>
+          <div className="path-row">
+            {PATHS.map((p) => (
+              <button key={p.value} className={`path-card ${p.className}`} disabled={busy}
+                onClick={() => advance(p.value)}>
+                <span className="path-icon"><Px s={p.icon} size={32} /></span>
+                <span className="path-title">{p.title}</span>
+                <span className="path-desc">{p.desc}</span>
+              </button>
+            ))}
+          </div>
           <button className="ghost" onClick={() => navigate('/')}>메뉴로 (진행 저장됨)</button>
         </div>
       )}
@@ -350,7 +439,7 @@ export default function GamePage() {
 
           <div className="battle-log" ref={logRef}>
             {battleLog.length === 0
-              ? <span className="dim">대상을 고르고 스킬을 사용하세요. (전체 공격은 대상 선택 불필요)</span>
+              ? <span className="dim">적 카드의 예고 행동을 보고 대응하세요. 강공이 예고되면 방어, 방어 태세인 적은 다른 대상을 노리는 것이 유리합니다.</span>
               : battleLog.map((line, i) => <div key={i} className="log-line">{line}</div>)}
           </div>
 
@@ -361,18 +450,25 @@ export default function GamePage() {
                 disabled={busy || slot.coolTime > 0}
                 title={slot.skill.description}
                 onClick={() => castSkill(slot.slotId)}>
-                <span className="skill-icon">{skillIcon(slot.skill)}</span>
+                <span className="skill-icon"><PixelSprite sprite={skillSprite(slot.skill)} size={32} /></span>
                 <span className="skill-name">{slot.skill.name}</span>
                 <span className="skill-meta">
                   {slot.coolTime > 0 ? `쿨 ${slot.coolTime}턴` : slot.skill.target === 'EnemyAll' ? '전체' : '단일'}
                 </span>
               </button>
             ))}
+            <button className="skill-btn guard" disabled={busy}
+              title="공격하지 않는 대신 이번 턴 받는 피해가 60% 감소하고, 모든 스킬 쿨타임이 1턴 줄어듭니다."
+              onClick={takeGuard}>
+              <span className="skill-icon"><Px s="crest:steel" size={32} /></span>
+              <span className="skill-name">방어 태세</span>
+              <span className="skill-meta">피해 -60%</span>
+            </button>
             {usableConsumables.map((c) => (
               <button key={`c-${c.slotId}`} className="skill-btn consumable" disabled={busy}
                 title={`${c.consumable.description} (턴 소모)`}
                 onClick={() => drinkConsumable(c.slotId)}>
-                <span className="skill-icon">{consumableIcon(c.consumable.effectType)}</span>
+                <span className="skill-icon"><Px s={consumableSprite(c.consumable.effectType, c.consumable.name)} size={32} /></span>
                 <span className="skill-name">{c.consumable.name}</span>
                 <span className="skill-meta">아이템</span>
               </button>
@@ -386,12 +482,19 @@ export default function GamePage() {
         <div className="encounter-panel animate-in">
           <p className="encounter-text">{encounter.text}</p>
           <div className="choice-list">
-            {encounter.choices.map((choice, i) => (
-              <button key={i} className="choice-btn" disabled={busy} onClick={() => pickEncounter(i)}>
-                <span className="choice-num">{['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ'][i] ?? i + 1}</span>
-                {choice}
-              </button>
-            ))}
+            {encounter.choices.map((choice, i) => {
+              const faction = FACTION_STYLE[encounter.factions?.[i] ?? ''];
+              return (
+                <button key={i} className={`choice-btn ${faction?.className ?? ''}`} disabled={busy}
+                  title={faction?.hint} onClick={() => pickEncounter(i)}>
+                  <span className="choice-num">{faction ? <Px s={faction.icon} size={32} /> : i + 1}</span>
+                  <span className="choice-body">
+                    {faction && <span className="choice-faction">{faction.label}</span>}
+                    {choice}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -406,7 +509,7 @@ export default function GamePage() {
               <button key={`s-${s.skillId}`} className="reward-card" disabled={busy}
                 title={s.description}
                 onClick={() => takeReward('SKILL', s.skillId)}>
-                <span className="card-icon">{skillIcon(s)}</span>
+                <span className="card-icon"><PixelSprite sprite={skillSprite(s)} size={48} /></span>
                 <span className="reward-kind">스킬</span>
                 <span className="reward-name">{s.name}</span>
                 <span className="reward-desc">{s.description}</span>
@@ -415,7 +518,7 @@ export default function GamePage() {
             {reward.relics.map((r) => (
               <button key={`r-${r.relicId}`} className={`reward-card rarity-${r.rarity.toLowerCase()}`} disabled={busy}
                 onClick={() => takeReward('RELIC', r.relicId)}>
-                <span className="card-icon">{relicIcon(r.name)}</span>
+                <span className="card-icon"><Px s={relicSprite(r.name)} size={48} /></span>
                 <span className="reward-kind">유물 · {r.rarity}</span>
                 <span className="reward-name">{r.name}</span>
                 <span className="reward-desc">{r.effectDesc}</span>
@@ -424,7 +527,7 @@ export default function GamePage() {
             {reward.consumables.map((c) => (
               <button key={`c-${c.consumableId}`} className="reward-card" disabled={busy}
                 onClick={() => takeReward('CONSUMABLE', c.consumableId)}>
-                <span className="card-icon">{consumableIcon(c.effectType)}</span>
+                <span className="card-icon"><Px s={consumableSprite(c.effectType, c.name)} size={48} /></span>
                 <span className="reward-kind">소모품</span>
                 <span className="reward-name">{c.name}</span>
                 <span className="reward-desc">{c.description}</span>
@@ -442,31 +545,68 @@ export default function GamePage() {
       {/* ===== 상점 ===== */}
       {phase === 'SHOP' && (
         <div className="shop-panel animate-in">
-          <h3>🏪 떠돌이 상인 <span className="dim small">— 보유 골드 {status.stateDTO.gold}</span></h3>
+          <h3><Px s="pouch" /> 떠돌이 상인 <span className="dim small">— 보유 골드 {status.stateDTO.gold}</span></h3>
           {shop.length === 0 ? (
             <p className="dim">상인이 짐을 푸는 중...</p>
           ) : (
             <div className="shop-grid">
               {shop.map((item) => (
                 <div key={`${item.itemType}-${item.itemId}`} className={`shop-card ${item.sold ? 'sold' : ''}`}>
-                  <span className="card-icon">{shopIcon(item.itemType, item.name)}</span>
+                  <span className="card-icon"><Px s={shopSprite(item.itemType, item.name)} size={48} /></span>
                   <span className="reward-kind">{shopTypeLabel(item.itemType)}</span>
                   <span className="reward-name">{item.name}</span>
                   <span className="reward-desc">{item.description}</span>
                   <button className="buy-btn"
                     disabled={busy || item.sold || status.stateDTO.gold < item.price}
                     onClick={() => purchase(item)}>
-                    {item.sold ? '판매 완료' : `🪙 ${item.price}`}
+                    {item.sold ? '판매 완료' : <><Px s="coin" /> {item.price}</>}
                   </button>
                 </div>
               ))}
             </div>
           )}
-          <button className="primary" disabled={busy} onClick={exitShop}>상점을 떠나 전진한다 →</button>
+          <div className="shop-actions">
+            {rerollCost != null && (
+              <button className="ghost" disabled={busy || status.stateDTO.gold < rerollCost} onClick={reroll}
+                title="진열품을 새로 뽑습니다. 같은 상점에서 재입고할수록 비용이 오릅니다.">
+                <Px s="spin" /> 진열품 교체 <Px s="coin" /> {rerollCost}
+              </button>
+            )}
+            <button className="primary" disabled={busy} onClick={exitShop}>상점을 떠나 전진한다 →</button>
+          </div>
         </div>
       )}
 
-      <GuideChat />
+      {/* ===== 모닥불 (보스 처치 후) ===== */}
+      {phase === 'REST' && (
+        <div className="rest-panel animate-in">
+          <p className="path-heading">모닥불 — 하나만 고를 수 있다</p>
+          <div className="path-row">
+            <button className="path-card" disabled={busy} onClick={() => rest('HEAL')}>
+              <span className="path-icon"><Px s="heart" size={32} /></span>
+              <span className="path-title">눈을 붙인다</span>
+              <span className="path-desc">최대 HP의 35% 회복</span>
+            </button>
+            <button className="path-card" disabled={busy} onClick={() => rest('TRAIN')}>
+              <span className="path-icon"><Px s="sword" size={32} /></span>
+              <span className="path-title">검을 간다</span>
+              <span className="path-desc">공격력 +3 · 방어력 +1 (영구)</span>
+            </button>
+            <div className="path-card vow-card">
+              <span className="path-icon"><Px s="candle" size={32} /></span>
+              <span className="path-title">서원한다</span>
+              <span className="path-desc">한 세력의 성향 +1</span>
+              <span className="vow-row">
+                <button className="mini faction-heaven" disabled={busy} onClick={() => rest('HEAVEN')}><Px s="wings" /> 천상</button>
+                <button className="mini faction-human" disabled={busy} onClick={() => rest('HUMAN')}><Px s="sword" /> 인간</button>
+                <button className="mini faction-abyss" disabled={busy} onClick={() => rest('ABYSS')}><Px s="flame" /> 마계</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <GuideChat phase={phase} />
     </div>
   );
 }

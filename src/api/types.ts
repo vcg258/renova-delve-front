@@ -1,14 +1,58 @@
 // 백엔드 DTO 미러 타입
 
 export type Difficulty = 'EASY' | 'NORMAL' | 'HARD' | 'HELL';
-export type Phase = 'NONE' | 'EXPLORE' | 'BATTLE' | 'ENCOUNTER' | 'REWARD' | 'SHOP' | 'GAMEOVER' | 'CLEAR';
+export type Phase = 'NONE' | 'EXPLORE' | 'BATTLE' | 'ENCOUNTER' | 'REWARD' | 'SHOP' | 'REST' | 'GAMEOVER' | 'CLEAR';
 export type NodeType = 'BATTLE' | 'ELITE' | 'BOSS' | 'ENCOUNTER';
 export type ItemType = 'WEAPON' | 'ARMOR' | 'HELMET' | 'SKILL' | 'RELIC' | 'CONSUMABLE' | 'SKIP';
+
+export type Role = 'USER' | 'ADMIN';
+export type MemberStatus = 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWN';
 
 export interface MemberInfo {
   memberId: number;
   loginId: string;
-  createdAt?: string;
+  nickname: string;
+  role: Role;
+  status: MemberStatus;
+  lastLoginAt: string | null;
+  createdAt: string;
+  collectionCount: number;
+  bestScore: number;
+}
+
+export interface MemberSummary {
+  memberId: number;
+  loginId: string;
+  nickname: string;
+  role: Role;
+  status: MemberStatus;
+  statusReason: string | null;
+  lastLoginAt: string | null;
+  createdAt: string;
+  playing: boolean;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
+export interface AdminStats {
+  totalMembers: number;
+  activeMembers: number;
+  suspendedMembers: number;
+  withdrawnMembers: number;
+  newMembersLast7Days: number;
+  activeGames: number;
+  totalGamesPlayed: number;
+  clearedGames: number;
+  gamesByDifficulty: Record<string, number>;
+  topRankings: RankingRow[];
 }
 
 export interface WeaponDTO {
@@ -84,7 +128,9 @@ export interface ConsumableDTO {
 }
 
 export interface SetupOptions {
-  budget: number;
+  budget: number;       // 총 예산 (기본 + 도감 보너스)
+  bonusBudget: number;  // 도감 수집 보너스
+  pacts: PactInfo[];    // 선택 가능한 서약
   weapons: WeaponDTO[];
   armors: ArmorDTO[];
   helmets: HelmetDTO[];
@@ -146,6 +192,37 @@ export interface StatusDTO {
   relicInventoryDTO: RelicInventoryDTO[];
   skillSlotDTO: SkillSlotDTO[];
   relicSynergies?: string[]; // 발동 중인 유물 조합 시너지
+  alignment?: Alignment;     // 성향 (천상 / 마계 / 인간)
+  pacts?: string[];          // 이번 원정에 건 서약 이름
+}
+
+/** 서약: 원정 전에 스스로 거는 제약 (점수 보너스) */
+export interface PactInfo {
+  code: string;
+  title: string;
+  description: string;
+  scoreBonusPercent: number;
+}
+
+export interface Achievement {
+  code: string;
+  title: string;
+  description: string;
+  achieved: boolean;
+}
+
+/** 모닥불 선택 */
+export type RestChoice = 'HEAL' | 'TRAIN' | 'HEAVEN' | 'ABYSS' | 'HUMAN';
+
+export type Faction = 'HEAVEN' | 'ABYSS' | 'HUMAN';
+
+/** 조우에서 각 세력의 방식을 택한 횟수와 발동 중인 가호 */
+export interface Alignment {
+  heaven: number;
+  abyss: number;
+  human: number;
+  dominant: Faction | null;
+  blessing: string | null;
 }
 
 export interface BattleMonster {
@@ -159,11 +236,28 @@ export interface BattleMonster {
   def: number;
   buffs: Record<string, number>;
   description: string;
+  intent: MonsterIntent; // 이번 턴 행동 예고
+  enraged: boolean;      // 보스 격노
+}
+
+export type MonsterIntent = 'ATTACK' | 'HEAVY' | 'GUARD';
+
+/** 모험 기록 한 건 (result: 진행 중 PLAYING / 과거 기록은 null) */
+export interface GameHistory {
+  gameStateId: number;
+  difficulty: Difficulty;
+  stage: number;
+  node: number;
+  score: number;
+  result: 'PLAYING' | 'CLEAR' | 'DEFEAT' | 'ABANDON' | null;
+  startedAt: string;
+  endedAt: string | null;
 }
 
 export interface EncounterInfo {
   text: string;
   choices: string[];
+  factions?: (Faction | '')[]; // 각 선택지가 속한 세력 (choices와 같은 순서)
 }
 
 export interface NodeInfo {
@@ -207,6 +301,18 @@ export interface GameView {
   reward: RewardView | null;
   shop: ShopItem[] | null;
   summary: GameSummary | null;
+  shopRerollCost: number | null; // 상점 단계일 때 다음 재입고 비용
+}
+
+/** 갈림길 선택 */
+export type PathChoice = 'SAFE' | 'DANGER' | 'AMBUSH';
+
+/** AI 런 회고 (구조화 출력) */
+export interface RunReview {
+  title: string;
+  epitaph: string;
+  analysis: string;
+  tips: string[];
 }
 
 export interface TurnResult {

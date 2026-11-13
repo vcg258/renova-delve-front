@@ -17,7 +17,7 @@ export default class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="page-center">
-          <h2 style={{ color: '#c9a227' }}>🕯 어둠 속에서 길을 잃었다</h2>
+          <h2 style={{ color: '#c9a227' }}>어둠 속에서 길을 잃었다</h2>
           <p className="dim">화면을 그리는 중 문제가 발생했습니다.</p>
           <button className="primary" onClick={() => { this.setState({ hasError: false }); window.location.href = '/'; }}>
             입구로 돌아가기

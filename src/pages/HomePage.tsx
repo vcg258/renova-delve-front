@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { abandonGame, getCurrentGame } from '../api/game';
 import { useAuth } from '../context/AuthContext';
 import type { GameView } from '../api/types';
 import GuideChat from '../components/GuideChat';
+import Px from '../components/Px';
 
 export default function HomePage() {
   const { member, signOut } = useAuth();
@@ -29,15 +30,18 @@ export default function HomePage() {
   return (
     <div className="page home-page">
       <header className="home-header">
-        <h1 className="game-title">Renova <span className="amp">&amp;</span> Delve</h1>
-        <p className="subtitle">멸망한 왕국의 심연으로 — AI가 매번 새로 쓰는 이야기</p>
-        <p className="dim">모험가: {member?.loginId}</p>
+        <h1 className="game-title"><span className="t-heaven">Renova</span> <span className="amp">&amp;</span> <span className="t-abyss">Delve</span></h1>
+        <p className="subtitle">천상과 마계 사이, 멸망한 왕국 레노바 — 당신의 선택이 이야기가 된다</p>
+        <p className="dim">
+          모험가: {member?.nickname}
+          {member?.role === 'ADMIN' && <span className="role-chip admin">운영자</span>}
+        </p>
       </header>
 
       <main className="home-menu">
         {hasActiveGame && (
           <button className="menu-btn continue" onClick={() => navigate('/game')}>
-            <span className="menu-title">⚔ 이어하기</span>
+            <span className="menu-title"><Px s="sword" /> 이어하기</span>
             <span className="menu-desc">
               스테이지 {view?.status?.stateDTO.currentStage} · 노드 {view?.status?.stateDTO.currentNodeId ?? 0} 에서 계속
             </span>
@@ -45,24 +49,42 @@ export default function HomePage() {
         )}
 
         <button className="menu-btn" onClick={startNew} disabled={loading}>
-          <span className="menu-title">🕯 새로운 잠입</span>
-          <span className="menu-desc">장비를 꾸리고 왕궁의 어둠 속으로</span>
+          <span className="menu-title"><Px s="candle" /> 새로운 잠입</span>
+          <span className="menu-desc">장비를 꾸리고 마계의 문이 열린 왕궁으로</span>
         </button>
 
         <button className="menu-btn" onClick={() => navigate('/ranking')}>
-          <span className="menu-title">🏆 랭킹</span>
+          <span className="menu-title"><Px s="trophy" /> 랭킹</span>
           <span className="menu-desc">난이도별 최고 기록</span>
         </button>
 
         <button className="menu-btn" onClick={() => navigate('/collection')}>
-          <span className="menu-title">📖 도감</span>
+          <span className="menu-title"><Px s="book" /> 도감</span>
           <span className="menu-desc">지금까지 손에 넣은 것들</span>
         </button>
+
+        <button className="menu-btn" onClick={() => navigate('/profile')}>
+          <span className="menu-title"><Px s="key" /> 내 정보</span>
+          <span className="menu-desc">전적 · 업적 · 닉네임·비밀번호 변경</span>
+        </button>
+
+        {member?.role === 'ADMIN' && (
+          <button className="menu-btn admin-menu" onClick={() => navigate('/admin')}>
+            <span className="menu-title"><Px s="gear" /> 운영 콘솔</span>
+            <span className="menu-desc">회원 관리 · 통계 · VectorStore</span>
+          </button>
+        )}
 
         <button className="menu-btn ghost" onClick={() => signOut()}>
           <span className="menu-title">로그아웃</span>
         </button>
       </main>
+
+      <p className="legal-links">
+        <Link to="/terms">이용약관</Link>
+        <span>·</span>
+        <Link to="/privacy"><strong>개인정보 처리방침</strong></Link>
+      </p>
 
       <GuideChat />
     </div>

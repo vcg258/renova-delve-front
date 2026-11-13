@@ -1,10 +1,22 @@
 import type { BattleMonster } from '../api/types';
-import { monsterIcon } from '../utils/icons';
+import PixelSprite from './PixelSprite';
+import Px from './Px';
+import { monsterSprite } from '../utils/sprites';
 
 const TYPE_LABEL = ['일반', '엘리트', '보스'];
 const BUFF_LABEL: Record<string, string> = {
   BLEED: '출혈', BURN: '화상', POISON: '독', STUN: '기절',
 };
+
+/** 이번 턴 행동 예고 표시 (강공 수치는 서버 계산식과 같은 1.6배) */
+function intentLabel(monster: BattleMonster): { icon: string; text: string; className: string } {
+  if ((monster.buffs?.STUN ?? 0) > 0) return { icon: 'star:stun', text: '기절 — 행동 불가', className: 'stunned' };
+  switch (monster.intent) {
+    case 'HEAVY': return { icon: 'burst', text: `강공 예고 ${Math.round(monster.atk * 1.6)}`, className: 'heavy' };
+    case 'GUARD': return { icon: 'crest:steel', text: '방어 태세 — 타격 피해 절반', className: 'guard' };
+    default: return { icon: 'sword', text: `공격 예고 ${monster.atk}`, className: 'attack' };
+  }
+}
 
 export type FxKind = 'slash' | 'heavy' | 'fire' | 'poison' | 'stun';
 
@@ -23,6 +35,7 @@ export default function MonsterCard({ monster, selected, onSelect, fxKind, fxId,
   const dead = monster.currentHp <= 0;
   const hpPercent = Math.max(0, Math.min(100, (monster.currentHp / monster.maxHp) * 100));
   const typeClass = monster.monsterType === 2 ? 'boss' : monster.monsterType === 1 ? 'elite' : '';
+  const intent = intentLabel(monster);
 
   return (
     <button
@@ -32,7 +45,7 @@ export default function MonsterCard({ monster, selected, onSelect, fxKind, fxId,
       title={monster.description}
     >
       <div className={`monster-portrait ${typeClass}`}>
-        <span className="monster-emoji">{monsterIcon(monster.name)}</span>
+        <PixelSprite sprite={monsterSprite(monster.name)} size={monster.monsterType === 2 ? 80 : 64} className="monster-sprite" title={monster.name} />
       </div>
       <div className="monster-head">
         <span className="monster-name">{monster.name}</span>
@@ -43,9 +56,11 @@ export default function MonsterCard({ monster, selected, onSelect, fxKind, fxId,
       </div>
       <div className="monster-stats">
         <span>HP {monster.currentHp}/{monster.maxHp}</span>
-        <span>⚔{monster.atk} 🛡{monster.def}</span>
+        <span className="monster-atkdef"><Px s="sword" />{monster.atk} <Px s="crest:steel" />{monster.def}</span>
       </div>
+      {!dead && <div className={`monster-intent ${intent.className}`}><Px s={intent.icon} /> {intent.text}</div>}
       <div className="monster-buffs">
+        {monster.enraged && !dead && <span className="buff-chip enraged">격노</span>}
         {Object.entries(monster.buffs ?? {}).map(([buff, stack]) => (
           <span key={buff} className={`buff-chip ${buff.toLowerCase()}`}>
             {BUFF_LABEL[buff] ?? buff} {stack}
@@ -60,7 +75,7 @@ export default function MonsterCard({ monster, selected, onSelect, fxKind, fxId,
           {fxKind === 'heavy' && (<><i className="fx-shockwave" /><i className="fx-slash heavy" /></>)}
           {fxKind === 'fire' && (<><i className="fx-fire" /><i className="fx-fire-spark" /></>)}
           {fxKind === 'poison' && (<><i className="fx-poison" /><i className="fx-poison-drip" /></>)}
-          {fxKind === 'stun' && <i className="fx-stun">✦ ✦ ✦</i>}
+          {fxKind === 'stun' && <i className="fx-stun"><Px s="star:stun" /><Px s="star:stun" /><Px s="star:stun" /></i>}
         </span>
       )}
 
@@ -71,7 +86,7 @@ export default function MonsterCard({ monster, selected, onSelect, fxKind, fxId,
         </span>
       )}
 
-      {dead && <div className="dead-mark">✝</div>}
+      {dead && <div className="dead-mark"><Px s="grave" size={32} /></div>}
     </button>
   );
 }

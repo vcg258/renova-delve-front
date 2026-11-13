@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { getSetupOptions, newGame } from '../api/game';
 import { errorMessage } from '../api/client';
 import type { Difficulty, SetupOptions } from '../api/types';
-import { armorIcon, helmetIcon, relicIcon, skillIcon, weaponIcon } from '../utils/icons';
+import PixelSprite from '../components/PixelSprite';
+import Px from '../components/Px';
+import { armorSprite, helmetSprite, relicSprite, skillSprite, weaponSprite } from '../utils/sprites';
 
 const DIFFICULTIES: { value: Difficulty; label: string; desc: string }[] = [
   { value: 'EASY', label: '쉬움', desc: '보상 x0.7 · 랭킹 미등록' },
@@ -25,6 +27,7 @@ export default function SetupPage() {
   const [helmetId, setHelmetId] = useState<number | null>(null);
   const [skillIds, setSkillIds] = useState<number[]>([]);
   const [relicIds, setRelicIds] = useState<number[]>([]);
+  const [pacts, setPacts] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -52,6 +55,17 @@ export default function SetupPage() {
 
   const overBudget = options != null && usedPoints > options.budget;
 
+  // 남은 포인트로 고를 수 없는 항목은 버튼 자체를 막는다 (서버 검증은 그대로 최종 방어선)
+  const remaining = options ? options.budget - usedPoints : 0;
+  const weaponCost = options?.weapons.find((w) => w.weaponId === weaponId)?.scoreCost ?? 0;
+  const armorCost = options?.armors.find((a) => a.armorId === armorId)?.scoreCost ?? 0;
+  const helmetCost = options?.helmets.find((h) => h.helmetId === helmetId)?.scoreCost ?? 0;
+  /** 하나만 고르는 칸: 지금 고른 것과의 차액을 감당할 수 있어야 바꿀 수 있다 */
+  const cannotSwap = (cost: number, currentCost: number, selected: boolean) =>
+    !selected && cost - currentCost > remaining;
+  /** 여러 개 고르는 칸: 고른 것은 언제든 뺄 수 있고, 새로 넣으려면 남은 포인트가 있어야 한다 */
+  const cannotAdd = (cost: number, selected: boolean) => !selected && cost > remaining;
+
   const toggleSkill = (id: number) => {
     setSkillIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : prev.length >= 3 ? prev : [...prev, id]);
   };
@@ -65,7 +79,7 @@ export default function SetupPage() {
     setBusy(true);
     setError(null);
     try {
-      await newGame({ difficulty, weaponId, armorId, helmetId, skillIds, relicIds });
+      await newGame({ difficulty, weaponId, armorId, helmetId, skillIds, relicIds, pacts });
       navigate('/game');
     } catch (err) {
       setError(errorMessage(err));
@@ -77,6 +91,10 @@ export default function SetupPage() {
     return <div className="page-center dim">{error ?? '장비 목록을 불러오는 중...'}</div>;
   }
 
+  const pactBonus = (options.pacts ?? [])
+    .filter((p) => pacts.includes(p.code))
+    .reduce((sum, p) => sum + p.scoreBonusPercent, 0);
+
   const basicSkillNote = '「기본 공격」은 항상 지급됩니다. 추가 스킬은 최대 3개.';
 
   return (
@@ -86,6 +104,10 @@ export default function SetupPage() {
         <h2>원정 준비</h2>
         <div className={`budget ${overBudget ? 'over' : ''}`}>
           스타팅 포인트 {usedPoints} / {options.budget}
+          <span className="budget-left">남은 포인트 {Math.max(0, remaining)}</span>
+          <span className="budget-bonus" title="도감에 등록한 항목 1종마다 +5 (최대 +200)">
+            {options.bonusBudget > 0 ? `도감 보너스 +${options.bonusBudget}` : '도감을 채우면 예산이 늘어납니다'}
+          </span>
         </div>
       </header>
 
@@ -109,9 +131,10 @@ export default function SetupPage() {
           {options.weapons.map((w) => (
             <button key={w.weaponId}
               className={`option-card ${weaponId === w.weaponId ? 'selected' : ''}`}
+              disabled={cannotSwap(w.scoreCost, weaponCost, weaponId === w.weaponId)}
               onClick={() => setWeaponId(w.weaponId)} title={w.description}>
-              <span className="option-name">{weaponIcon(w.type)} {w.name}</span>
-              <span className="option-desc">⚔ +{w.atkBonus} · {w.scoreCost}pt</span>
+              <span className="option-name with-sprite"><PixelSprite sprite={weaponSprite(w.type, w.name)} size={32} /> {w.name}</span>
+              <span className="option-desc"><Px s="sword" /> +{w.atkBonus} · {w.scoreCost}pt</span>
             </button>
           ))}
         </div>
@@ -123,9 +146,10 @@ export default function SetupPage() {
           {options.armors.map((a) => (
             <button key={a.armorId}
               className={`option-card ${armorId === a.armorId ? 'selected' : ''}`}
+              disabled={cannotSwap(a.scoreCost, armorCost, armorId === a.armorId)}
               onClick={() => setArmorId(a.armorId)} title={a.description}>
-              <span className="option-name">{armorIcon()} {a.name}</span>
-              <span className="option-desc">🛡 +{a.defBonus} · {a.scoreCost}pt</span>
+              <span className="option-name with-sprite"><PixelSprite sprite={armorSprite(a.type)} size={32} /> {a.name}</span>
+              <span className="option-desc"><Px s="crest:steel" /> +{a.defBonus} · {a.scoreCost}pt</span>
             </button>
           ))}
         </div>
@@ -137,9 +161,10 @@ export default function SetupPage() {
           {options.helmets.map((h) => (
             <button key={h.helmetId}
               className={`option-card ${helmetId === h.helmetId ? 'selected' : ''}`}
+              disabled={cannotSwap(h.scoreCost, helmetCost, helmetId === h.helmetId)}
               onClick={() => setHelmetId(h.helmetId)} title={h.description}>
-              <span className="option-name">{helmetIcon(h.type)} {h.name}</span>
-              <span className="option-desc">❤ +{h.hpBonus} · {h.scoreCost}pt</span>
+              <span className="option-name with-sprite"><PixelSprite sprite={helmetSprite(h.type)} size={32} /> {h.name}</span>
+              <span className="option-desc"><Px s="heart" /> +{h.hpBonus} · {h.scoreCost}pt</span>
             </button>
           ))}
         </div>
@@ -151,8 +176,10 @@ export default function SetupPage() {
           {options.skills.filter((s) => s.cost > 0).map((s) => (
             <button key={s.skillId}
               className={`option-card ${skillIds.includes(s.skillId) ? 'selected' : ''}`}
+              disabled={cannotAdd(s.cost, skillIds.includes(s.skillId))
+                || (skillIds.length >= 3 && !skillIds.includes(s.skillId))}
               onClick={() => toggleSkill(s.skillId)} title={s.description}>
-              <span className="option-name">{skillIcon(s)} {s.name}</span>
+              <span className="option-name with-sprite"><PixelSprite sprite={skillSprite(s)} size={32} /> {s.name}</span>
               <span className="option-desc">계수 x{s.coefficient} · 쿨 {s.cooldown} · {s.cost}pt</span>
             </button>
           ))}
@@ -165,9 +192,28 @@ export default function SetupPage() {
           {options.relics.map((r) => (
             <button key={r.relicId}
               className={`option-card rarity-${r.rarity.toLowerCase()} ${relicIds.includes(r.relicId) ? 'selected' : ''}`}
+              disabled={cannotAdd(r.scoreCost, relicIds.includes(r.relicId))}
               onClick={() => toggleRelic(r.relicId)} title={r.effectDesc}>
-              <span className="option-name">{relicIcon(r.name)} {r.name}</span>
+              <span className="option-name with-sprite"><PixelSprite sprite={relicSprite(r.name)} size={32} /> {r.name}</span>
               <span className="option-desc">{r.effectDesc} · {r.scoreCost}pt</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="setup-section">
+        <h3>
+          서약 <span className="dim small">— 스스로 거는 제약. 고른 만큼 점수가 오른다 (선택 사항)</span>
+          {pactBonus > 0 && <span className="pact-total">점수 +{pactBonus}%</span>}
+        </h3>
+        <div className="option-row">
+          {(options.pacts ?? []).map((p) => (
+            <button key={p.code}
+              className={`option-card pact-card ${pacts.includes(p.code) ? 'selected' : ''}`}
+              onClick={() => setPacts((prev) => prev.includes(p.code) ? prev.filter((x) => x !== p.code) : [...prev, p.code])}>
+              <span className="option-name">{p.title}</span>
+              <span className="option-desc">{p.description}</span>
+              <span className="pact-bonus">점수 +{p.scoreBonusPercent}%</span>
             </button>
           ))}
         </div>
