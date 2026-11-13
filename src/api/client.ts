@@ -67,7 +67,7 @@ api.interceptors.response.use(
         return api.request(original);
       }
       // 세션이 완전히 만료됨 -> 로그인 화면으로 (무한 루프 방지)
-      if (!window.location.pathname.startsWith('/auth')) {
+      if (!['/auth', '/recover', '/reset-password'].some((path) => window.location.pathname.startsWith(path))) {
         window.location.assign('/auth?expired=1');
       }
     }

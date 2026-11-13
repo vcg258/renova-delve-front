@@ -12,6 +12,9 @@ export interface MemberInfo {
   memberId: number;
   loginId: string;
   nickname: string;
+  name?: string | null;    // 등록하지 않았으면 null (이름·이메일 수집 이전에 가입한 계정)
+  email?: string | null;   // 등록하지 않았으면 아이디 찾기 / 비밀번호 찾기를 쓸 수 없다
+  hasPassword?: boolean;   // 소셜 로그인 계정은 false
   role: Role;
   status: MemberStatus;
   lastLoginAt: string | null;

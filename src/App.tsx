@@ -10,6 +10,8 @@ import CollectionPage from './pages/CollectionPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminPage from './pages/AdminPage';
 import LegalPage from './pages/LegalPage';
+import RecoveryPage from './pages/RecoveryPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import AtmosphereFX from './components/AtmosphereFX';
 import type { ReactNode } from 'react';
@@ -38,6 +40,9 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
+            {/* 아이디 찾기 / 비밀번호 찾기, 메일의 재설정 링크가 여는 화면 (로그인 전) */}
+            <Route path="/recover" element={<RecoveryPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             {/* 약관·처리방침은 가입 전에도 볼 수 있어야 하므로 로그인 없이 공개 */}
             <Route path="/terms" element={<LegalPage kind="terms" />} />
             <Route path="/privacy" element={<LegalPage kind="privacy" />} />
