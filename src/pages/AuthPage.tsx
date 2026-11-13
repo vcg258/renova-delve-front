@@ -59,6 +59,11 @@ export default function AuthPage() {
     return () => clearTimeout(timer);
   }, [nickname, nickValid, mode]);
 
+  const switchMode = (next: 'login' | 'signup') => {
+    setMode(next);
+    setMessage(null);
+  };
+
   const submit = async () => {
     setMessage(null);
     if (mode === 'signup' && !canSignup) {
@@ -105,14 +110,8 @@ export default function AuthPage() {
         <p className="subtitle">천사는 구원을, 악마는 거래를 말한다 — 선택은 인간의 몫</p>
         <p className="tagline">당신의 선택을 AI가 이야기로 이어 쓰는 로그라이크</p>
 
-        <div className="auth-tabs">
-          <button className={mode === 'login' ? 'active' : ''} onClick={() => { setMode('login'); setMessage(null); }}>
-            로그인
-          </button>
-          <button className={mode === 'signup' ? 'active' : ''} onClick={() => { setMode('signup'); setMessage(null); }}>
-            회원가입
-          </button>
-        </div>
+        {/* 화면 이름은 글자로만 적는다. 예전에는 여기가 버튼 모양의 탭이라 "눌러도 반응 없는 로그인 버튼"으로 보였다 */}
+        <h2 className="auth-heading">{mode === 'login' ? '로그인' : '모험가 등록'}</h2>
 
         <div className="field">
           <input placeholder="아이디" value={loginId} autoComplete="username"
@@ -189,6 +188,13 @@ export default function AuthPage() {
           disabled={busy || (mode === 'signup' && !canSignup)}>
           {busy ? '...' : mode === 'login' ? '왕궁으로 들어가기' : '모험가 등록'}
         </button>
+
+        <p className="auth-switch">
+          {mode === 'login' ? '계정이 없나요?' : '이미 계정이 있나요?'}
+          <button type="button" className="link-btn" onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}>
+            {mode === 'login' ? '회원가입' : '로그인'}
+          </button>
+        </p>
 
         <p className="legal-links">
           <Link to="/terms">이용약관</Link>
