@@ -6,10 +6,13 @@ export const POLICY_VERSION = '2026-11-13';
 /**
  * 운영자 정보. 실제로 서비스를 공개하기 전에 반드시 채워야 한다.
  * (개인정보 처리방침에는 처리자와 보호책임자의 연락처가 있어야 한다)
+ *
+ * 소스에 적지 않고 빌드 환경변수로 받는다: .env 의 VITE_OPERATOR_NAME / VITE_OPERATOR_CONTACT (.env.example 참고).
+ * 비어 있으면 자리표시자가 그대로 보이므로, 빠뜨린 채 배포하면 화면에서 바로 드러난다.
  */
 const OPERATOR = {
-  name: '[운영자명 기입]',
-  contact: '[문의 이메일 기입]',
+  name: import.meta.env.VITE_OPERATOR_NAME || '[운영자명 기입]',
+  contact: import.meta.env.VITE_OPERATOR_CONTACT || '[문의 이메일 기입]',
 };
 
 interface Props {
