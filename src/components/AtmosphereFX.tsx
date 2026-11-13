@@ -50,22 +50,33 @@ const WINDOWS_LEFT: Block[] = [
   { x: 75, y: 49, w: 1, h: 2 }, { x: 64, y: 48, w: 1, h: 2 },
 ];
 
-/** 스테이지별 하늘 (아래 -> 위 4단). 0은 메뉴 화면 */
-const SKY: string[][] = [
-  ['#12101f', '#161327', '#1b1730', '#221d3a'],
-  ['#12101f', '#161327', '#1b1730', '#221d3a'],
-  ['#0e1020', '#11152a', '#141a34', '#19203f'],
-  ['#120e1e', '#171126', '#1e142e', '#281938'],
-  ['#170c18', '#1e0e1e', '#281124', '#33142a'],
-  ['#140810', '#1c0a14', '#260c18', '#320f1c'],
+/** 한 스테이지의 배경 설정. 스테이지를 늘리거나 줄일 때는 STAGES에 항목 하나만 넣고 빼면 된다 */
+interface StageLook {
+  /** 하늘 색 (아래 -> 위 4단) */
+  sky: [string, string, string, string];
+  /** 빛기둥과 후광의 세기 (1 = 온전함) */
+  light: number;
+  /** 불이 켜진 왕궁 창의 수 (최대 8) */
+  litWindows: number;
+  /** 마계의 문이 커지는 정도 (격자 칸) */
+  gateGrowth: number;
+  /** 광륜을 가리는 그림자의 x 오프셋. null이면 식이 없고, 0이면 완전히 가려 붉은 테두리만 남는다 */
+  eclipse: number | null;
+  /** 지평선에서 올라오는 균열: 0 없음 / 1 왕궁 발치 / 2 왕궁 전체 */
+  fissures: 0 | 1 | 2;
+  feathers: number;
+  embers: number;
+}
+
+/** 0은 메뉴 화면, 1~5는 원정 중인 스테이지. 깊어질수록 천상이 멀어지고 마계가 가까워진다 */
+const STAGES: StageLook[] = [
+  { sky: ['#12101f', '#161327', '#1b1730', '#221d3a'], light: 1, litWindows: 8, gateGrowth: 0, eclipse: null, fissures: 0, feathers: 14, embers: 18 },
+  { sky: ['#12101f', '#161327', '#1b1730', '#221d3a'], light: 1, litWindows: 8, gateGrowth: 0, eclipse: null, fissures: 0, feathers: 14, embers: 18 },
+  { sky: ['#0e1020', '#11152a', '#141a34', '#19203f'], light: 0.8, litWindows: 6, gateGrowth: 1, eclipse: null, fissures: 0, feathers: 11, embers: 22 },
+  { sky: ['#120e1e', '#171126', '#1e142e', '#281938'], light: 0.55, litWindows: 4, gateGrowth: 3, eclipse: 12, fissures: 1, feathers: 8, embers: 26 },
+  { sky: ['#170c18', '#1e0e1e', '#281124', '#33142a'], light: 0.35, litWindows: 2, gateGrowth: 4, eclipse: 6, fissures: 2, feathers: 5, embers: 30 },
+  { sky: ['#140810', '#1c0a14', '#260c18', '#320f1c'], light: 0.15, litWindows: 0, gateGrowth: 6, eclipse: 0, fissures: 2, feathers: 3, embers: 34 },
 ];
-/** 스테이지별: 빛기둥 세기 / 켜진 창 수 / 마계의 문이 커지는 정도 / 광륜을 가리는 그림자의 x 오프셋(null이면 식 없음) */
-const LIGHT = [1, 1, 0.8, 0.55, 0.35, 0.15];
-const LIT_WINDOWS = [8, 8, 6, 4, 2, 0];
-const GATE_GROWTH = [0, 0, 1, 3, 4, 6];
-const ECLIPSE_OFFSET: (number | null)[] = [null, null, null, 12, 6, 0];
-const FEATHERS = [14, 14, 11, 8, 5, 3];
-const EMBERS = [18, 18, 22, 26, 30, 34];
 
 /** 창불이 좌우로 번갈아 꺼지도록 한 순서 */
 const WINDOW_ORDER = [0, 4, 1, 5, 2, 6, 3, 7];
@@ -117,25 +128,25 @@ function Blocks({ blocks, fill, opacity }: { blocks: Block[]; fill: string; opac
 
 export default function AtmosphereFX() {
   const scene = useScene();
-  const stage = Math.max(0, Math.min(SKY.length - 1, scene.stage));
+  const look = STAGES[Math.max(0, Math.min(STAGES.length - 1, scene.stage))];
   const heaven = scene.faction === 'HEAVEN';
   const abyss = scene.faction === 'ABYSS';
   const human = scene.faction === 'HUMAN';
 
   const castle = useMemo(() => mirrorX(CASTLE_LEFT), []);
   const allWindows = useMemo(() => mirrorX(WINDOWS_LEFT), []);
-  const litCount = human ? allWindows.length : LIT_WINDOWS[stage];
+  const litCount = human ? allWindows.length : look.litWindows;
   const windows = useMemo(
     () => WINDOW_ORDER.slice(0, litCount).map((i) => allWindows[i]),
     [allWindows, litCount],
   );
 
-  const sky = SKY[stage];
-  const light = LIGHT[stage] * (heaven ? 1.8 : 1);
-  const grow = GATE_GROWTH[stage] + (abyss ? 2 : 0);
-  const eclipse = heaven ? null : ECLIPSE_OFFSET[stage];
-  const featherCount = Math.min(20, FEATHERS[stage] + (heaven ? 6 : 0));
-  const emberCount = Math.min(40, EMBERS[stage] + (abyss ? 6 : 0));
+  const sky = look.sky;
+  const light = look.light * (heaven ? 1.8 : 1);
+  const grow = look.gateGrowth + (abyss ? 2 : 0);
+  const eclipse = heaven ? null : look.eclipse;
+  const featherCount = Math.min(20, look.feathers + (heaven ? 6 : 0));
+  const emberCount = Math.min(40, look.embers + (abyss ? 6 : 0));
 
   // 천상에서 떨어지는 깃털 / 마계에서 솟는 불씨 (위치만 무작위, 움직임은 CSS steps)
   const feathers = useMemo(
@@ -213,8 +224,8 @@ export default function AtmosphereFX() {
         <Blocks blocks={windows} fill="#e8c860" opacity={0.85} />
         <rect x="79" y="53" width="2" height="5" fill="#2a2440" />
         {human && <Blocks blocks={TORCHES} fill="#ffb347" />}
-        {stage >= 3 && <Blocks blocks={FISSURES} fill="#e0483c" opacity={0.8} />}
-        {stage >= 4 && <Blocks blocks={DEEP_FISSURES} fill="#e0483c" opacity={0.7} />}
+        {look.fissures >= 1 && <Blocks blocks={FISSURES} fill="#e0483c" opacity={0.8} />}
+        {look.fissures >= 2 && <Blocks blocks={DEEP_FISSURES} fill="#e0483c" opacity={0.7} />}
         {scene.rest && (
           <g className="campfire">
             <rect x="78" y="56" width="4" height="2" fill="#ff7a4a" />
@@ -244,7 +255,7 @@ export default function AtmosphereFX() {
 
         {/* 지면: 두 세계를 가르는 얇은 선 */}
         <rect x="0" y={HORIZON} width={W} height="2" fill="#07060c" />
-        <rect x="0" y={HORIZON + 2} width={W} height="1" fill={stage >= 4 || abyss ? '#8a2018' : '#3a1014'} />
+        <rect x="0" y={HORIZON + 2} width={W} height="1" fill={look.fissures >= 2 || abyss ? '#8a2018' : '#3a1014'} />
       </svg>
 
       {feathers.slice(0, featherCount).map((f) => (

@@ -102,7 +102,6 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
 }
 .primary.wide { width: 100%; padding: 14px; font-size: 16px; }
 .primary.big { padding: 17px 46px; font-size: 17px; letter-spacing: 1px; }
-.primary.glow { animation: pulseGlow 2.6s ease-in-out infinite; }
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 12px var(--accent-glow); }
   50% { box-shadow: 0 0 26px var(--accent-glow), 0 0 46px rgba(224, 76, 66, .18); }
@@ -652,10 +651,6 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
   .option-card { min-width: calc(50% - 6px); max-width: none; flex: 1; }
   .setup-header { justify-content: center; }
   .guide-panel { height: 400px; }
-  .castle-silhouette { height: 30vh; }
-  .castle-far { height: 24vh; }
-  .dead-tree { width: 42vw; height: 38vh; opacity: .85; }
-  .storm-cloud { display: none; }
   .primary.big { width: 100%; }
 }
 
@@ -775,10 +770,6 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
   box-shadow: inset 0 4px 14px rgba(0, 0, 0, .7);
   margin-bottom: 2px;
 }
-.monster-emoji {
-  font-size: 38px; line-height: 1;
-  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .8)) saturate(.85);
-}
 .monster-portrait.elite {
   border-color: var(--elite);
   background: radial-gradient(circle at 50% 42%, rgba(217, 174, 62, .22) 0%, rgba(20, 12, 34, .9) 72%);
@@ -789,8 +780,6 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
   background: radial-gradient(circle at 50% 42%, rgba(169, 53, 201, .3) 0%, rgba(20, 12, 34, .95) 72%);
   animation: bossBreathe 3s ease-in-out infinite;
 }
-.monster-portrait.boss .monster-emoji { font-size: 46px; }
-.monster-card.dead .monster-emoji { filter: grayscale(1) brightness(.5); }
 
 /* 스킬 버튼 아이콘 */
 .skill-icon { font-size: 21px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .7)); }
@@ -1355,7 +1344,6 @@ button:disabled { opacity: .42; }
   border-color: #fff3b0 #8a6a1c #8a6a1c #fff3b0;
 }
 .primary:hover:not(:disabled) { background: #fff3b0; border-color: #ffffff #8a6a1c #8a6a1c #ffffff; box-shadow: 4px 4px 0 var(--ink); }
-.primary.glow { animation: none; }
 .primary.big { letter-spacing: 0; }
 .ghost { background: transparent; box-shadow: none; color: var(--text-dim); }
 .ghost:hover:not(:disabled) { background: var(--bg-card); color: var(--text); box-shadow: none; transform: none; }
@@ -1567,5 +1555,17 @@ input[type="checkbox"] { box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .gate-pulse, .campfire { animation: none; } }
 
 /* 원정 준비: 남은 포인트로 고를 수 없는 항목 */
-.option-card:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; }
+/* 카드 전체를 흐리면 안에 적은 이유까지 안 읽힌다 -> 이유를 뺀 나머지만 흐린다 */
+.option-card:disabled { cursor: not-allowed; box-shadow: none; border-color: #2a2540; }
+.option-card:disabled > :not(.option-blocked) { opacity: .38; }
 .budget-left { display: block; margin-top: 2px; font-size: 11px; font-weight: 400; opacity: .8; }
+
+/* 원정 준비: 고를 수 없는 카드에 적는 이유 */
+.option-blocked { display: block; margin-top: 4px; font-size: 11px; color: var(--accent); }
+
+/* 배경 위에 바로 놓이는 안내 문구(빈 랭킹, 도감 안내)는 판을 깔아 읽히게 한다 */
+.ranking-page p.page-center, .collection-page p.page-center, .collection-sections > p {
+  min-height: 0; margin: 24px auto 0; padding: 14px 18px; max-width: 520px;
+  background: rgba(18, 15, 32, .93); border: 2px solid var(--border); box-shadow: var(--hard-shadow);
+}
+.collection-sections > p { margin: 0; max-width: none; }

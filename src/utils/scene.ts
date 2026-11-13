@@ -34,11 +34,15 @@ export function resetScene() {
   setScene(MENU_SCENE);
 }
 
-function subscribe(listener: () => void) {
+export function subscribe(listener: () => void) {
   listeners.add(listener);
   return () => { listeners.delete(listener); };
 }
 
+export function getScene(): Scene {
+  return current;
+}
+
 export function useScene(): Scene {
-  return useSyncExternalStore(subscribe, () => current);
+  return useSyncExternalStore(subscribe, getScene);
 }

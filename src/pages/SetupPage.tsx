@@ -14,6 +14,11 @@ const DIFFICULTIES: { value: Difficulty; label: string; desc: string }[] = [
   { value: 'HELL', label: '지옥', desc: '적 대폭 강화 · 보상 x2.0' },
 ];
 
+/** 고를 수 없는 카드에 이유를 적는다. 비활성 버튼은 흐려질 뿐 왜 안 눌리는지 알려주지 않는다 */
+function Blocked({ reason }: { reason: string | null }) {
+  return reason ? <span className="option-blocked">{reason}</span> : null;
+}
+
 /**
  * 새 게임 세팅: 스타팅 포인트 예산 안에서 장비/스킬/유물 선택.
  * 예산 검증은 서버가 다시 하지만, UI에서도 실시간으로 보여준다.
@@ -60,11 +65,15 @@ export default function SetupPage() {
   const weaponCost = options?.weapons.find((w) => w.weaponId === weaponId)?.scoreCost ?? 0;
   const armorCost = options?.armors.find((a) => a.armorId === armorId)?.scoreCost ?? 0;
   const helmetCost = options?.helmets.find((h) => h.helmetId === helmetId)?.scoreCost ?? 0;
+  // 막힌 이유를 돌려준다(막히지 않았으면 null). 버튼을 막는 데도, 카드에 이유를 적는 데도 같은 값을 쓴다.
   /** 하나만 고르는 칸: 지금 고른 것과의 차액을 감당할 수 있어야 바꿀 수 있다 */
-  const cannotSwap = (cost: number, currentCost: number, selected: boolean) =>
-    !selected && cost - currentCost > remaining;
+  const swapBlock = (cost: number, currentCost: number, selected: boolean) =>
+    !selected && cost - currentCost > remaining ? `${cost - currentCost - remaining}pt 부족` : null;
   /** 여러 개 고르는 칸: 고른 것은 언제든 뺄 수 있고, 새로 넣으려면 남은 포인트가 있어야 한다 */
-  const cannotAdd = (cost: number, selected: boolean) => !selected && cost > remaining;
+  const addBlock = (cost: number, selected: boolean) =>
+    !selected && cost > remaining ? `${cost - remaining}pt 부족` : null;
+  const skillBlock = (cost: number, selected: boolean) =>
+    !selected && skillIds.length >= 3 ? '스킬은 3개까지' : addBlock(cost, selected);
 
   const toggleSkill = (id: number) => {
     setSkillIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : prev.length >= 3 ? prev : [...prev, id]);
@@ -131,10 +140,11 @@ export default function SetupPage() {
           {options.weapons.map((w) => (
             <button key={w.weaponId}
               className={`option-card ${weaponId === w.weaponId ? 'selected' : ''}`}
-              disabled={cannotSwap(w.scoreCost, weaponCost, weaponId === w.weaponId)}
+              disabled={swapBlock(w.scoreCost, weaponCost, weaponId === w.weaponId) != null}
               onClick={() => setWeaponId(w.weaponId)} title={w.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={weaponSprite(w.type, w.name)} size={32} /> {w.name}</span>
               <span className="option-desc"><Px s="sword" /> +{w.atkBonus} · {w.scoreCost}pt</span>
+              <Blocked reason={swapBlock(w.scoreCost, weaponCost, weaponId === w.weaponId)} />
             </button>
           ))}
         </div>
@@ -146,10 +156,11 @@ export default function SetupPage() {
           {options.armors.map((a) => (
             <button key={a.armorId}
               className={`option-card ${armorId === a.armorId ? 'selected' : ''}`}
-              disabled={cannotSwap(a.scoreCost, armorCost, armorId === a.armorId)}
+              disabled={swapBlock(a.scoreCost, armorCost, armorId === a.armorId) != null}
               onClick={() => setArmorId(a.armorId)} title={a.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={armorSprite(a.type)} size={32} /> {a.name}</span>
               <span className="option-desc"><Px s="crest:steel" /> +{a.defBonus} · {a.scoreCost}pt</span>
+              <Blocked reason={swapBlock(a.scoreCost, armorCost, armorId === a.armorId)} />
             </button>
           ))}
         </div>
@@ -161,10 +172,11 @@ export default function SetupPage() {
           {options.helmets.map((h) => (
             <button key={h.helmetId}
               className={`option-card ${helmetId === h.helmetId ? 'selected' : ''}`}
-              disabled={cannotSwap(h.scoreCost, helmetCost, helmetId === h.helmetId)}
+              disabled={swapBlock(h.scoreCost, helmetCost, helmetId === h.helmetId) != null}
               onClick={() => setHelmetId(h.helmetId)} title={h.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={helmetSprite(h.type)} size={32} /> {h.name}</span>
               <span className="option-desc"><Px s="heart" /> +{h.hpBonus} · {h.scoreCost}pt</span>
+              <Blocked reason={swapBlock(h.scoreCost, helmetCost, helmetId === h.helmetId)} />
             </button>
           ))}
         </div>
@@ -176,11 +188,11 @@ export default function SetupPage() {
           {options.skills.filter((s) => s.cost > 0).map((s) => (
             <button key={s.skillId}
               className={`option-card ${skillIds.includes(s.skillId) ? 'selected' : ''}`}
-              disabled={cannotAdd(s.cost, skillIds.includes(s.skillId))
-                || (skillIds.length >= 3 && !skillIds.includes(s.skillId))}
+              disabled={skillBlock(s.cost, skillIds.includes(s.skillId)) != null}
               onClick={() => toggleSkill(s.skillId)} title={s.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={skillSprite(s)} size={32} /> {s.name}</span>
               <span className="option-desc">계수 x{s.coefficient} · 쿨 {s.cooldown} · {s.cost}pt</span>
+              <Blocked reason={skillBlock(s.cost, skillIds.includes(s.skillId))} />
             </button>
           ))}
         </div>
@@ -192,10 +204,11 @@ export default function SetupPage() {
           {options.relics.map((r) => (
             <button key={r.relicId}
               className={`option-card rarity-${r.rarity.toLowerCase()} ${relicIds.includes(r.relicId) ? 'selected' : ''}`}
-              disabled={cannotAdd(r.scoreCost, relicIds.includes(r.relicId))}
+              disabled={addBlock(r.scoreCost, relicIds.includes(r.relicId)) != null}
               onClick={() => toggleRelic(r.relicId)} title={r.effectDesc}>
               <span className="option-name with-sprite"><PixelSprite sprite={relicSprite(r.name)} size={32} /> {r.name}</span>
               <span className="option-desc">{r.effectDesc} · {r.scoreCost}pt</span>
+              <Blocked reason={addBlock(r.scoreCost, relicIds.includes(r.relicId))} />
             </button>
           ))}
         </div>
