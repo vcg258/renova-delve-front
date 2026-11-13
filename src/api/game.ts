@@ -1,7 +1,7 @@
 import { api } from './client';
 import type {
-  Difficulty, EncounterOutcome, Encyclopedia, GameSummary, GameView, ItemType,
-  NodeInfo, RankingRow, SetupOptions, ShopItem, StatusDTO, TurnResult,
+  Difficulty, EncounterOutcome, Encyclopedia, GameHistory, GameSummary, GameView, ItemType,
+  Achievement, NodeInfo, PathChoice, RankingRow, RestChoice, RunReview, SetupOptions, ShopItem, StatusDTO, TurnResult,
 } from './types';
 
 export async function getSetupOptions(): Promise<SetupOptions> {
@@ -15,6 +15,7 @@ export interface NewGamePayload {
   helmetId: number | null;
   skillIds: number[];
   relicIds: number[];
+  pacts: string[];
 }
 
 export async function newGame(payload: NewGamePayload): Promise<GameView> {
@@ -29,12 +30,37 @@ export async function abandonGame(): Promise<void> {
   await api.post('/game/abandon');
 }
 
-export async function nextNode(): Promise<NodeInfo> {
-  return (await api.post<NodeInfo>('/game/next')).data;
+export async function nextNode(path: PathChoice = 'SAFE'): Promise<NodeInfo> {
+  return (await api.post<NodeInfo>('/game/next', { path })).data;
+}
+
+/** 모닥불 선택 (보스 처치 후) */
+export async function chooseRest(choice: RestChoice): Promise<GameView> {
+  return (await api.post<GameView>('/game/rest', { choice })).data;
+}
+
+export async function getAchievements(): Promise<Achievement[]> {
+  return (await api.get<Achievement[]>('/member/achievements')).data;
+}
+
+/** 상점 재입고 (골드 소모, 횟수마다 비용 상승) */
+export async function rerollShop(): Promise<GameView> {
+  return (await api.post<GameView>('/game/shop/reroll')).data;
+}
+
+/** AI 런 회고. 생성할 수 없으면(204) null */
+export async function getRunReview(): Promise<RunReview | null> {
+  const res = await api.get<RunReview>('/game/review');
+  return res.status === 204 || !res.data ? null : res.data;
 }
 
 export async function useSkill(slotId: number, targetKeys: number[]): Promise<TurnResult> {
   return (await api.post<TurnResult>('/game/battle/skill', { slotId, targetKeys })).data;
+}
+
+/** 방어 태세: 공격하지 않고 이번 턴 받는 피해를 줄인다 */
+export async function guardTurn(): Promise<TurnResult> {
+  return (await api.post<TurnResult>('/game/battle/guard')).data;
 }
 
 export async function useConsumable(inventorySlotId: number): Promise<TurnResult> {
@@ -71,6 +97,15 @@ export async function getRanking(difficulty: Difficulty): Promise<RankingRow[]> 
 
 export async function getCollection(): Promise<Encyclopedia> {
   return (await api.get<Encyclopedia>('/collection')).data;
+}
+
+export async function getHistory(): Promise<GameHistory[]> {
+  return (await api.get<GameHistory[]>('/member/history')).data;
+}
+
+/** 서버에 저장된 AI 안내자 대화 기록 삭제 */
+export async function clearGuideHistory(): Promise<void> {
+  await api.delete('/rag/history');
 }
 
 export async function askGuide(question: string): Promise<string> {
