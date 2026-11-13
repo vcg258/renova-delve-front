@@ -16,6 +16,7 @@ import TypewriterText from '../components/TypewriterText';
 import GuideChat from '../components/GuideChat';
 import PixelSprite from '../components/PixelSprite';
 import Px from '../components/Px';
+import HoverTip from '../components/HoverTip';
 import { consumableSprite, relicSprite, shopSprite, skillSprite } from '../utils/sprites';
 
 const NODE_LABEL: Record<NodeType, { icon: string; label: string }> = {
@@ -52,11 +53,16 @@ const REST_RESULT: Record<RestChoice, string> = {
   HUMAN: '누구에게도 빌지 않고 스스로에게 맹세했다.',
 };
 
-const PATH_ENTRY_LOG: Record<PathChoice, string | null> = {
-  SAFE: null,
-  DANGER: '피 냄새가 짙다. 이곳의 적은 평소보다 강하다. (보상 +50%)',
-  AMBUSH: '그림자 속에서 기습했다! 적이 첫 턴에 움직이지 못한다. (보상 -30%)',
-};
+/** 스킬 슬롯이 가득 찼을 때 고르는 중인 새 스킬 (전리품 또는 상점) */
+interface PendingSkill {
+  source: 'REWARD' | 'SHOP';
+  skillId: number;
+  name: string;
+  description: string;
+  shopItem?: ShopItem;
+}
+
+const DEFAULT_SKILL_SLOTS = 8;
 
 /** 스킬 정보 -> 이펙트 종류 결정 */
 function resolveFxKind(skill: SkillDTO): FxKind {
@@ -89,6 +95,11 @@ export default function GamePage() {
   const [shop, setShop] = useState<ShopItem[]>([]);
   const [rerollCost, setRerollCost] = useState<number | null>(null);
   const [battleLog, setBattleLog] = useState<string[]>([]);
+  // 이번 노드에 적용된 갈림길 안내 (서버가 내려준다. 새로고침해도 복원된다)
+  const [pathNote, setPathNote] = useState<{ path: PathChoice | null; text: string } | null>(null);
+  // 스킬 슬롯이 가득 찼을 때: 버릴 스킬을 고르는 중인 새 스킬
+  const [pendingSkill, setPendingSkill] = useState<PendingSkill | null>(null);
+  const [discardSlotId, setDiscardSlotId] = useState<number | null>(null);
 
   // 배경 장면: 스테이지 깊이 / 가호 세력 / 보스전 / 모닥불에 따라 달라진다
   useEffect(() => {
@@ -155,9 +166,11 @@ export default function GamePage() {
       setNodeType(view.node.nodeType);
       setMonsters(view.node.monsters ?? []);
       setEncounter(view.node.encounter);
+      setPathNote(view.node.pathNote ? { path: view.node.path ?? null, text: view.node.pathNote } : null);
     } else {
       setMonsters([]);
       setEncounter(null);
+      setPathNote(null);
     }
     setReward(view.reward);
     setShop(view.shop ?? []);
@@ -203,6 +216,7 @@ export default function GamePage() {
     const node = await nextNode(path);
     setStory(node.story ?? '');
     setNodeType(node.nodeType);
+    setPathNote(node.pathNote ? { path: node.path ?? null, text: node.pathNote } : null);
     if (node.nodeType === 'ENCOUNTER') {
       setEncounter(node.encounter);
       setMonsters([]);
@@ -211,8 +225,6 @@ export default function GamePage() {
       setMonsters(node.monsters ?? []);
       setEncounter(null);
       setPhase('BATTLE');
-      const entryLog = PATH_ENTRY_LOG[path];
-      if (entryLog) setBattleLog([entryLog]);
     }
     const view = await getCurrentGame();
     setStatus(view.status);
@@ -301,10 +313,11 @@ export default function GamePage() {
     setPhase('EXPLORE');
   });
 
-  const takeReward = (itemType: ItemType, itemId: number | null) => guard(async () => {
-    const newStatus = await selectReward(itemType, itemId);
+  const takeReward = (itemType: ItemType, itemId: number | null, replaceSlotId: number | null = null) => guard(async () => {
+    const newStatus = await selectReward(itemType, itemId, replaceSlotId);
     setStatus(newStatus);
     setReward(null);
+    setPathNote(null);
     // 재고와 재입고 비용을 서버 뷰에서 함께 받는다
     const view = await getCurrentGame();
     setShop(view.shop ?? await getShop());
@@ -319,12 +332,33 @@ export default function GamePage() {
     setRerollCost(view.shopRerollCost);
   });
 
-  const purchase = (item: ShopItem) => guard(async () => {
-    const newStatus = await buyItem(item.itemType, item.itemId);
+  const purchase = (item: ShopItem, replaceSlotId: number | null = null) => guard(async () => {
+    const newStatus = await buyItem(item.itemType, item.itemId, replaceSlotId);
     setStatus(newStatus);
     setShop((prev) => prev.map((s) =>
       s.itemType === item.itemType && s.itemId === item.itemId ? { ...s, sold: true } : s));
   });
+
+  const slotsFull = (status?.skillSlotDTO?.length ?? 0) >= (status?.maxSkillSlots ?? DEFAULT_SKILL_SLOTS);
+
+  /** 스킬을 얻으려 할 때: 빈 슬롯이 있으면 바로, 가득 찼으면 버릴 스킬을 고르는 창을 연다 */
+  const acquireSkill = (pending: PendingSkill) => {
+    if (slotsFull) {
+      setDiscardSlotId(null);
+      setPendingSkill(pending);
+      return;
+    }
+    if (pending.source === 'REWARD') takeReward('SKILL', pending.skillId);
+    else if (pending.shopItem) purchase(pending.shopItem);
+  };
+
+  const confirmSwap = () => {
+    if (!pendingSkill || discardSlotId == null) return;
+    const pending = pendingSkill;
+    setPendingSkill(null);
+    if (pending.source === 'REWARD') takeReward('SKILL', pending.skillId, discardSlotId);
+    else if (pending.shopItem) purchase(pending.shopItem, discardSlotId);
+  };
 
   const exitShop = () => guard(async () => {
     const view = await leaveShop();
@@ -359,6 +393,8 @@ export default function GamePage() {
   }
 
   const usableConsumables = status.consumableInventoryDTO ?? [];
+  const skillSlots = status.skillSlotDTO ?? [];
+  const maxSkillSlots = status.maxSkillSlots ?? DEFAULT_SKILL_SLOTS;
   const isBossNode = nodeType === 'BOSS';
   const banner = phase === 'EXPLORE' ? { icon: 'door', label: '탐험' }
     : phase === 'SHOP' ? { icon: 'pouch', label: '상점' }
@@ -377,6 +413,12 @@ export default function GamePage() {
         <span className={`node-label ${isBossNode && phase === 'BATTLE' ? 'boss-label' : ''}`}>
           <Px s={banner.icon} /> {banner.label}
         </span>
+        {/* 고른 갈림길이 이번 노드에서 무엇을 바꿨는지 (전투 내내 떠 있다) */}
+        {pathNote && (phase === 'BATTLE' || phase === 'ENCOUNTER') && (
+          <span className={`path-note ${pathNote.path ? pathNote.path.toLowerCase() : 'ignored'}`}>
+            <Px s={pathNote.path === 'DANGER' ? 'drop' : pathNote.path === 'AMBUSH' ? 'moon' : 'question'} /> {pathNote.text}
+          </span>
+        )}
       </div>
 
       <div className="story-panel ornate animate-in">
@@ -484,15 +526,28 @@ export default function GamePage() {
           <div className="choice-list">
             {encounter.choices.map((choice, i) => {
               const faction = FACTION_STYLE[encounter.factions?.[i] ?? ''];
-              return (
+              const button = (
                 <button key={i} className={`choice-btn ${faction?.className ?? ''}`} disabled={busy}
-                  title={faction?.hint} onClick={() => pickEncounter(i)}>
+                  onClick={() => pickEncounter(i)}>
                   <span className="choice-num">{faction ? <Px s={faction.icon} size={32} /> : i + 1}</span>
                   <span className="choice-body">
                     {faction && <span className="choice-faction">{faction.label}</span>}
                     {choice}
                   </span>
                 </button>
+              );
+              if (!faction) return button;
+              // 마우스를 올리면 세력 설명이 말풍선으로 펼쳐진다
+              return (
+                <HoverTip key={i} className="choice-tip" side="top" focusable={false} tip={
+                  <>
+                    <strong className="tip-title">{faction.label}</strong>
+                    <span className="tip-text">{faction.hint}</span>
+                    <span className="tip-note">고르면 이 세력의 성향이 1 오른다.</span>
+                  </>
+                }>
+                  {button}
+                </HoverTip>
               );
             })}
           </div>
@@ -504,11 +559,14 @@ export default function GamePage() {
         <div className="reward-panel animate-in">
           <h3>전리품 — 하나만 선택할 수 있다</h3>
           <p className="dim">경험치 +{reward.exp} · 골드 +{reward.gold} 는 이미 획득했다.</p>
+          {slotsFull && reward.skills.length > 0 && (
+            <p className="slot-full-note">스킬 슬롯이 가득 찼다 ({skillSlots.length}/{maxSkillSlots}). 스킬을 고르면 버릴 스킬을 정한다.</p>
+          )}
           <div className="reward-grid">
             {reward.skills.map((s) => (
               <button key={`s-${s.skillId}`} className="reward-card" disabled={busy}
                 title={s.description}
-                onClick={() => takeReward('SKILL', s.skillId)}>
+                onClick={() => acquireSkill({ source: 'REWARD', skillId: s.skillId, name: s.name, description: s.description })}>
                 <span className="card-icon"><PixelSprite sprite={skillSprite(s)} size={48} /></span>
                 <span className="reward-kind">스킬</span>
                 <span className="reward-name">{s.name}</span>
@@ -558,7 +616,9 @@ export default function GamePage() {
                   <span className="reward-desc">{item.description}</span>
                   <button className="buy-btn"
                     disabled={busy || item.sold || status.stateDTO.gold < item.price}
-                    onClick={() => purchase(item)}>
+                    onClick={() => item.itemType === 'SKILL'
+                      ? acquireSkill({ source: 'SHOP', skillId: item.itemId, name: item.name, description: item.description, shopItem: item })
+                      : purchase(item)}>
                     {item.sold ? '판매 완료' : <><Px s="coin" /> {item.price}</>}
                   </button>
                 </div>
@@ -601,6 +661,42 @@ export default function GamePage() {
                 <button className="mini faction-human" disabled={busy} onClick={() => rest('HUMAN')}><Px s="sword" /> 인간</button>
                 <button className="mini faction-abyss" disabled={busy} onClick={() => rest('ABYSS')}><Px s="flame" /> 마계</button>
               </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== 스킬 교체: 슬롯이 가득 찼을 때 버릴 스킬 고르기 ===== */}
+      {pendingSkill && (
+        <div className="swap-overlay" role="dialog" aria-modal="true" aria-label="스킬 교체">
+          <div className="swap-panel">
+            <h3>스킬 슬롯이 가득 찼다 ({skillSlots.length}/{maxSkillSlots})</h3>
+            <div className="swap-new">
+              <span className="reward-kind">새로 배울 스킬{pendingSkill.shopItem ? ` · 골드 ${pendingSkill.shopItem.price}` : ''}</span>
+              <span className="reward-name">{pendingSkill.name}</span>
+              <span className="reward-desc">{pendingSkill.description}</span>
+            </div>
+            <p className="path-heading">버릴 스킬을 고른다 — 버린 스킬은 돌아오지 않는다</p>
+            <div className="swap-grid">
+              {skillSlots.map((slot) => (
+                <button key={slot.slotId}
+                  className={`swap-card ${discardSlotId === slot.slotId ? 'selected' : ''}`}
+                  aria-pressed={discardSlotId === slot.slotId}
+                  onClick={() => setDiscardSlotId(slot.slotId)}>
+                  <span className="skill-icon"><PixelSprite sprite={skillSprite(slot.skill)} size={32} /></span>
+                  <span className="reward-name">{slot.skill.name}</span>
+                  <span className="reward-desc">{slot.skill.description}</span>
+                  <span className="skill-meta">
+                    {slot.skill.target === 'EnemyAll' ? '전체' : '단일'} · 쿨 {slot.skill.cooldown}턴
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="shop-actions">
+              <button className="ghost" onClick={() => setPendingSkill(null)}>그만둔다</button>
+              <button className="primary" disabled={busy || discardSlotId == null} onClick={confirmSwap}>
+                {discardSlotId == null ? '버릴 스킬을 고르세요' : '이 스킬을 버리고 배운다'}
+              </button>
             </div>
           </div>
         </div>
