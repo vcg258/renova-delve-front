@@ -71,16 +71,17 @@ export async function chooseEncounter(choiceIndex: number): Promise<EncounterOut
   return (await api.post<EncounterOutcome>('/game/encounter', { choiceIndex })).data;
 }
 
-export async function selectReward(itemType: ItemType, itemId: number | null): Promise<StatusDTO> {
-  return (await api.post<StatusDTO>('/game/reward', { itemType, itemId })).data;
+/** replaceSlotId: 스킬 슬롯이 가득 찼을 때 버릴 슬롯 */
+export async function selectReward(itemType: ItemType, itemId: number | null, replaceSlotId: number | null = null): Promise<StatusDTO> {
+  return (await api.post<StatusDTO>('/game/reward', { itemType, itemId, replaceSlotId })).data;
 }
 
 export async function getShop(): Promise<ShopItem[]> {
   return (await api.get<ShopItem[]>('/game/shop')).data;
 }
 
-export async function buyItem(itemType: string, itemId: number): Promise<StatusDTO> {
-  return (await api.post<StatusDTO>('/game/shop/buy', { itemType, itemId })).data;
+export async function buyItem(itemType: string, itemId: number, replaceSlotId: number | null = null): Promise<StatusDTO> {
+  return (await api.post<StatusDTO>('/game/shop/buy', { itemType, itemId, replaceSlotId })).data;
 }
 
 export async function leaveShop(): Promise<GameView> {

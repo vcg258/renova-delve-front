@@ -191,7 +191,9 @@ export interface StatusDTO {
   equipmentDTO: EquipmentDTO | null;
   relicInventoryDTO: RelicInventoryDTO[];
   skillSlotDTO: SkillSlotDTO[];
-  relicSynergies?: string[]; // 발동 중인 유물 조합 시너지
+  relicSynergies?: string[]; // 발동 중인 유물 조합 시너지 ("이름 — 설명")
+  skillSynergies?: string[]; // 발동 중인 스킬 조합 시너지 ("이름 — 설명")
+  maxSkillSlots?: number;    // 스킬 슬롯 상한. 가득 차면 새 스킬은 기존 스킬과 교체한다
   alignment?: Alignment;     // 성향 (천상 / 마계 / 인간)
   pacts?: string[];          // 이번 원정에 건 서약 이름
 }
@@ -222,7 +224,17 @@ export interface Alignment {
   abyss: number;
   human: number;
   dominant: Faction | null;
-  blessing: string | null;
+  blessing: string | null;   // "가호 이름 n단계 — 효과"
+  tier?: number;             // 가호 단계 (0 = 없음, 1~3)
+  nextTierAt?: number | null; // 다음 단계에 필요한 점수
+  factions?: FactionInfo[];  // 세력별 설명과 단계표 (말풍선용)
+}
+
+export interface FactionInfo {
+  code: Faction;
+  label: string;
+  tendency: string;
+  tiers: { tier: number; requiredScore: number; description: string }[];
 }
 
 export interface BattleMonster {
@@ -265,6 +277,8 @@ export interface NodeInfo {
   story: string;
   monsters: BattleMonster[] | null;
   encounter: EncounterInfo | null;
+  path?: PathChoice | null;   // 이 전투에 적용된 갈림길. 조우 노드는 null
+  pathNote?: string | null;   // 갈림길이 무엇을 바꿨는지(또는 왜 적용되지 않았는지)
 }
 
 export interface RewardView {
