@@ -23,6 +23,7 @@ import { allSkillsCooling, dropBlockReason } from '../utils/skills';
 const NODE_LABEL: Record<NodeType, { icon: string; label: string }> = {
   BATTLE: { icon: 'sword', label: '전투' }, ELITE: { icon: 'skull', label: '강적' },
   BOSS: { icon: 'crown', label: '보스' }, ENCOUNTER: { icon: 'question', label: '조우' },
+  WRAITH: { icon: 'wraith:past', label: '전생의 망령' },
 };
 
 const ADVANCE_MESSAGES = [

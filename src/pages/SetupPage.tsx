@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSetupOptions, newGame } from '../api/game';
+import { getSetupOptions, getWraith, newGame } from '../api/game';
 import { errorMessage } from '../api/client';
-import type { Difficulty, SetupOptions } from '../api/types';
+import type { Difficulty, SetupOptions, WraithInfo } from '../api/types';
 import PixelSprite from '../components/PixelSprite';
 import Px from '../components/Px';
 import { armorSprite, helmetSprite, relicSprite, skillSprite, weaponSprite } from '../utils/sprites';
@@ -19,6 +19,21 @@ function Blocked({ reason }: { reason: string | null }) {
   return reason ? <span className="option-blocked">{reason}</span> : null;
 }
 
+/** 지난 원정에서 쓰러진 자리에 남은 망령 안내. 나타날 노드는 알려 주지 않는다 */
+export function WraithNotice({ wraith }: { wraith: WraithInfo }) {
+  const how = wraith.killerName ? `${wraith.killerName}에게 쓰러졌다` : '조우에서 내린 선택의 대가로 쓰러졌다';
+  return (
+    <section className="setup-section wraith-notice">
+      <h3><Px s="wraith:past" /> 전생의 망령이 기다린다</h3>
+      <p>지난 원정의 당신이 스테이지 {wraith.stage} 어딘가에 남아 있다. Lv.{wraith.level}, {how}.</p>
+      {wraith.skills.length > 0 && <p className="dim">쓰던 기술: {wraith.skills.join(', ')}</p>}
+      <p className="dim">
+        쓰러뜨리면 그때 가졌던 유물 하나를 되찾는다. {wraith.escapesLeft}번 더 달아나면 흩어진다.
+      </p>
+    </section>
+  );
+}
+
 /**
  * 새 게임 세팅: 스타팅 포인트 예산 안에서 장비/스킬/유물 선택.
  * 예산 검증은 서버가 다시 하지만, UI에서도 실시간으로 보여준다.
@@ -33,6 +48,7 @@ export default function SetupPage() {
   const [skillIds, setSkillIds] = useState<number[]>([]);
   const [relicIds, setRelicIds] = useState<number[]>([]);
   const [pacts, setPacts] = useState<string[]>([]);
+  const [wraith, setWraith] = useState<WraithInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -46,6 +62,8 @@ export default function SetupPage() {
         setHelmetId(opts.helmets.reduce((a, b) => (a.scoreCost <= b.scoreCost ? a : b), opts.helmets[0])?.helmetId ?? null);
       })
       .catch((err) => setError(errorMessage(err)));
+    // 망령 안내는 부가 정보라 실패해도 원정 준비는 그대로 진행한다
+    getWraith().then(setWraith).catch(() => setWraith(null));
   }, []);
 
   const usedPoints = useMemo(() => {
@@ -119,6 +137,8 @@ export default function SetupPage() {
           </span>
         </div>
       </header>
+
+      {wraith && <WraithNotice wraith={wraith} />}
 
       <section className="setup-section">
         <h3>난이도</h3>

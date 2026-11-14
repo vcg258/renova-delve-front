@@ -2,11 +2,17 @@ import { api } from './client';
 import type {
   CatalogTotals,
   Difficulty, EncounterOutcome, Encyclopedia, GameHistory, GameSummary, GameView, ItemType,
-  Achievement, NodeInfo, PathChoice, RankingRow, RestChoice, RunReview, SetupOptions, ShopItem, StatusDTO, TurnResult,
+  Achievement, NodeInfo, WraithInfo, PathChoice, RankingRow, RestChoice, RunReview, SetupOptions, ShopItem, StatusDTO, TurnResult,
 } from './types';
 
 export async function getSetupOptions(): Promise<SetupOptions> {
   return (await api.get<SetupOptions>('/game/options')).data;
+}
+
+/** 기다리는 망령이 없으면 서버가 204를 돌려준다 */
+export async function getWraith(): Promise<WraithInfo | null> {
+  const res = await api.get<WraithInfo | ''>('/game/wraith');
+  return res.status === 204 || !res.data ? null : res.data;
 }
 
 export interface NewGamePayload {
