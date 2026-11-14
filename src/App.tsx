@@ -6,6 +6,7 @@ import SetupPage from './pages/SetupPage';
 import GamePage from './pages/GamePage';
 import ResultPage from './pages/ResultPage';
 import RankingPage from './pages/RankingPage';
+import ChroniclePage from './pages/ChroniclePage';
 import CollectionPage from './pages/CollectionPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminPage from './pages/AdminPage';
@@ -51,6 +52,7 @@ export default function App() {
             <Route path="/game" element={<Protected><GamePage /></Protected>} />
             <Route path="/result" element={<Protected><ResultPage /></Protected>} />
             <Route path="/ranking" element={<Protected><RankingPage /></Protected>} />
+            <Route path="/chronicle" element={<Protected><ChroniclePage /></Protected>} />
             <Route path="/collection" element={<Protected><CollectionPage /></Protected>} />
             <Route path="/profile" element={<Protected><ProfilePage /></Protected>} />
             <Route path="/admin" element={<AdminOnly><AdminPage /></AdminOnly>} />

@@ -360,6 +360,21 @@ export interface RunReview {
   epitaph: string;
   analysis: string;
   tips: string[];
+  chapterTitle: string | null;  // 레노바 연대기에 실린 이번 장
+  chapter: string | null;
+}
+
+/** 레노바 연대기의 한 장 (GET /game/chronicle) */
+export interface ChronicleChapter {
+  chapterNo: number;
+  title: string;
+  body: string;
+  cleared: boolean;
+  stage: number;
+  node: number;
+  faction: 'HEAVEN' | 'ABYSS' | 'HUMAN' | null;
+  difficulty: Difficulty;
+  createdAt: string;
 }
 
 export interface TurnResult {

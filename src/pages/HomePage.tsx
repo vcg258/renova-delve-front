@@ -59,6 +59,11 @@ export default function HomePage() {
           <span className="menu-desc">난이도별 최고 기록</span>
         </button>
 
+        <button className="menu-btn" onClick={() => navigate('/chronicle')}>
+          <span className="menu-title"><Px s="scroll" /> 레노바 연대기</span>
+          <span className="menu-desc">원정마다 한 장씩 쌓이는 나의 이야기</span>
+        </button>
+
         <button className="menu-btn" onClick={() => navigate('/collection')}>
           <span className="menu-title"><Px s="book" /> 도감</span>
           <span className="menu-desc">지금까지 손에 넣은 것들</span>

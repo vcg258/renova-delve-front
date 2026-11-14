@@ -1704,3 +1704,22 @@ a.link-btn { display: inline; }
 .wraith-notice { border-color: #8c9cb8; }
 .wraith-notice h3 { border-left-color: #e0483c; }
 .wraith-notice p { margin: 4px 0; line-height: 1.6; }
+
+/* 레노바 연대기 */
+.chronicle-page { max-width: 760px; margin: 0 auto; }
+.chronicle-intro { margin: 0 0 18px; line-height: 1.6; }
+.chronicle-book { display: flex; flex-direction: column; gap: 16px; }
+.chronicle-chapter {
+  background: rgba(30, 24, 18, .94); border: 2px solid #8a6a3a; box-shadow: var(--hard-shadow);
+  padding: 16px 18px;
+}
+.chronicle-chapter.cleared { border-color: var(--accent); }
+.chronicle-chapter header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.chronicle-chapter h3 { margin: 0; color: #f0e2c4; }
+.chapter-no { color: #c9a86a; font-size: .85em; white-space: nowrap; }
+.chapter-body { line-height: 1.8; color: #e6dccb; margin: 0 0 10px; white-space: pre-line; }
+.chronicle-new { border-color: #8a6a3a; }
+@media (max-width: 600px) {
+  .chronicle-chapter { padding: 12px; }
+  .chronicle-chapter header { flex-direction: column; gap: 2px; }
+}
