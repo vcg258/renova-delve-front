@@ -333,7 +333,7 @@ export interface RunReview {
 }
 
 export interface TurnResult {
-  result: 'WIN' | 'LOSE' | 'CONTINUE';
+  result: 'WIN' | 'LOSE' | 'CONTINUE' | 'FLED'; // FLED: 도망쳐서 전투가 끝남 (보상 없음)
   log: string[];
   monsters: BattleMonster[];
   status: StatusDTO;

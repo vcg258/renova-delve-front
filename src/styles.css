@@ -1658,3 +1658,25 @@ button.link-btn::after { display: none; }
 .button-link { display: block; box-sizing: border-box; text-align: center; text-decoration: none; border-style: solid; border-width: 2px; font-family: var(--display); cursor: pointer; }
 a.link-btn { display: inline; }
 .contact-warning { margin: 0 0 10px; padding: 8px 12px; font-size: 12px; line-height: 1.6; color: var(--gold); background: #2a2210; border: 2px solid var(--gold); }
+
+/* 전투: 숨 고르기 / 도망치기 */
+.skill-btn.breath { border-color: var(--gold); }
+.battle-escape { display: flex; justify-content: center; margin-top: 10px; }
+
+/* 어느 단계에서나 쓰는 원정 메뉴 (메뉴로 / 스킬 정리 / 원정 포기) */
+.run-menu { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 18px auto 0; }
+.ghost.danger, .mini.danger { border-color: var(--accent); color: #ffb0a8; }
+.ghost.danger:hover:not(:disabled), .mini.danger:hover:not(:disabled) { background: #2a0c10; }
+.primary.danger { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* 스킬 정리 창: 카드 자체는 누르는 대상이 아니고, 안의 버리기 버튼만 누른다 */
+.swap-card.static { cursor: default; }
+.swap-card.static:hover { border-color: var(--border); }
+.swap-card.blocked > :not(.swap-blocked) { opacity: .45; }
+.swap-card:disabled { cursor: not-allowed; opacity: .45; }
+.swap-blocked { font-size: 11px; color: var(--accent); }
+
+/* 확인 창: 스킬 정리 창보다 위 */
+.swap-overlay.confirm { z-index: 80; }
+.swap-panel.narrow { max-width: 420px; }
+.confirm-body { margin: 0; text-align: center; line-height: 1.6; color: var(--text-dim); }

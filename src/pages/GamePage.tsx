@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { resetScene, setScene } from '../utils/scene';
 import { useNavigate } from 'react-router-dom';
 import {
-  buyItem, chooseEncounter, chooseRest, getCurrentGame, getShop, guardTurn, leaveShop,
-  nextNode, rerollShop, selectReward, useConsumable, useSkill,
+  abandonGame, buyItem, chooseEncounter, chooseRest, discardSkill, fleeBattle, getCurrentGame, getShop, guardTurn,
+  leaveShop, nextNode, passTurn, rerollShop, selectReward, useConsumable, useSkill,
 } from '../api/game';
 import { errorMessage } from '../api/client';
 import type {
@@ -18,6 +18,7 @@ import PixelSprite from '../components/PixelSprite';
 import Px from '../components/Px';
 import HoverTip from '../components/HoverTip';
 import { consumableSprite, relicSprite, shopSprite, skillSprite } from '../utils/sprites';
+import { allSkillsCooling, dropBlockReason } from '../utils/skills';
 
 const NODE_LABEL: Record<NodeType, { icon: string; label: string }> = {
   BATTLE: { icon: 'sword', label: '전투' }, ELITE: { icon: 'skull', label: '강적' },
@@ -100,6 +101,9 @@ export default function GamePage() {
   // 스킬 슬롯이 가득 찼을 때: 버릴 스킬을 고르는 중인 새 스킬
   const [pendingSkill, setPendingSkill] = useState<PendingSkill | null>(null);
   const [discardSlotId, setDiscardSlotId] = useState<number | null>(null);
+  // 스킬 정리 창 / 되돌릴 수 없는 행동(도망, 원정 포기, 스킬 버리기)의 확인 창
+  const [managingSkills, setManagingSkills] = useState(false);
+  const [confirming, setConfirming] = useState<ConfirmRequest | null>(null);
 
   // 배경 장면: 스테이지 깊이 / 가호 세력 / 보스전 / 모닥불에 따라 달라진다
   useEffect(() => {
@@ -244,6 +248,17 @@ export default function GamePage() {
       setTimeout(() => navigate('/result'), 1900);
       return;
     }
+    if (result.result === 'FLED') {
+      // 달아났다: 보상 없이 갈림길로 돌아간다
+      setTimeout(() => {
+        setStory(result.log[result.log.length - 1] ?? '');
+        setMonsters([]);
+        setPathNote(null);
+        setSelectedTarget(null);
+        setPhase('EXPLORE');
+      }, 900);
+      return;
+    }
     if (result.result === 'WIN') {
       if (result.cleared) {
         setTimeout(() => navigate('/result'), 1900);
@@ -280,6 +295,27 @@ export default function GamePage() {
     const before = monsters;
     const prevHp = status?.characterDTO?.currentHp ?? 0;
     handleTurnResult(await guardTurn(), before, prevHp);
+  });
+
+  const takeBreath = () => guard(async () => {
+    const before = monsters;
+    const prevHp = status?.characterDTO?.currentHp ?? 0;
+    handleTurnResult(await passTurn(), before, prevHp);
+  });
+
+  const runAway = () => guard(async () => {
+    const before = monsters;
+    const prevHp = status?.characterDTO?.currentHp ?? 0;
+    handleTurnResult(await fleeBattle(), before, prevHp);
+  });
+
+  const dropSkill = (slotId: number) => guard(async () => {
+    setStatus(await discardSkill(slotId));
+  });
+
+  const giveUpRun = () => guard(async () => {
+    await abandonGame();
+    navigate('/');
   });
 
   const drinkConsumable = (inventorySlotId: number) => guard(async () => {
@@ -461,7 +497,6 @@ export default function GamePage() {
               </button>
             ))}
           </div>
-          <button className="ghost" onClick={() => navigate('/')}>메뉴로 (진행 저장됨)</button>
         </div>
       )}
 
@@ -506,6 +541,16 @@ export default function GamePage() {
               <span className="skill-name">방어 태세</span>
               <span className="skill-meta">피해 -60%</span>
             </button>
+            {/* 숨 고르기: 쓸 수 있는 스킬이 하나도 없는 턴에만 나타난다 */}
+            {allSkillsCooling(skillSlots) && (
+              <button className="skill-btn breath" disabled={busy}
+                title="쓸 수 있는 스킬이 없을 때만 고를 수 있습니다. 피해는 그대로 받는 대신 모든 스킬 쿨타임이 2턴 줄어듭니다."
+                onClick={takeBreath}>
+                <span className="skill-icon"><Px s="candle" size={32} /></span>
+                <span className="skill-name">숨 고르기</span>
+                <span className="skill-meta">쿨 -2턴</span>
+              </button>
+            )}
             {usableConsumables.map((c) => (
               <button key={`c-${c.slotId}`} className="skill-btn consumable" disabled={busy}
                 title={`${c.consumable.description} (턴 소모)`}
@@ -515,6 +560,22 @@ export default function GamePage() {
                 <span className="skill-meta">아이템</span>
               </button>
             ))}
+          </div>
+
+          <div className="battle-escape">
+            {isBossNode ? (
+              <span className="dim small">이 구역의 지배자에게서는 달아날 수 없다.</span>
+            ) : (
+              <button className="ghost" disabled={busy}
+                onClick={() => setConfirming({
+                  title: '달아날까?',
+                  body: '등을 보이는 순간 적이 한 번 공격한다. 전리품은 얻지 못하고 다음 갈림길로 나아간다.',
+                  confirmLabel: '달아난다',
+                  run: runAway,
+                })}>
+                <Px s="door" /> 도망치기
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -666,6 +727,68 @@ export default function GamePage() {
         </div>
       )}
 
+      {/* ===== 어느 단계에서나 쓰는 원정 메뉴 ===== */}
+      {!advancing && (
+        <div className="run-menu">
+          <button className="ghost" onClick={() => navigate('/')}>메뉴로 (진행 저장됨)</button>
+          <button className="ghost" disabled={busy || phase === 'BATTLE' || phase === 'ENCOUNTER'}
+            title={phase === 'BATTLE' || phase === 'ENCOUNTER' ? '전투나 조우 중에는 스킬을 정리할 수 없다' : undefined}
+            onClick={() => setManagingSkills(true)}>
+            <Px s="scroll" /> 스킬 정리
+          </button>
+          <button className="ghost danger" disabled={busy}
+            onClick={() => setConfirming({
+              title: '원정을 포기할까?',
+              body: '이번 원정은 여기서 끝난다. 지금까지 얻은 점수는 랭킹에 오르지 않고, 되돌릴 수 없다.',
+              confirmLabel: '원정을 포기한다',
+              run: giveUpRun,
+            })}>
+            <Px s="skull" /> 원정 포기
+          </button>
+        </div>
+      )}
+
+      {/* ===== 스킬 정리: 원하는 스킬을 버린다 ===== */}
+      {managingSkills && (
+        <div className="swap-overlay" role="dialog" aria-modal="true" aria-label="스킬 정리">
+          <div className="swap-panel">
+            <h3>스킬 정리 ({skillSlots.length}/{maxSkillSlots})</h3>
+            <p className="path-heading">버린 스킬은 돌아오지 않는다</p>
+            <div className="swap-grid">
+              {skillSlots.map((slot) => {
+                const blocked = dropBlockReason(skillSlots, slot, false);
+                return (
+                  <div key={slot.slotId} className={`swap-card static ${blocked ? 'blocked' : ''}`}>
+                    <span className="skill-icon"><PixelSprite sprite={skillSprite(slot.skill)} size={32} /></span>
+                    <span className="reward-name">{slot.skill.name}</span>
+                    <span className="reward-desc">{slot.skill.description}</span>
+                    <span className="skill-meta">
+                      {slot.skill.target === 'EnemyAll' ? '전체' : '단일'} · 쿨 {slot.skill.cooldown}턴
+                    </span>
+                    {blocked
+                      ? <span className="swap-blocked">{blocked}</span>
+                      : (
+                        <button className="mini danger" disabled={busy}
+                          onClick={() => setConfirming({
+                            title: `「${slot.skill.name}」을(를) 버릴까?`,
+                            body: '버린 스킬은 돌아오지 않는다.',
+                            confirmLabel: '버린다',
+                            run: () => dropSkill(slot.slotId),
+                          })}>
+                          버리기
+                        </button>
+                      )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="shop-actions">
+              <button className="primary" onClick={() => setManagingSkills(false)}>닫기</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ===== 스킬 교체: 슬롯이 가득 찼을 때 버릴 스킬 고르기 ===== */}
       {pendingSkill && (
         <div className="swap-overlay" role="dialog" aria-modal="true" aria-label="스킬 교체">
@@ -682,6 +805,8 @@ export default function GamePage() {
                 <button key={slot.slotId}
                   className={`swap-card ${discardSlotId === slot.slotId ? 'selected' : ''}`}
                   aria-pressed={discardSlotId === slot.slotId}
+                  disabled={dropBlockReason(skillSlots, slot, true) != null}
+                  title={dropBlockReason(skillSlots, slot, true) ?? undefined}
                   onClick={() => setDiscardSlotId(slot.slotId)}>
                   <span className="skill-icon"><PixelSprite sprite={skillSprite(slot.skill)} size={32} /></span>
                   <span className="reward-name">{slot.skill.name}</span>
@@ -702,9 +827,34 @@ export default function GamePage() {
         </div>
       )}
 
+      {/* ===== 되돌릴 수 없는 행동의 확인 창 (스킬 정리 창 위에 뜬다) ===== */}
+      {confirming && (
+        <div className="swap-overlay confirm" role="alertdialog" aria-modal="true" aria-label={confirming.title}>
+          <div className="swap-panel narrow">
+            <h3>{confirming.title}</h3>
+            <p className="confirm-body">{confirming.body}</p>
+            <div className="shop-actions">
+              <button className="ghost" autoFocus onClick={() => setConfirming(null)}>그만둔다</button>
+              <button className="primary danger" disabled={busy}
+                onClick={() => { const run = confirming.run; setConfirming(null); run(); }}>
+                {confirming.confirmLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <GuideChat phase={phase} />
     </div>
   );
+}
+
+/** 확인 창에 띄울 내용과, 확인했을 때 실행할 행동 */
+interface ConfirmRequest {
+  title: string;
+  body: string;
+  confirmLabel: string;
+  run: () => void;
 }
 
 function shopTypeLabel(type: string): string {

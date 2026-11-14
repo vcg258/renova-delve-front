@@ -63,6 +63,21 @@ export async function guardTurn(): Promise<TurnResult> {
   return (await api.post<TurnResult>('/game/battle/guard')).data;
 }
 
+/** 숨 고르기: 모든 스킬이 쿨타임일 때만. 피해는 그대로 받고 쿨타임이 2턴 줄어든다 */
+export async function passTurn(): Promise<TurnResult> {
+  return (await api.post<TurnResult>('/game/battle/pass')).data;
+}
+
+/** 도망치기: 보상 없이 전투를 끝낸다. 적이 한 번 공격하며 보스전에서는 거부된다 */
+export async function fleeBattle(): Promise<TurnResult> {
+  return (await api.post<TurnResult>('/game/battle/flee')).data;
+}
+
+/** 스킬 버리기 (전투·조우 중에는 거부된다) */
+export async function discardSkill(slotId: number): Promise<StatusDTO> {
+  return (await api.post<StatusDTO>('/game/skill/discard', { slotId })).data;
+}
+
 export async function useConsumable(inventorySlotId: number): Promise<TurnResult> {
   return (await api.post<TurnResult>('/game/battle/consumable', { inventorySlotId })).data;
 }
