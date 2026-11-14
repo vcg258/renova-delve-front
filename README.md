@@ -2,7 +2,7 @@
 
 AI 스토리텔링 기반 로그라이크 웹게임 [Renova & Delve](https://github.com/vcg258/RenovaNDelve)의 화면입니다.
 
-**현재 버전: v0.7.0 (베타)** · 프로젝트 소개, 이력, 버전별 변경 내역은 백엔드 저장소의 [README](https://github.com/vcg258/RenovaNDelve#readme)와 [CHANGELOG](https://github.com/vcg258/RenovaNDelve/blob/dev/CHANGELOG.md)에 있습니다. 백엔드와 같은 버전 번호를 씁니다.
+**현재 버전: v0.8.0 (베타)** · 프로젝트 소개, 이력, 버전별 변경 내역은 백엔드 저장소의 [README](https://github.com/vcg258/RenovaNDelve#readme)와 [CHANGELOG](https://github.com/vcg258/RenovaNDelve/blob/dev/CHANGELOG.md)에 있습니다. 백엔드와 같은 버전 번호를 씁니다.
 
 > 이 저장소는 팀 프로젝트 시절 폐기되어 남아 있지 않았고, v0.2.0부터 LLM에게 지시·검토하는 방식으로 처음부터 다시 만들었습니다.
 

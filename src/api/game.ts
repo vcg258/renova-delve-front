@@ -2,11 +2,16 @@ import { api } from './client';
 import type {
   CatalogTotals,
   Difficulty, EncounterOutcome, Encyclopedia, GameHistory, GameSummary, GameView, ItemType,
-  Achievement, ChronicleChapter, NodeInfo, WraithInfo, PathChoice, RankingRow, RestChoice, RunReview, SetupOptions, ShopItem, StatusDTO, TurnResult,
+  Achievement, ChronicleChapter, KingdomInfo, NodeInfo, WraithInfo, PathChoice, RankingRow, RestChoice, RunReview, SetupOptions, ShopItem, StatusDTO, TurnResult,
 } from './types';
 
 export async function getSetupOptions(): Promise<SetupOptions> {
   return (await api.get<SetupOptions>('/game/options')).data;
+}
+
+/** 왕국의 저울: 지금의 정세 */
+export async function getKingdom(): Promise<KingdomInfo> {
+  return (await api.get<KingdomInfo>('/game/kingdom')).data;
 }
 
 /** 레노바 연대기 전체, 1장부터 */

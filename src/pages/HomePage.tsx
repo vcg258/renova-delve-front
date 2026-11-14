@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { abandonGame, getCurrentGame } from '../api/game';
+import { abandonGame, getCurrentGame, getKingdom } from '../api/game';
 import { useAuth } from '../context/AuthContext';
-import type { GameView } from '../api/types';
+import type { GameView, KingdomInfo } from '../api/types';
+import KingdomScale from '../components/KingdomScale';
 import LegalLinks from '../components/LegalLinks';
 import GuideChat from '../components/GuideChat';
 import Px from '../components/Px';
@@ -12,6 +13,7 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [view, setView] = useState<GameView | null>(null);
   const [loading, setLoading] = useState(true);
+  const [kingdom, setKingdom] = useState<KingdomInfo | null>(null);
 
   const hasActiveGame = view && view.phase !== 'NONE' && view.phase !== 'GAMEOVER' && view.phase !== 'CLEAR';
 
@@ -20,6 +22,8 @@ export default function HomePage() {
       .then(setView)
       .catch(() => setView(null))
       .finally(() => setLoading(false));
+    // 부가 정보: 실패하면 저울만 숨긴다
+    getKingdom().then(setKingdom).catch(() => setKingdom(null));
   }, []);
 
   const startNew = async () => {
@@ -38,6 +42,8 @@ export default function HomePage() {
           {member?.role === 'ADMIN' && <span className="role-chip admin">운영자</span>}
         </p>
       </header>
+
+      {kingdom && <KingdomScale kingdom={kingdom} />}
 
       <main className="home-menu">
         {hasActiveGame && (
