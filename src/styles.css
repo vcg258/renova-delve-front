@@ -1723,3 +1723,7 @@ a.link-btn { display: inline; }
   .chronicle-chapter { padding: 12px; }
   .chronicle-chapter header { flex-direction: column; gap: 2px; }
 }
+
+/* 악마의 계약서 */
+.path-note.contract { border-color: #a8322c; color: #f0b0a8; }
+.trait-chip.contract { border-color: #a8322c; color: #f0b0a8; }

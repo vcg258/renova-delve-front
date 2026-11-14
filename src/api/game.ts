@@ -38,6 +38,11 @@ export async function getCurrentGame(): Promise<GameView> {
   return (await api.get<GameView>('/game/current')).data;
 }
 
+/** 걸린 악마의 계약을 파기한다 (천상 성향 3 이상, 골드를 바친다, 탐험 중에만) */
+export async function breakContract(): Promise<GameView> {
+  return (await api.post<GameView>('/game/contract/break')).data;
+}
+
 export async function abandonGame(): Promise<void> {
   await api.post('/game/abandon');
 }

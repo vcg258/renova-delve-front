@@ -114,7 +114,7 @@ export default function StatusBar({ status }: { status: StatusDTO }) {
       </div>
 
       {/* 성향, 서약, 조합 시너지를 한 판에 모은다. 줄마다 따로 여백을 잡으면 칩이 늘 때 서로 겹친다 */}
-      {(alignment || traits.length > 0) && (
+      {(alignment || traits.length > 0 || status.contract) && (
         <div className="trait-panel">
           {/* 성향: 조우에서 어느 세력의 방식을 택해 왔는가. 마우스를 올리면 세력 설명이 펼쳐진다 */}
           {alignment && (
@@ -143,6 +143,25 @@ export default function StatusBar({ status }: { status: StatusDTO }) {
                   {blessingName}
                 </HoverTip>
               )}
+            </div>
+          )}
+
+          {/* 악마의 계약: 조항은 모르고 작은 글씨만 안다 */}
+          {status.contract && (
+            <div className="trait-row">
+              <HoverTip className="trait-chip contract" tip={
+                <>
+                  <strong className="tip-title">악마의 계약 — {status.contract.boon}</strong>
+                  <span className="tip-text">작은 글씨: "{status.contract.hint}"</span>
+                  <span className="tip-note">
+                    {status.contract.breakable
+                      ? `탐험 중에 골드 ${status.contract.breakCost}을 바쳐 파기할 수 있다.`
+                      : `천상 성향 3 이상이면 골드 ${status.contract.breakCost}을 바쳐 파기할 수 있다.`}
+                  </span>
+                </>
+              }>
+                <Px s="scroll" /> 계약: {status.contract.boon}
+              </HoverTip>
             </div>
           )}
 
