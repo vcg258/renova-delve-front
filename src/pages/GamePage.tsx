@@ -17,6 +17,7 @@ import GuideChat from '../components/GuideChat';
 import PixelSprite from '../components/PixelSprite';
 import Px from '../components/Px';
 import HoverTip from '../components/HoverTip';
+import Dialog from '../components/Dialog';
 import { consumableSprite, relicSprite, shopSprite, skillSprite } from '../utils/sprites';
 import { allSkillsCooling, dropBlockReason } from '../utils/skills';
 
@@ -780,7 +781,7 @@ export default function GamePage() {
 
       {/* ===== 스킬 정리: 원하는 스킬을 버린다 ===== */}
       {managingSkills && (
-        <div className="swap-overlay" role="dialog" aria-modal="true" aria-label="스킬 정리">
+        <Dialog label="스킬 정리" onClose={() => setManagingSkills(false)}>
           <div className="swap-panel">
             <h3>스킬 정리 ({skillSlots.length}/{maxSkillSlots})</h3>
             <p className="path-heading">버린 스킬은 돌아오지 않는다</p>
@@ -816,12 +817,12 @@ export default function GamePage() {
               <button className="primary" onClick={() => setManagingSkills(false)}>닫기</button>
             </div>
           </div>
-        </div>
+        </Dialog>
       )}
 
       {/* ===== 스킬 교체: 슬롯이 가득 찼을 때 버릴 스킬 고르기 ===== */}
       {pendingSkill && (
-        <div className="swap-overlay" role="dialog" aria-modal="true" aria-label="스킬 교체">
+        <Dialog label="스킬 교체" onClose={() => setPendingSkill(null)}>
           <div className="swap-panel">
             <h3>스킬 슬롯이 가득 찼다 ({skillSlots.length}/{maxSkillSlots})</h3>
             <div className="swap-new">
@@ -854,12 +855,12 @@ export default function GamePage() {
               </button>
             </div>
           </div>
-        </div>
+        </Dialog>
       )}
 
       {/* ===== 되돌릴 수 없는 행동의 확인 창 (스킬 정리 창 위에 뜬다) ===== */}
       {confirming && (
-        <div className="swap-overlay confirm" role="alertdialog" aria-modal="true" aria-label={confirming.title}>
+        <Dialog label={confirming.title} alert className="confirm" onClose={() => setConfirming(null)}>
           <div className="swap-panel narrow">
             <h3>{confirming.title}</h3>
             <p className="confirm-body">{confirming.body}</p>
@@ -871,7 +872,7 @@ export default function GamePage() {
               </button>
             </div>
           </div>
-        </div>
+        </Dialog>
       )}
 
       <GuideChat phase={phase} />

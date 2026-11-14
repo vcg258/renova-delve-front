@@ -218,6 +218,8 @@ export interface StatusDTO {
   alignment?: Alignment;     // 성향 (천상 / 마계 / 인간)
   pacts?: string[];          // 이번 원정에 건 서약 이름
   contract?: ContractInfo | null; // 걸린 악마의 계약
+  kingdom?: string | null;         // 이 원정에 고정된 왕국 정세 (균형이면 null)
+  kingdomEffects?: string[];
 }
 
 /** 서약: 원정 전에 스스로 거는 제약 (점수 보너스) */

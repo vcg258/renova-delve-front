@@ -1747,3 +1747,4 @@ a.link-btn { display: inline; }
 .kingdom-bar.human .kingdom-bar-fill { background: #9aa6b8; }
 .kingdom-bar-value { text-align: right; font-size: .9em; }
 .kingdom-desc { margin: 0 0 6px; line-height: 1.6; }
+.trait-chip.kingdom { border-color: #c9a86a; color: #f0e2c4; }
