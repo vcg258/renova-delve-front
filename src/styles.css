@@ -1680,3 +1680,6 @@ a.link-btn { display: inline; }
 .swap-overlay.confirm { z-index: 80; }
 .swap-panel.narrow { max-width: 420px; }
 .confirm-body { margin: 0; text-align: center; line-height: 1.6; color: var(--text-dim); }
+
+/* 관리자 화면: 본인 계정 표시 */
+.badge.self { margin-left: 6px; border-color: var(--gold); color: var(--gold); }
