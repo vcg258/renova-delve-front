@@ -70,9 +70,16 @@ export default function ResultPage() {
             <span className="dim small">AI가 이번 판의 기록을 바탕으로 작성했습니다. 실제 밸런스와 다를 수 있습니다.</span>
           </div>
         )}
+        {review?.chapter && (
+          <div className="review-box chronicle-new">
+            <span className="review-title"><Px s="scroll" /> 연대기에 새 장이 쓰였다 — 「{review.chapterTitle}」</span>
+            <p className="chapter-body">{review.chapter}</p>
+          </div>
+        )}
 
         <div className="result-actions">
           <button className="primary" onClick={() => navigate('/setup')}>다시 도전한다</button>
+          <button className="ghost" onClick={() => navigate('/chronicle')}>연대기 펼치기</button>
           <button className="ghost" onClick={() => navigate('/ranking')}>랭킹 보기</button>
           <button className="ghost" onClick={() => navigate('/')}>메뉴로</button>
         </div>

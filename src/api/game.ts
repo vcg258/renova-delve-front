@@ -2,11 +2,16 @@ import { api } from './client';
 import type {
   CatalogTotals,
   Difficulty, EncounterOutcome, Encyclopedia, GameHistory, GameSummary, GameView, ItemType,
-  Achievement, NodeInfo, WraithInfo, PathChoice, RankingRow, RestChoice, RunReview, SetupOptions, ShopItem, StatusDTO, TurnResult,
+  Achievement, ChronicleChapter, NodeInfo, WraithInfo, PathChoice, RankingRow, RestChoice, RunReview, SetupOptions, ShopItem, StatusDTO, TurnResult,
 } from './types';
 
 export async function getSetupOptions(): Promise<SetupOptions> {
   return (await api.get<SetupOptions>('/game/options')).data;
+}
+
+/** 레노바 연대기 전체, 1장부터 */
+export async function getChronicle(): Promise<ChronicleChapter[]> {
+  return (await api.get<ChronicleChapter[]>('/game/chronicle')).data;
 }
 
 /** 기다리는 망령이 없으면 서버가 204를 돌려준다 */
