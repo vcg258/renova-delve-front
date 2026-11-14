@@ -85,3 +85,19 @@ describe('StatusBar', () => {
     expect(html).not.toContain('trait-panel');
   });
 });
+
+describe('StatusBar 악마의 계약', () => {
+  it('계약이 걸려 있으면 혜택 이름 칩과 작은 글씨 말풍선을 보여 준다 (조항 이름은 서버가 보내지 않는다)', () => {
+    const html = renderToStaticMarkup(<StatusBar status={status({
+      contract: { boon: '황금', hint: '세 걸음 뒤, 빚을 받으러 온다.', breakable: false, breakCost: 160 },
+    })} />);
+    expect(html).toContain('계약: 황금');
+    expect(html).toContain('세 걸음 뒤, 빚을 받으러 온다.');
+    expect(html).toContain('천상 성향 3 이상이면 골드 160');
+  });
+
+  it('계약이 없으면 칩이 없다', () => {
+    const html = renderToStaticMarkup(<StatusBar status={status({ contract: null })} />);
+    expect(html).not.toContain('계약:');
+  });
+});

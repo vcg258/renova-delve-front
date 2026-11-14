@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { resetScene, setScene } from '../utils/scene';
 import { useNavigate } from 'react-router-dom';
 import {
-  abandonGame, buyItem, chooseEncounter, chooseRest, discardSkill, fleeBattle, getCurrentGame, getShop, guardTurn,
+  abandonGame, breakContract, buyItem, chooseEncounter, chooseRest, discardSkill, fleeBattle, getCurrentGame, getShop, guardTurn,
   leaveShop, nextNode, passTurn, rerollShop, selectReward, useConsumable, useSkill,
 } from '../api/game';
 import { errorMessage } from '../api/client';
@@ -24,6 +24,7 @@ const NODE_LABEL: Record<NodeType, { icon: string; label: string }> = {
   BATTLE: { icon: 'sword', label: '전투' }, ELITE: { icon: 'skull', label: '강적' },
   BOSS: { icon: 'crown', label: '보스' }, ENCOUNTER: { icon: 'question', label: '조우' },
   WRAITH: { icon: 'wraith:past', label: '전생의 망령' },
+  CONTRACT: { icon: 'scroll', label: '악마의 계약서' },
 };
 
 const ADVANCE_MESSAGES = [
@@ -99,6 +100,7 @@ export default function GamePage() {
   const [battleLog, setBattleLog] = useState<string[]>([]);
   // 이번 노드에 적용된 갈림길 안내 (서버가 내려준다. 새로고침해도 복원된다)
   const [pathNote, setPathNote] = useState<{ path: PathChoice | null; text: string } | null>(null);
+  const [contractNote, setContractNote] = useState<string | null>(null);
   // 스킬 슬롯이 가득 찼을 때: 버릴 스킬을 고르는 중인 새 스킬
   const [pendingSkill, setPendingSkill] = useState<PendingSkill | null>(null);
   const [discardSlotId, setDiscardSlotId] = useState<number | null>(null);
@@ -172,10 +174,12 @@ export default function GamePage() {
       setMonsters(view.node.monsters ?? []);
       setEncounter(view.node.encounter);
       setPathNote(view.node.pathNote ? { path: view.node.path ?? null, text: view.node.pathNote } : null);
+      setContractNote(view.node.contractNote ?? null);
     } else {
       setMonsters([]);
       setEncounter(null);
       setPathNote(null);
+      setContractNote(null);
     }
     setReward(view.reward);
     setShop(view.shop ?? []);
@@ -222,7 +226,8 @@ export default function GamePage() {
     setStory(node.story ?? '');
     setNodeType(node.nodeType);
     setPathNote(node.pathNote ? { path: node.path ?? null, text: node.pathNote } : null);
-    if (node.nodeType === 'ENCOUNTER') {
+    setContractNote(node.contractNote ?? null);
+    if (node.nodeType === 'ENCOUNTER' || node.nodeType === 'CONTRACT') {
       setEncounter(node.encounter);
       setMonsters([]);
       setPhase('ENCOUNTER');
@@ -266,9 +271,10 @@ export default function GamePage() {
         return;
       }
       // 이펙트 여운 후 보상 화면 전환
+      // 계약 조항 '전리품은 그의 몫'이면 서버가 보상 없이 바로 상점으로 보낸다
       setTimeout(() => {
         setReward(result.reward);
-        setPhase('REWARD');
+        setPhase(result.phase === 'SHOP' ? 'SHOP' : 'REWARD');
       }, 700);
     }
   };
@@ -312,6 +318,12 @@ export default function GamePage() {
 
   const dropSkill = (slotId: number) => guard(async () => {
     setStatus(await discardSkill(slotId));
+  });
+
+  const tearContract = () => guard(async () => {
+    await breakContract();
+    setContractNote(null);
+    await resync();
   });
 
   const giveUpRun = () => guard(async () => {
@@ -451,6 +463,10 @@ export default function GamePage() {
           <Px s={banner.icon} /> {banner.label}
         </span>
         {/* 고른 갈림길이 이번 노드에서 무엇을 바꿨는지 (전투 내내 떠 있다) */}
+        {/* 이번 노드에서 계약 조항이 발동했다 */}
+        {contractNote && (phase === 'BATTLE' || phase === 'ENCOUNTER' || phase === 'EXPLORE') && (
+          <span className="path-note contract"><Px s="scroll" /> {contractNote}</span>
+        )}
         {pathNote && (phase === 'BATTLE' || phase === 'ENCOUNTER') && (
           <span className={`path-note ${pathNote.path ? pathNote.path.toLowerCase() : 'ignored'}`}>
             <Px s={pathNote.path === 'DANGER' ? 'drop' : pathNote.path === 'AMBUSH' ? 'moon' : 'question'} /> {pathNote.text}
@@ -737,6 +753,19 @@ export default function GamePage() {
             onClick={() => setManagingSkills(true)}>
             <Px s="scroll" /> 스킬 정리
           </button>
+          {status?.contract && phase === 'EXPLORE' && (
+            <button className="ghost" disabled={busy || !status.contract.breakable}
+              title={status.contract.breakable ? undefined
+                : `천상 성향 3 이상, 골드 ${status.contract.breakCost}이 있어야 파기할 수 있다`}
+              onClick={() => setConfirming({
+                title: '계약을 불사를까?',
+                body: `천상의 빛에 골드 ${status.contract!.breakCost}을 바치고 계약서를 태운다. 받은 혜택은 그대로 남고, 숨겨진 조항은 사라진다.`,
+                confirmLabel: '계약을 불사른다',
+                run: tearContract,
+              })}>
+              <Px s="candle" /> 계약 파기
+            </button>
+          )}
           <button className="ghost danger" disabled={busy}
             onClick={() => setConfirming({
               title: '원정을 포기할까?',

@@ -2,7 +2,15 @@
 
 export type Difficulty = 'EASY' | 'NORMAL' | 'HARD' | 'HELL';
 export type Phase = 'NONE' | 'EXPLORE' | 'BATTLE' | 'ENCOUNTER' | 'REWARD' | 'SHOP' | 'REST' | 'GAMEOVER' | 'CLEAR';
-export type NodeType = 'BATTLE' | 'ELITE' | 'BOSS' | 'ENCOUNTER' | 'WRAITH';
+export type NodeType = 'BATTLE' | 'ELITE' | 'BOSS' | 'ENCOUNTER' | 'WRAITH' | 'CONTRACT';
+
+/** 원정에 걸린 악마의 계약. 조항은 서버만 알고, 화면에는 서명 전에 본 작은 글씨만 온다 */
+export interface ContractInfo {
+  boon: string;        // 받은 혜택 이름
+  hint: string;        // 조항의 작은 글씨
+  breakable: boolean;  // 지금 파기할 수 있는가 (천상 성향 3 이상 + 골드)
+  breakCost: number;
+}
 
 /** 다음 원정에서 기다리는 전생의 망령 (GET /game/wraith) */
 export interface WraithInfo {
@@ -209,6 +217,7 @@ export interface StatusDTO {
   maxSkillSlots?: number;    // 스킬 슬롯 상한. 가득 차면 새 스킬은 기존 스킬과 교체한다
   alignment?: Alignment;     // 성향 (천상 / 마계 / 인간)
   pacts?: string[];          // 이번 원정에 건 서약 이름
+  contract?: ContractInfo | null; // 걸린 악마의 계약
 }
 
 /** 서약: 원정 전에 스스로 거는 제약 (점수 보너스) */
@@ -292,6 +301,7 @@ export interface NodeInfo {
   encounter: EncounterInfo | null;
   path?: PathChoice | null;   // 이 전투에 적용된 갈림길. 조우 노드는 null
   pathNote?: string | null;   // 갈림길이 무엇을 바꿨는지(또는 왜 적용되지 않았는지)
+  contractNote?: string | null; // 이번 노드에서 계약 조항이 발동했다면 그 내용
 }
 
 export interface RewardView {
