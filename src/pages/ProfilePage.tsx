@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { changeNickname, changePassword, exportMyData, fetchMe, withdraw } from '../api/auth';
+import { changeContact, changeNickname, changePassword, exportMyData, fetchMe, withdraw } from '../api/auth';
+import { isValidEmail, isValidName } from '../utils/account';
 import { clearGuideHistory, getAchievements, getHistory } from '../api/game';
 import type { Achievement, GameHistory } from '../api/types';
 import Px from '../components/Px';
@@ -27,6 +28,9 @@ export default function ProfilePage() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
+  const [contactName, setContactName] = useState(member?.name ?? '');
+  const [contactEmail, setContactEmail] = useState(member?.email ?? '');
+  const [contactPassword, setContactPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -60,6 +64,19 @@ export default function ProfilePage() {
     await changeNickname(nickname.trim());
     setMember(await fetchMe());
     setMessage('닉네임이 변경되었습니다.');
+  });
+
+  const needsPasswordForContact = member?.hasPassword !== false;
+  const contactChanged = contactName.trim() !== (member?.name ?? '')
+    || contactEmail.trim().toLowerCase() !== (member?.email ?? '');
+  const contactValid = isValidName(contactName) && isValidEmail(contactEmail)
+    && (!needsPasswordForContact || contactPassword.length > 0);
+
+  const submitContact = () => run(async () => {
+    await changeContact(contactName.trim(), contactEmail.trim(), needsPasswordForContact ? contactPassword : null);
+    setMember(await fetchMe());
+    setContactPassword('');
+    setMessage('이름과 이메일을 저장했습니다.');
   });
 
   const submitPassword = () => run(async () => {
@@ -141,6 +158,32 @@ export default function ProfilePage() {
       </section>
 
       <section className="setup-section">
+        <h3>이름 · 이메일</h3>
+        {!member.email ? (
+          <p className="contact-warning">
+            이메일이 등록되어 있지 않습니다. 등록하지 않으면 아이디나 비밀번호를 잊었을 때 찾을 방법이 없습니다.
+          </p>
+        ) : (
+          <p className="dim small">아이디 찾기와 비밀번호 재설정 메일이 이 이메일로 갑니다.</p>
+        )}
+        <div className="stacked-form">
+          <input placeholder="이름 (한글·영문 2~30자)" value={contactName} maxLength={30} autoComplete="name"
+            onChange={(e) => setContactName(e.target.value)} />
+          {contactName.length > 0 && !isValidName(contactName) && <span className="field-hint">한글·영문 2~30자</span>}
+          <input type="email" placeholder="이메일" value={contactEmail} maxLength={254} autoComplete="email"
+            onChange={(e) => setContactEmail(e.target.value)} />
+          {contactEmail.length > 0 && !isValidEmail(contactEmail) && <span className="field-hint">이메일 형식을 확인해주세요</span>}
+          {needsPasswordForContact && (
+            <input type="password" placeholder="현재 비밀번호 (본인 확인)" value={contactPassword}
+              autoComplete="current-password" onChange={(e) => setContactPassword(e.target.value)} />
+          )}
+          <button className="primary" disabled={busy || !contactValid || !contactChanged} onClick={submitContact}>
+            {member.email ? '변경' : '등록'}
+          </button>
+        </div>
+      </section>
+
+      <section className="setup-section">
         <h3>비밀번호 변경</h3>
         <div className="stacked-form">
           <input type="password" placeholder="현재 비밀번호" value={currentPassword}
@@ -212,7 +255,7 @@ export default function ProfilePage() {
       <section className="setup-section danger-zone">
         <h3>계정 탈퇴</h3>
         <p className="dim small">
-          탈퇴하면 아이디·비밀번호·닉네임과 AI 대화 기록이 즉시 삭제되며 되돌릴 수 없습니다.
+          탈퇴하면 아이디·비밀번호·닉네임·이름·이메일과 AI 대화 기록이 즉시 삭제되며 되돌릴 수 없습니다.
           랭킹 기록은 누구의 것인지 알 수 없는 익명 상태로 남습니다.
         </p>
         <button className="mini danger" disabled={busy} onClick={submitWithdraw}>탈퇴하기</button>

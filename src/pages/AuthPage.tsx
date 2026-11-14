@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { checkLoginId, checkNickname, fetchMe, login, signup } from '../api/auth';
 import { errorMessage } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { isValidEmail, isValidName } from '../utils/account';
 
 type Availability = 'idle' | 'checking' | 'ok' | 'taken';
 
@@ -12,6 +13,8 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [nickname, setNickname] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [idStatus, setIdStatus] = useState<Availability>('idle');
   const [nickStatus, setNickStatus] = useState<Availability>('idle');
   const [message, setMessage] = useState<string | null>(
@@ -31,8 +34,10 @@ export default function AuthPage() {
   const pwValid = password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
   const pwMatch = password.length > 0 && password === passwordConfirm;
   const nickValid = /^[가-힣a-zA-Z0-9]{2,12}$/.test(nickname);
+  const nameValid = isValidName(name);
+  const emailValid = isValidEmail(email);
   const consented = agreeTerms && agreePrivacy && ageConfirmed;
-  const canSignup = idValid && pwValid && pwMatch && nickValid && consented
+  const canSignup = idValid && pwValid && pwMatch && nickValid && nameValid && emailValid && consented
     && idStatus !== 'taken' && nickStatus !== 'taken';
 
   // 아이디 중복 확인 (디바운스)
@@ -78,7 +83,10 @@ export default function AuthPage() {
     setBusy(true);
     try {
       if (mode === 'signup') {
-        await signup(loginId.trim(), password, nickname.trim(), { agreeTerms, agreePrivacy, ageConfirmed });
+        await signup(
+          { loginId: loginId.trim(), password, nickname: nickname.trim(), name: name.trim(), email: email.trim() },
+          { agreeTerms, agreePrivacy, ageConfirmed },
+        );
         setMessage('등록 완료! 이제 로그인해주세요.');
         setMode('login');
         setPassword('');
@@ -129,6 +137,21 @@ export default function AuthPage() {
           </div>
         )}
 
+        {mode === 'signup' && (
+          <>
+            <div className="field">
+              <input placeholder="이름 (아이디를 찾을 때 확인합니다)" value={name} maxLength={30} autoComplete="name"
+                onChange={(e) => setName(e.target.value)} />
+              {name.length > 0 && !nameValid && <span className="field-hint">한글·영문 2~30자</span>}
+            </div>
+            <div className="field">
+              <input type="email" placeholder="이메일 (아이디·비밀번호를 찾을 때 씁니다)" value={email} maxLength={254}
+                autoComplete="email" onChange={(e) => setEmail(e.target.value)} />
+              {email.length > 0 && !emailValid && <span className="field-hint">이메일 형식을 확인해주세요</span>}
+            </div>
+          </>
+        )}
+
         <div className="field">
           <input type="password" placeholder="비밀번호" value={password}
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
@@ -169,7 +192,8 @@ export default function AuthPage() {
               <span>
                 [필수] <Link to="/privacy" target="_blank">개인정보 수집·이용</Link>에 동의합니다
                 <span className="consent-detail">
-                  수집 항목: 아이디, 비밀번호, 닉네임 · 목적: 회원 식별과 랭킹 표시 · 보유: 탈퇴 시까지.
+                  수집 항목: 아이디, 비밀번호, 닉네임, 이름, 이메일 · 목적: 회원 식별, 랭킹 표시,
+                  아이디 찾기와 비밀번호 재설정 안내 메일 발송 · 보유: 탈퇴 시까지.
                   AI 서사 생성을 위해 게임 진행 정보와 안내자에게 입력한 내용이 OpenAI(미국)로 전송됩니다.
                   동의하지 않을 수 있으나 그 경우 가입할 수 없습니다.
                 </span>
@@ -188,6 +212,14 @@ export default function AuthPage() {
           disabled={busy || (mode === 'signup' && !canSignup)}>
           {busy ? '...' : mode === 'login' ? '왕궁으로 들어가기' : '모험가 등록'}
         </button>
+
+        {mode === 'login' && (
+          <p className="auth-switch">
+            <Link className="link-btn" to="/recover">아이디 찾기</Link>
+            <span>·</span>
+            <Link className="link-btn" to="/recover?kind=password">비밀번호 찾기</Link>
+          </p>
+        )}
 
         <p className="auth-switch">
           {mode === 'login' ? '계정이 없나요?' : '이미 계정이 있나요?'}
