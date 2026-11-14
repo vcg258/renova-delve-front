@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSetupOptions, getWraith, newGame } from '../api/game';
+import { getKingdom, getSetupOptions, getWraith, newGame } from '../api/game';
 import { errorMessage } from '../api/client';
-import type { Difficulty, SetupOptions, WraithInfo } from '../api/types';
+import type { Difficulty, KingdomInfo, SetupOptions, WraithInfo } from '../api/types';
+import KingdomScale from '../components/KingdomScale';
 import PixelSprite from '../components/PixelSprite';
 import Px from '../components/Px';
 import { armorSprite, helmetSprite, relicSprite, skillSprite, weaponSprite } from '../utils/sprites';
@@ -49,6 +50,7 @@ export default function SetupPage() {
   const [relicIds, setRelicIds] = useState<number[]>([]);
   const [pacts, setPacts] = useState<string[]>([]);
   const [wraith, setWraith] = useState<WraithInfo | null>(null);
+  const [kingdom, setKingdom] = useState<KingdomInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -64,6 +66,7 @@ export default function SetupPage() {
       .catch((err) => setError(errorMessage(err)));
     // 망령 안내는 부가 정보라 실패해도 원정 준비는 그대로 진행한다
     getWraith().then(setWraith).catch(() => setWraith(null));
+    getKingdom().then(setKingdom).catch(() => setKingdom(null));
   }, []);
 
   const usedPoints = useMemo(() => {
@@ -139,6 +142,7 @@ export default function SetupPage() {
       </header>
 
       {wraith && <WraithNotice wraith={wraith} />}
+      {kingdom && kingdom.state !== 'BALANCE' && <KingdomScale kingdom={kingdom} compact />}
 
       <section className="setup-section">
         <h3>난이도</h3>

@@ -374,6 +374,18 @@ export interface RunReview {
   chapter: string | null;
 }
 
+/** 왕국의 저울 (GET /game/kingdom): 지난 7일 동안 모든 원정자의 선택으로 정해진 정세 */
+export interface KingdomInfo {
+  state: 'HEAVEN_RISING' | 'ABYSS_WIDENING' | 'HUMAN_RESOLVE' | 'BALANCE';
+  title: string;
+  description: string;
+  effects: string[];
+  heaven: number;  // %
+  abyss: number;
+  human: number;
+  players: number;
+}
+
 /** 레노바 연대기의 한 장 (GET /game/chronicle) */
 export interface ChronicleChapter {
   chapterNo: number;
