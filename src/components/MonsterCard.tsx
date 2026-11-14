@@ -1,11 +1,21 @@
 import type { BattleMonster } from '../api/types';
 import PixelSprite from './PixelSprite';
 import Px from './Px';
+import HoverTip from './HoverTip';
 import { monsterSprite } from '../utils/sprites';
 
 const TYPE_LABEL = ['일반', '엘리트', '보스'];
 const BUFF_LABEL: Record<string, string> = {
   BLEED: '출혈', BURN: '화상', POISON: '독', STUN: '기절',
+};
+
+/** 상태이상 키워드 설명 (서버 BattleServiceImpl의 규칙과 같은 내용). 칩에 마우스를 올리면 펼쳐진다 */
+export const BUFF_HELP: Record<string, string> = {
+  BLEED: '공격을 받을 때마다 스택만큼 추가 피해를 입는다.',
+  BURN: '턴이 끝날 때 최대 HP의 1% × 스택만큼 피해(방어 무시). 30% 확률로 1스택씩 꺼진다.',
+  POISON: '턴이 끝날 때 스택만큼 피해(방어 무시). 사라지지 않는다.',
+  STUN: '이번 턴 행동하지 못한다. 한 턴 쉴 때마다 1스택씩 줄어든다.',
+  ENRAGED: '보스의 HP가 절반 아래로 떨어져 공격력이 30% 올랐다.',
 };
 
 /** 이번 턴 행동 예고 표시 (강공 수치는 서버 계산식과 같은 1.6배) */
@@ -60,11 +70,16 @@ export default function MonsterCard({ monster, selected, onSelect, fxKind, fxId,
       </div>
       {!dead && <div className={`monster-intent ${intent.className}`}><Px s={intent.icon} /> {intent.text}</div>}
       <div className="monster-buffs">
-        {monster.enraged && !dead && <span className="buff-chip enraged">격노</span>}
+        {monster.enraged && !dead && (
+          <HoverTip tip={BUFF_HELP.ENRAGED} focusable={false}>
+            <span className="buff-chip enraged">격노</span>
+          </HoverTip>
+        )}
         {Object.entries(monster.buffs ?? {}).map(([buff, stack]) => (
-          <span key={buff} className={`buff-chip ${buff.toLowerCase()}`}>
-            {BUFF_LABEL[buff] ?? buff} {stack}
-          </span>
+          <HoverTip key={buff} tip={<><strong>{BUFF_LABEL[buff] ?? buff} {stack}</strong><br />{BUFF_HELP[buff] ?? ''}</>}
+            focusable={false}>
+            <span className={`buff-chip ${buff.toLowerCase()}`}>{BUFF_LABEL[buff] ?? buff} {stack}</span>
+          </HoverTip>
         ))}
       </div>
 

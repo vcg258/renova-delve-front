@@ -1683,3 +1683,19 @@ a.link-btn { display: inline; }
 
 /* 관리자 화면: 본인 계정 표시 */
 .badge.self { margin-left: 6px; border-color: var(--gold); color: var(--gold); }
+
+/* 결과 화면: 원정 통계 */
+.run-stats { margin: 14px 0; padding: 12px 14px; border: 2px solid var(--border); background: rgba(10, 8, 18, .6); }
+.run-stats h3 { margin: 0 0 8px; font-size: 14px; }
+.run-stats dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 14px; margin: 0; }
+.run-stats dl > div { display: flex; flex-direction: column; gap: 2px; }
+.run-stats dt { font-size: 11px; }
+.run-stats dd { margin: 0; font-size: 15px; }
+
+/* 도감: 미발견 칸과 수집률 */
+.codex-rate { color: var(--gold); font-weight: 400; }
+.codex-unknown { opacity: .55; border-style: dashed; }
+.codex-silhouette { filter: brightness(0) opacity(.5); display: inline-flex; }
+
+/* 화면 아래 링크: 문의 · 피드백 */
+.legal-links a[href^="mailto:"] { color: var(--gold); }

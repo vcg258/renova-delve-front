@@ -309,7 +309,27 @@ export interface GameSummary {
   node: number;
   level: number;
   narrative: string;
+  stats?: RunStats; // 원정 통계 (세션이 만료되면 모두 0)
 }
+
+/** 원정 통계 (결과 화면) */
+export interface RunStats {
+  turns: number;
+  battlesWon: number;
+  battlesFled: number;
+  monstersKilled: number;
+  elitesKilled: number;
+  bossesKilled: number;
+  damageDealt: number;
+  damageTaken: number;
+  biggestBattle: number;
+  encounters: number;
+  consumablesUsed: number;
+  goldFromBattles: number;
+}
+
+/** 도감 분류별 전체 항목 수 */
+export type CatalogTotals = Record<'weapon' | 'armor' | 'helmet' | 'skill' | 'relic' | 'consumable', number>;
 
 export interface GameView {
   phase: Phase;

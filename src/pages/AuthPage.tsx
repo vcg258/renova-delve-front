@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import LegalLinks from '../components/LegalLinks';
 import { Link, useNavigate } from 'react-router-dom';
 import { checkLoginId, checkNickname, fetchMe, login, signup } from '../api/auth';
 import { errorMessage } from '../api/client';
@@ -228,11 +229,7 @@ export default function AuthPage() {
           </button>
         </p>
 
-        <p className="legal-links">
-          <Link to="/terms">이용약관</Link>
-          <span>·</span>
-          <Link to="/privacy"><strong>개인정보 처리방침</strong></Link>
-        </p>
+        <LegalLinks />
       </div>
     </div>
   );
