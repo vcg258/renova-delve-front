@@ -170,6 +170,7 @@ export default function AdminPage() {
                   <td>
                     <strong>{m.nickname}</strong>
                     <span className="dim small"> @{m.loginId}</span>
+                    {m.memberId === member?.memberId && <span className="badge self">나</span>}
                     {m.playing && <span className="badge playing">플레이 중</span>}
                   </td>
                   <td>
@@ -185,6 +186,9 @@ export default function AdminPage() {
                     <div className="admin-actions">
                       {m.status === 'WITHDRAWN' ? (
                         <span className="dim small">—</span>
+                      ) : m.memberId === member?.memberId ? (
+                        // 본인 계정의 정지·권한 회수는 서버가 거부한다. 누를 수 있는 버튼을 두지 않는다
+                        <span className="dim small">본인 계정</span>
                       ) : (
                         <>
                           {m.status === 'ACTIVE'
