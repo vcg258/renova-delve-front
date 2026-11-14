@@ -1699,3 +1699,8 @@ a.link-btn { display: inline; }
 
 /* 화면 아래 링크: 문의 · 피드백 */
 .legal-links a[href^="mailto:"] { color: var(--gold); }
+
+/* 전생의 망령 안내 (원정 준비) */
+.wraith-notice { border-color: #8c9cb8; }
+.wraith-notice h3 { border-left-color: #e0483c; }
+.wraith-notice p { margin: 4px 0; line-height: 1.6; }

@@ -44,6 +44,7 @@ const MONSTER_SPRITE_RULES: [string[], SpriteKey][] = [
   [['사제'], 'mage:priest'],
   [['마법사', '연금술'], 'mage'],
   // 영체
+  [['전생의 망령'], 'wraith:past'],
   [['수호령'], 'wraith:guardian'],
   [['그림자', '어둠의 정령'], 'wraith:shadow'],
   [['망령', '정령', '원혼'], 'wraith'],

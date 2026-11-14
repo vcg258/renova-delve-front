@@ -233,6 +233,7 @@ add('wraith', [
     variants={
         'shadow': {'w': '#3a2c58', 'W': '#221838', 'e': '#c070ff'},
         'guardian': {'w': '#8ad0c0', 'W': '#4a8a80', 'e': '#f0cf62'},
+        'past': {'w': '#dce6f2', 'W': '#8c9cb8', 'e': '#e0483c'},  # 전생의 망령: 지난 원정의 플레이어
     })
 
 add('wolf', [

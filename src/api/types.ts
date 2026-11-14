@@ -2,7 +2,17 @@
 
 export type Difficulty = 'EASY' | 'NORMAL' | 'HARD' | 'HELL';
 export type Phase = 'NONE' | 'EXPLORE' | 'BATTLE' | 'ENCOUNTER' | 'REWARD' | 'SHOP' | 'REST' | 'GAMEOVER' | 'CLEAR';
-export type NodeType = 'BATTLE' | 'ELITE' | 'BOSS' | 'ENCOUNTER';
+export type NodeType = 'BATTLE' | 'ELITE' | 'BOSS' | 'ENCOUNTER' | 'WRAITH';
+
+/** 다음 원정에서 기다리는 전생의 망령 (GET /game/wraith) */
+export interface WraithInfo {
+  stage: number;
+  level: number;
+  killerName: string | null;
+  skills: string[];
+  faction: 'HEAVEN' | 'ABYSS' | 'HUMAN' | null;
+  escapesLeft: number;
+}
 export type ItemType = 'WEAPON' | 'ARMOR' | 'HELMET' | 'SKILL' | 'RELIC' | 'CONSUMABLE' | 'SKIP';
 
 export type Role = 'USER' | 'ADMIN';
