@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { abandonGame, getCurrentGame } from '../api/game';
 import { useAuth } from '../context/AuthContext';
 import type { GameView } from '../api/types';
+import LegalLinks from '../components/LegalLinks';
 import GuideChat from '../components/GuideChat';
 import Px from '../components/Px';
 
@@ -80,11 +81,7 @@ export default function HomePage() {
         </button>
       </main>
 
-      <p className="legal-links">
-        <Link to="/terms">이용약관</Link>
-        <span>·</span>
-        <Link to="/privacy"><strong>개인정보 처리방침</strong></Link>
-      </p>
+      <LegalLinks />
 
       <GuideChat />
     </div>

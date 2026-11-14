@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import LegalLinks from '../components/LegalLinks';
+import { useNavigate } from 'react-router-dom';
 import { changeContact, changeNickname, changePassword, exportMyData, fetchMe, withdraw } from '../api/auth';
 import { isValidEmail, isValidName } from '../utils/account';
 import { clearGuideHistory, getAchievements, getHistory } from '../api/game';
@@ -245,11 +246,7 @@ export default function ProfilePage() {
           <button className="mini" disabled={busy} onClick={downloadMyData}>내 정보 내려받기</button>
           <button className="mini" disabled={busy} onClick={eraseGuideChat}>AI 대화 기록 삭제</button>
         </div>
-        <p className="legal-links left">
-          <Link to="/terms">이용약관</Link>
-          <span>·</span>
-          <Link to="/privacy"><strong>개인정보 처리방침</strong></Link>
-        </p>
+        <LegalLinks className="left" />
       </section>
 
       <section className="setup-section danger-zone">

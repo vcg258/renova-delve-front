@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRunReview, getSummary } from '../api/game';
 import { errorMessage } from '../api/client';
-import type { GameSummary, RunReview } from '../api/types';
+import type { GameSummary, RunReview, RunStats } from '../api/types';
 import TypewriterText from '../components/TypewriterText';
 import Px from '../components/Px';
 
@@ -49,6 +49,8 @@ export default function ResultPage() {
           <div><span className="dim">골드</span><strong><Px s="coin" /> {summary.gold}</strong></div>
         </div>
 
+        {summary.stats && <RunStatsPanel stats={summary.stats} />}
+
         <div className="narrative-box">
           <h3>이번 모험의 기록</h3>
           <TypewriterText text={summary.narrative} speed={25} />
@@ -75,6 +77,36 @@ export default function ResultPage() {
           <button className="ghost" onClick={() => navigate('/')}>메뉴로</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * 원정 통계. 로그라이크의 "죽음 화면"처럼 이번 판을 숫자로 돌아보게 한다.
+ * 세션이 만료된 오래된 원정은 모두 0이므로 그때는 그리지 않는다.
+ */
+function RunStatsPanel({ stats }: { stats: RunStats }) {
+  if (stats.turns === 0 && stats.encounters === 0) return null;
+  const rows: [string, string][] = [
+    ['전투', `${stats.battlesWon}승` + (stats.battlesFled > 0 ? ` · 도망 ${stats.battlesFled}` : '')],
+    ['쓰러뜨린 적', `${stats.monstersKilled}` + (stats.elitesKilled + stats.bossesKilled > 0
+      ? ` (강적 ${stats.elitesKilled} · 보스 ${stats.bossesKilled})` : '')],
+    ['전투 턴', `${stats.turns}`],
+    ['준 피해', stats.damageDealt.toLocaleString()],
+    ['받은 피해', stats.damageTaken.toLocaleString()],
+    ['가장 치열했던 전투', `${stats.biggestBattle.toLocaleString()} 피해`],
+    ['조우 선택', `${stats.encounters}`],
+    ['쓴 소모품', `${stats.consumablesUsed}`],
+    ['전투로 번 골드', stats.goldFromBattles.toLocaleString()],
+  ];
+  return (
+    <div className="run-stats">
+      <h3>원정 통계</h3>
+      <dl>
+        {rows.map(([label, value]) => (
+          <div key={label}><dt className="dim">{label}</dt><dd>{value}</dd></div>
+        ))}
+      </dl>
     </div>
   );
 }

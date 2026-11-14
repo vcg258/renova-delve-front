@@ -1,5 +1,6 @@
 import { api } from './client';
 import type {
+  CatalogTotals,
   Difficulty, EncounterOutcome, Encyclopedia, GameHistory, GameSummary, GameView, ItemType,
   Achievement, NodeInfo, PathChoice, RankingRow, RestChoice, RunReview, SetupOptions, ShopItem, StatusDTO, TurnResult,
 } from './types';
@@ -113,6 +114,11 @@ export async function getRanking(difficulty: Difficulty): Promise<RankingRow[]> 
 
 export async function getCollection(): Promise<Encyclopedia> {
   return (await api.get<Encyclopedia>('/collection')).data;
+}
+
+/** 도감 분류별 전체 항목 수 (미발견 칸과 수집률 표시용) */
+export async function getCatalogTotals(): Promise<CatalogTotals> {
+  return (await api.get<CatalogTotals>('/collection/totals')).data;
 }
 
 export async function getHistory(): Promise<GameHistory[]> {
