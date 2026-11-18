@@ -106,6 +106,6 @@ describe('StatusBar 왕국의 정세', () => {
   it('원정에 고정된 정세가 있으면 칩과 효과 말풍선을 보여 준다', () => {
     const html = renderToStaticMarkup(<StatusBar status={status({ kingdom: '넓어지는 문', kingdomEffects: ['적 공격력 +10%', '전투 골드 +20%'] })} />);
     expect(html).toContain('넓어지는 문');
-    expect(html).toContain('적 공격력 +10% · 전투 골드 +20%');
+    expect(html).toContain('적 공격력 +10%, 전투 골드 +20%');
   });
 });

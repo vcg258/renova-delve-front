@@ -39,12 +39,12 @@ export default function ResultPage() {
     <div className="page-center result-page">
       <div className={`result-card ${summary.cleared ? 'clear' : 'over'}`}>
         <h1 className="result-title">
-          <Px s={summary.cleared ? 'crown' : 'grave'} size={32} /> {summary.cleared ? '마계의 문 앞에서 — 선택의 끝' : '한 인간의 끝'}
+          <Px s={summary.cleared ? 'crown' : 'grave'} size={32} /> {summary.cleared ? '마계의 문 앞에 섰다' : '한 인간의 끝'}
         </h1>
 
         <div className="result-stats">
           <div><span className="dim">최종 점수</span><strong><Px s="star" /> {summary.score}</strong></div>
-          <div><span className="dim">도달</span><strong>스테이지 {summary.stage} · 노드 {summary.node}</strong></div>
+          <div><span className="dim">도달</span><strong>스테이지 {summary.stage}-{summary.node}</strong></div>
           <div><span className="dim">레벨</span><strong>Lv.{summary.level}</strong></div>
           <div><span className="dim">골드</span><strong><Px s="coin" /> {summary.gold}</strong></div>
         </div>
@@ -72,7 +72,8 @@ export default function ResultPage() {
         )}
         {review?.chapter && (
           <div className="review-box chronicle-new">
-            <span className="review-title"><Px s="scroll" /> 연대기에 새 장이 쓰였다 — 「{review.chapterTitle}」</span>
+            <span className="review-title"><Px s="scroll" /> 연대기에 새 장이 쓰였다</span>
+            <strong className="chapter-title">{review.chapterTitle}</strong>
             <p className="chapter-body">{review.chapter}</p>
           </div>
         )}
@@ -95,9 +96,9 @@ export default function ResultPage() {
 function RunStatsPanel({ stats }: { stats: RunStats }) {
   if (stats.turns === 0 && stats.encounters === 0) return null;
   const rows: [string, string][] = [
-    ['전투', `${stats.battlesWon}승` + (stats.battlesFled > 0 ? ` · 도망 ${stats.battlesFled}` : '')],
+    ['전투', `${stats.battlesWon}승` + (stats.battlesFled > 0 ? `, 도망 ${stats.battlesFled}` : '')],
     ['쓰러뜨린 적', `${stats.monstersKilled}` + (stats.elitesKilled + stats.bossesKilled > 0
-      ? ` (강적 ${stats.elitesKilled} · 보스 ${stats.bossesKilled})` : '')],
+      ? ` (강적 ${stats.elitesKilled}, 보스 ${stats.bossesKilled})` : '')],
     ['전투 턴', `${stats.turns}`],
     ['준 피해', stats.damageDealt.toLocaleString()],
     ['받은 피해', stats.damageTaken.toLocaleString()],

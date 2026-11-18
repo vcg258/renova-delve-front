@@ -27,7 +27,7 @@ function FactionTip({ info, score, activeTier }: { info: FactionInfo | undefined
   if (!info) return <span className="tip-text">조우에서 이 세력의 방식을 택하면 점수가 쌓인다.</span>;
   return (
     <>
-      <strong className="tip-title">{info.label} · 현재 {score}</strong>
+      <strong className="tip-title">{info.label} 성향 {score}</strong>
       <span className="tip-text">{info.tendency}</span>
       <span className="tip-list">
         {info.tiers.map((t) => (
@@ -152,8 +152,8 @@ export default function StatusBar({ status }: { status: StatusDTO }) {
               {status.kingdom && (
                 <HoverTip className="trait-chip kingdom" tip={
                   <>
-                    <strong className="tip-title">왕국의 정세 — {status.kingdom}</strong>
-                    <span className="tip-text">{(status.kingdomEffects ?? []).join(' · ')}</span>
+                    <strong className="tip-title">왕국의 정세: {status.kingdom}</strong>
+                    <span className="tip-text">{(status.kingdomEffects ?? []).join(', ')}</span>
                     <span className="tip-note">이 원정을 시작할 때의 정세다. 원정이 끝날 때까지 바뀌지 않는다.</span>
                   </>
                 }>
@@ -163,7 +163,7 @@ export default function StatusBar({ status }: { status: StatusDTO }) {
               {status.contract && (
               <HoverTip className="trait-chip contract" tip={
                 <>
-                  <strong className="tip-title">악마의 계약 — {status.contract.boon}</strong>
+                  <strong className="tip-title">악마의 계약: {status.contract.boon}</strong>
                   <span className="tip-text">작은 글씨: "{status.contract.hint}"</span>
                   <span className="tip-note">
                     {status.contract.breakable

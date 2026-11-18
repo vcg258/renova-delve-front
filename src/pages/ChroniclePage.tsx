@@ -19,8 +19,8 @@ export function ChapterView({ chapter }: { chapter: ChronicleChapter }) {
       </header>
       <p className="chapter-body">{chapter.body}</p>
       <footer className="dim small">
-        {date} · {DIFFICULTY_LABEL[chapter.difficulty] ?? chapter.difficulty} · {outcome}
-        {chapter.faction && ` · ${FACTION_LABEL[chapter.faction] ?? chapter.faction}에 기울었다`}
+        {date}, {DIFFICULTY_LABEL[chapter.difficulty] ?? chapter.difficulty} 난이도. {outcome}.
+        {chapter.faction && ` ${FACTION_LABEL[chapter.faction] ?? chapter.faction}에 기울었다.`}
       </footer>
     </article>
   );

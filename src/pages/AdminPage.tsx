@@ -217,7 +217,7 @@ export default function AdminPage() {
         {page && page.totalPages > 1 && (
           <div className="pagination">
             <button className="mini" disabled={page.first} onClick={() => loadMembers(pageNum - 1)}>‹ 이전</button>
-            <span className="dim small">{page.page + 1} / {page.totalPages} · 총 {page.totalElements}명</span>
+            <span className="dim small">{page.page + 1} / {page.totalPages}쪽, 총 {page.totalElements}명</span>
             <button className="mini" disabled={page.last} onClick={() => loadMembers(pageNum + 1)}>다음 ›</button>
           </div>
         )}

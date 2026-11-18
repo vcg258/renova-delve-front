@@ -12,10 +12,11 @@ const BARS: { key: 'heaven' | 'abyss' | 'human'; label: string; icon: string; cl
  * compact면 원정 준비 화면용으로 정세와 효과만 보여 준다.
  */
 export default function KingdomScale({ kingdom, compact = false }: { kingdom: KingdomInfo; compact?: boolean }) {
-  const effects = kingdom.effects.length > 0 ? kingdom.effects.join(' · ') : '효과 없음';
+  const effects = kingdom.effects.length > 0 ? kingdom.effects.join(', ') : '효과 없음';
   return (
     <section className={`kingdom-scale state-${kingdom.state.toLowerCase()} ${compact ? 'compact' : ''}`}>
-      <h3><Px s="crest" /> 왕국의 저울 — {kingdom.title}</h3>
+      <h3><Px s="crest" /> 왕국의 저울</h3>
+      <p className="kingdom-state">{kingdom.title}</p>
       {!compact && (
         <div className="kingdom-bars" aria-label="지난 7일 동안 원정자들이 택한 방식">
           {BARS.map((bar) => (

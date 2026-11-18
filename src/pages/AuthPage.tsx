@@ -116,7 +116,7 @@ export default function AuthPage() {
     <div className="page-center auth-page">
       <div className="auth-card">
         <h1 className="game-title"><span className="t-heaven">Renova</span> <span className="amp">&amp;</span> <span className="t-abyss">Delve</span></h1>
-        <p className="subtitle">천사는 구원을, 악마는 거래를 말한다 — 선택은 인간의 몫</p>
+        <p className="subtitle">천사는 구원을, 악마는 거래를 말한다. 선택은 인간의 몫이다.</p>
         <p className="tagline">당신의 선택을 AI가 이야기로 이어 쓰는 로그라이크</p>
 
         {/* 화면 이름은 글자로만 적는다. 예전에는 여기가 버튼 모양의 탭이라 "눌러도 반응 없는 로그인 버튼"으로 보였다 */}
@@ -193,8 +193,8 @@ export default function AuthPage() {
               <span>
                 [필수] <Link to="/privacy" target="_blank">개인정보 수집·이용</Link>에 동의합니다
                 <span className="consent-detail">
-                  수집 항목: 아이디, 비밀번호, 닉네임, 이름, 이메일 · 목적: 회원 식별, 랭킹 표시,
-                  아이디 찾기와 비밀번호 재설정 안내 메일 발송 · 보유: 탈퇴 시까지.
+                  아이디, 비밀번호, 닉네임, 이름, 이메일을 받습니다. 회원 식별, 랭킹 표시,
+                  아이디 찾기와 비밀번호 재설정 안내 메일에 쓰고, 탈퇴할 때까지 보관합니다.
                   AI 서사 생성을 위해 게임 진행 정보와 안내자에게 입력한 내용이 OpenAI(미국)로 전송됩니다.
                   동의하지 않을 수 있으나 그 경우 가입할 수 없습니다.
                 </span>

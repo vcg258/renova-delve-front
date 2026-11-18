@@ -9,10 +9,10 @@ import Px from '../components/Px';
 import { armorSprite, helmetSprite, relicSprite, skillSprite, weaponSprite } from '../utils/sprites';
 
 const DIFFICULTIES: { value: Difficulty; label: string; desc: string }[] = [
-  { value: 'EASY', label: '쉬움', desc: '보상 x0.7 · 랭킹 미등록' },
+  { value: 'EASY', label: '쉬움', desc: '보상 0.7배, 랭킹에 오르지 않음' },
   { value: 'NORMAL', label: '보통', desc: '표준 난이도' },
-  { value: 'HARD', label: '어려움', desc: '적 강화 · 보상 x1.3' },
-  { value: 'HELL', label: '지옥', desc: '적 대폭 강화 · 보상 x2.0' },
+  { value: 'HARD', label: '어려움', desc: '적이 강해지고 보상 1.3배' },
+  { value: 'HELL', label: '지옥', desc: '적이 크게 강해지고 보상 2배' },
 ];
 
 /** 고를 수 없는 카드에 이유를 적는다. 비활성 버튼은 흐려질 뿐 왜 안 눌리는지 알려주지 않는다 */
@@ -167,7 +167,7 @@ export default function SetupPage() {
               disabled={swapBlock(w.scoreCost, weaponCost, weaponId === w.weaponId) != null}
               onClick={() => setWeaponId(w.weaponId)} title={w.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={weaponSprite(w.type, w.name)} size={32} /> {w.name}</span>
-              <span className="option-desc"><Px s="sword" /> +{w.atkBonus} · {w.scoreCost}pt</span>
+              <span className="option-desc"><span><Px s="sword" /> 공격 +{w.atkBonus}</span><span className="option-cost">{w.scoreCost}pt</span></span>
               <Blocked reason={swapBlock(w.scoreCost, weaponCost, weaponId === w.weaponId)} />
             </button>
           ))}
@@ -183,7 +183,7 @@ export default function SetupPage() {
               disabled={swapBlock(a.scoreCost, armorCost, armorId === a.armorId) != null}
               onClick={() => setArmorId(a.armorId)} title={a.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={armorSprite(a.type)} size={32} /> {a.name}</span>
-              <span className="option-desc"><Px s="crest:steel" /> +{a.defBonus} · {a.scoreCost}pt</span>
+              <span className="option-desc"><span><Px s="crest:steel" /> 방어 +{a.defBonus}</span><span className="option-cost">{a.scoreCost}pt</span></span>
               <Blocked reason={swapBlock(a.scoreCost, armorCost, armorId === a.armorId)} />
             </button>
           ))}
@@ -199,7 +199,7 @@ export default function SetupPage() {
               disabled={swapBlock(h.scoreCost, helmetCost, helmetId === h.helmetId) != null}
               onClick={() => setHelmetId(h.helmetId)} title={h.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={helmetSprite(h.type)} size={32} /> {h.name}</span>
-              <span className="option-desc"><Px s="heart" /> +{h.hpBonus} · {h.scoreCost}pt</span>
+              <span className="option-desc"><span><Px s="heart" /> 체력 +{h.hpBonus}</span><span className="option-cost">{h.scoreCost}pt</span></span>
               <Blocked reason={swapBlock(h.scoreCost, helmetCost, helmetId === h.helmetId)} />
             </button>
           ))}
@@ -215,7 +215,7 @@ export default function SetupPage() {
               disabled={skillBlock(s.cost, skillIds.includes(s.skillId)) != null}
               onClick={() => toggleSkill(s.skillId)} title={s.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={skillSprite(s)} size={32} /> {s.name}</span>
-              <span className="option-desc">계수 x{s.coefficient} · 쿨 {s.cooldown} · {s.cost}pt</span>
+              <span className="option-desc"><span>계수 x{s.coefficient}, 쿨타임 {s.cooldown}</span><span className="option-cost">{s.cost}pt</span></span>
               <Blocked reason={skillBlock(s.cost, skillIds.includes(s.skillId))} />
             </button>
           ))}
@@ -231,7 +231,7 @@ export default function SetupPage() {
               disabled={addBlock(r.scoreCost, relicIds.includes(r.relicId)) != null}
               onClick={() => toggleRelic(r.relicId)} title={r.effectDesc}>
               <span className="option-name with-sprite"><PixelSprite sprite={relicSprite(r.name)} size={32} /> {r.name}</span>
-              <span className="option-desc">{r.effectDesc} · {r.scoreCost}pt</span>
+              <span className="option-desc"><span>{r.effectDesc}</span><span className="option-cost">{r.scoreCost}pt</span></span>
               <Blocked reason={addBlock(r.scoreCost, relicIds.includes(r.relicId))} />
             </button>
           ))}

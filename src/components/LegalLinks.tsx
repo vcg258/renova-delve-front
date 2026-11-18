@@ -25,7 +25,7 @@ export default function LegalLinks({ className = '' }: { className?: string }) {
           <span>·</span>
           <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(FEEDBACK_SUBJECT)}`}
             title={`버그 제보, 밸런스 의견, 바라는 기능을 보내 주세요 (${CONTACT_EMAIL})`}>
-            문의 · 피드백
+            문의와 피드백
           </a>
         </>
       )}

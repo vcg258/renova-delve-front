@@ -48,7 +48,7 @@ export default function CollectionPage() {
       {data && (
         <div className="collection-sections">
           <p className="dim small">
-            {total > 0 && <strong className="codex-rate">수집률 {Math.round((owned / total) * 100)}% ({owned} / {total}) · </strong>}
+            {total > 0 && <strong className="codex-rate">수집률 {Math.round((owned / total) * 100)}% ({owned} / {total}). </strong>}
             도감에 등록한 항목 1종마다 다음 원정의 스타팅 포인트가 5씩 늘어납니다. (최대 +200)
           </p>
           <Section title="무기" icon="sword" total={totals?.weapon} items={data.weaponDTO.map((e) => ({
