@@ -28,6 +28,8 @@ const NODE_LABEL: Record<NodeType, { icon: string; label: string }> = {
   CONTRACT: { icon: 'scroll', label: '악마의 계약서' },
 };
 
+const RARITY_LABEL: Record<string, string> = { COMMON: '흔한', RARE: '희귀한', EPIC: '전설의' };
+
 const ADVANCE_MESSAGES = [
   '당신의 선택이 다음 장을 쓰고 있다...',
   '머리 위에서 희미한 종소리가 울린다...',
@@ -38,8 +40,8 @@ const ADVANCE_MESSAGES = [
 /** 갈림길 선택지 (수치는 서버 PathChoice와 동일. 실제 적용은 서버가 한다) */
 const PATHS: { value: PathChoice; icon: string; title: string; desc: string; className: string }[] = [
   { value: 'SAFE', icon: 'door', title: '정면으로 나아간다', desc: '위험도 보상도 그대로', className: '' },
-  { value: 'DANGER', icon: 'drop', title: '피 냄새가 짙은 길', desc: '적 HP·공격 +25% · 점수·골드 +50% · 유물 후보 +1', className: 'danger' },
-  { value: 'AMBUSH', icon: 'moon', title: '그림자 속 샛길', desc: '기습: 적이 첫 턴에 움직이지 못한다 · 점수·골드 -30%', className: 'ambush' },
+  { value: 'DANGER', icon: 'drop', title: '피 냄새가 짙은 길', desc: '적 HP와 공격력 +10%. 이기면 점수·골드·경험치 +50%, 유물 후보 +1', className: 'danger' },
+  { value: 'AMBUSH', icon: 'moon', title: '그림자 속 샛길', desc: '기습해서 적이 첫 턴에 움직이지 못한다. 대신 점수·골드·경험치 -30%', className: 'ambush' },
 ];
 
 /** 조우 선택지의 세력별 표시. 결과는 서버만 알고 있으며, 여기서는 세력의 경향만 알려준다 */
@@ -504,7 +506,7 @@ export default function GamePage() {
               ))}
             </div>
           )}
-          <p className="path-heading">갈림길 — 어느 길로 나아갈 것인가</p>
+          <p className="path-heading">어느 길로 나아갈 것인가</p>
           <div className="path-row">
             {PATHS.map((p) => (
               <button key={p.value} className={`path-card ${p.className}`} disabled={busy}
@@ -636,8 +638,8 @@ export default function GamePage() {
       {/* ===== 보상 ===== */}
       {phase === 'REWARD' && (reward ? (
         <div className="reward-panel animate-in">
-          <h3>전리품 — 하나만 선택할 수 있다</h3>
-          <p className="dim">경험치 +{reward.exp} · 골드 +{reward.gold} 는 이미 획득했다.</p>
+          <h3>전리품</h3>
+          <p className="dim">하나만 가져갈 수 있다. 경험치 +{reward.exp}와 골드 +{reward.gold}는 이미 받았다.</p>
           {slotsFull && reward.skills.length > 0 && (
             <p className="slot-full-note">스킬 슬롯이 가득 찼다 ({skillSlots.length}/{maxSkillSlots}). 스킬을 고르면 버릴 스킬을 정한다.</p>
           )}
@@ -656,7 +658,7 @@ export default function GamePage() {
               <button key={`r-${r.relicId}`} className={`reward-card rarity-${r.rarity.toLowerCase()}`} disabled={busy}
                 onClick={() => takeReward('RELIC', r.relicId)}>
                 <span className="card-icon"><Px s={relicSprite(r.name)} size={48} /></span>
-                <span className="reward-kind">유물 · {r.rarity}</span>
+                <span className="reward-kind">{RARITY_LABEL[r.rarity] ?? r.rarity} 유물</span>
                 <span className="reward-name">{r.name}</span>
                 <span className="reward-desc">{r.effectDesc}</span>
               </button>
@@ -719,7 +721,7 @@ export default function GamePage() {
       {/* ===== 모닥불 (보스 처치 후) ===== */}
       {phase === 'REST' && (
         <div className="rest-panel animate-in">
-          <p className="path-heading">모닥불 — 하나만 고를 수 있다</p>
+          <p className="path-heading">모닥불 앞에서는 하나만 고를 수 있다</p>
           <div className="path-row">
             <button className="path-card" disabled={busy} onClick={() => rest('HEAL')}>
               <span className="path-icon"><Px s="heart" size={32} /></span>
@@ -729,7 +731,7 @@ export default function GamePage() {
             <button className="path-card" disabled={busy} onClick={() => rest('TRAIN')}>
               <span className="path-icon"><Px s="sword" size={32} /></span>
               <span className="path-title">검을 간다</span>
-              <span className="path-desc">공격력 +3 · 방어력 +1 (영구)</span>
+              <span className="path-desc">공격력 +3, 방어력 +1 (영구)</span>
             </button>
             <div className="path-card vow-card">
               <span className="path-icon"><Px s="candle" size={32} /></span>
@@ -794,7 +796,7 @@ export default function GamePage() {
                     <span className="reward-name">{slot.skill.name}</span>
                     <span className="reward-desc">{slot.skill.description}</span>
                     <span className="skill-meta">
-                      {slot.skill.target === 'EnemyAll' ? '전체' : '단일'} · 쿨 {slot.skill.cooldown}턴
+                      {slot.skill.target === 'EnemyAll' ? '전체 공격' : '단일 공격'}, 쿨타임 {slot.skill.cooldown}턴
                     </span>
                     {blocked
                       ? <span className="swap-blocked">{blocked}</span>
@@ -826,11 +828,11 @@ export default function GamePage() {
           <div className="swap-panel">
             <h3>스킬 슬롯이 가득 찼다 ({skillSlots.length}/{maxSkillSlots})</h3>
             <div className="swap-new">
-              <span className="reward-kind">새로 배울 스킬{pendingSkill.shopItem ? ` · 골드 ${pendingSkill.shopItem.price}` : ''}</span>
+              <span className="reward-kind">새로 배울 스킬{pendingSkill.shopItem ? ` (골드 ${pendingSkill.shopItem.price})` : ''}</span>
               <span className="reward-name">{pendingSkill.name}</span>
               <span className="reward-desc">{pendingSkill.description}</span>
             </div>
-            <p className="path-heading">버릴 스킬을 고른다 — 버린 스킬은 돌아오지 않는다</p>
+            <p className="path-heading">버릴 스킬을 고른다. 버린 스킬은 돌아오지 않는다.</p>
             <div className="swap-grid">
               {skillSlots.map((slot) => (
                 <button key={slot.slotId}
@@ -843,7 +845,7 @@ export default function GamePage() {
                   <span className="reward-name">{slot.skill.name}</span>
                   <span className="reward-desc">{slot.skill.description}</span>
                   <span className="skill-meta">
-                    {slot.skill.target === 'EnemyAll' ? '전체' : '단일'} · 쿨 {slot.skill.cooldown}턴
+                    {slot.skill.target === 'EnemyAll' ? '전체 공격' : '단일 공격'}, 쿨타임 {slot.skill.cooldown}턴
                   </span>
                 </button>
               ))}

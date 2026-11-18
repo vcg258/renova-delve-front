@@ -1748,3 +1748,66 @@ a.link-btn { display: inline; }
 .kingdom-bar-value { text-align: right; font-size: .9em; }
 .kingdom-desc { margin: 0 0 6px; line-height: 1.6; }
 .trait-chip.kingdom { border-color: #c9a86a; color: #f0e2c4; }
+
+/* =====================================================================
+   디자인 점검 (frontend-design 기준)
+   - 움직임은 배경 제단화(천상의 빛, 마계의 불씨)와 행동에 대한 반응(피격, 피해 숫자, 창 열림)에만 둔다.
+     정적인 화면 요소가 들어올 때마다 미끄러져 올라오는 등장 효과와, 계속 반복되는 장식 움직임은 뺐다.
+   - 한글 제목·라벨은 자간을 벌리지 않는다 (한글은 자간을 벌리면 오히려 읽기 어렵다).
+   - 홈 메뉴는 같은 카드의 반복 대신 위계로 나눈다: 주 행동 / 기록과 설정 목록 / 로그아웃 링크.
+   ===================================================================== */
+.animate-in, .auth-card, .home-header, .menu-btn, .setup-section, .ranking-table, .choice-btn, .blessing-chip {
+  animation: none;
+}
+.game-title, .guide-toggle, .badge.phoenix { animation: none; }
+.bar-fill.hp::after, .bar-fill.enemy::after { animation: none; display: none; }
+.guide-hint { animation: none; }
+
+.subtitle, .tagline, .menu-title, .setup-header h2, .setup-section h3, .monster-type, .reward-panel h3, .shop-panel h3,
+.reward-kind, .result-title, .ranking-table th, .guide-title, .stat-label, .path-heading, .choice-faction, .node-label {
+  letter-spacing: 0;
+}
+
+/* 홈: 주 행동은 크게, 나머지는 한 판의 목록으로 */
+.home-menu { gap: 22px; }
+.home-primary { display: flex; flex-direction: column; gap: 12px; }
+.home-primary .menu-btn { padding: 18px 20px; }
+.home-primary .menu-btn .menu-title { font-size: 19px; }
+.home-primary .menu-btn.start { border-color: var(--gold); box-shadow: 4px 4px 0 #6a4f14; }
+
+.home-nav {
+  display: grid; grid-template-columns: 1fr 1fr;
+  background: var(--bg-panel); border: 2px solid var(--border); box-shadow: var(--hard-shadow);
+}
+.home-nav button {
+  display: grid; grid-template-columns: auto 1fr; column-gap: 10px; row-gap: 2px; align-items: center;
+  padding: 13px 16px; text-align: left; background: none; border: 0; border-radius: 0; box-shadow: none;
+  color: var(--text); font: inherit; cursor: pointer;
+}
+.home-nav button:nth-child(odd) { border-right: 2px solid var(--border); }
+.home-nav button:nth-child(n+3) { border-top: 2px solid var(--border); }
+.home-nav button:last-child:nth-child(odd) { grid-column: 1 / -1; border-right: 0; }
+.home-nav button > .px { grid-row: 1 / 3; }
+.home-nav .nav-title { font-family: var(--display); font-size: 15px; }
+.home-nav .nav-desc { font-size: 12px; color: var(--text-dim); }
+.home-nav button:hover, .home-nav button:focus-visible { background: rgba(232, 200, 96, .08); outline: none; }
+.home-nav button:focus-visible { box-shadow: inset 0 0 0 2px var(--gold); }
+.home-nav .admin-menu .nav-title { color: var(--gold); }
+.home-logout { align-self: center; color: var(--text-dim); }
+@media (max-width: 520px) {
+  .home-nav { grid-template-columns: 1fr; }
+  .home-nav button:nth-child(odd) { border-right: 0; }
+  .home-nav button:nth-child(n+2) { border-top: 2px solid var(--border); }
+}
+
+/* 왕국의 저울: 정세 이름이 이 패널의 내용이다 */
+.kingdom-scale h3 { margin-bottom: 4px; font-size: 13px; color: var(--text-dim); }
+.kingdom-state { margin: 0 0 12px; font-family: var(--display); font-size: 20px; color: #f0e2c4; }
+
+/* 원정 준비: 효과와 비용을 양 끝으로 */
+.option-desc { display: flex; justify-content: space-between; gap: 10px; width: 100%; }
+.option-cost { color: var(--gold); white-space: nowrap; }
+
+/* 결과 화면: 연대기 장 제목 */
+.chronicle-new .chapter-title { display: block; margin: 6px 0 4px; font-family: var(--display); font-size: 17px; color: #f0e2c4; }
+.home-page .kingdom-scale { max-width: none; width: 100%; margin: 0 0 22px; }

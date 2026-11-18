@@ -20,10 +20,10 @@ export const BUFF_HELP: Record<string, string> = {
 
 /** 이번 턴 행동 예고 표시 (강공 수치는 서버 계산식과 같은 1.6배) */
 function intentLabel(monster: BattleMonster): { icon: string; text: string; className: string } {
-  if ((monster.buffs?.STUN ?? 0) > 0) return { icon: 'star:stun', text: '기절 — 행동 불가', className: 'stunned' };
+  if ((monster.buffs?.STUN ?? 0) > 0) return { icon: 'star:stun', text: '기절해서 움직이지 못한다', className: 'stunned' };
   switch (monster.intent) {
     case 'HEAVY': return { icon: 'burst', text: `강공 예고 ${Math.round(monster.atk * 1.6)}`, className: 'heavy' };
-    case 'GUARD': return { icon: 'crest:steel', text: '방어 태세 — 타격 피해 절반', className: 'guard' };
+    case 'GUARD': return { icon: 'crest:steel', text: '방어 태세라 타격 피해가 절반', className: 'guard' };
     default: return { icon: 'sword', text: `공격 예고 ${monster.atk}`, className: 'attack' };
   }
 }

@@ -15,7 +15,7 @@ describe('왕국의 저울', () => {
     expect(html).toContain('width:55%');
     expect(html).toContain('55%');
     expect(html).toContain('원정자 4명');
-    expect(html).toContain('적 공격력 +10% · 전투 골드 +20%');
+    expect(html).toContain('적 공격력 +10%, 전투 골드 +20%');
     expect(html).toContain('state-abyss_widening');
   });
 

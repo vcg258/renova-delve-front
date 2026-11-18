@@ -159,7 +159,7 @@ export default function ProfilePage() {
       </section>
 
       <section className="setup-section">
-        <h3>이름 · 이메일</h3>
+        <h3>이름과 이메일</h3>
         {!member.email ? (
           <p className="contact-warning">
             이메일이 등록되어 있지 않습니다. 등록하지 않으면 아이디나 비밀번호를 잊었을 때 찾을 방법이 없습니다.
@@ -227,7 +227,7 @@ export default function ProfilePage() {
               <div key={h.gameStateId} className={`history-row ${(h.result ?? 'none').toLowerCase()}`}>
                 <span className="history-result"><Px s={RESULT_ICON[h.result ?? 'NONE']} /> {RESULT_LABEL[h.result ?? 'NONE']}</span>
                 <span>{h.difficulty}</span>
-                <span>스테이지 {h.stage} · 노드 {h.node}</span>
+                <span>스테이지 {h.stage}-{h.node}</span>
                 <span className="history-score"><Px s="star" /> {h.score}</span>
                 <span className="dim small">{h.startedAt?.slice(0, 10)}</span>
               </div>
