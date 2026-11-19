@@ -18,8 +18,10 @@ import PixelSprite from '../components/PixelSprite';
 import Px from '../components/Px';
 import HoverTip from '../components/HoverTip';
 import Dialog from '../components/Dialog';
+import InventoryDialog from '../components/InventoryDialog';
 import { consumableSprite, relicSprite, shopSprite, skillSprite } from '../utils/sprites';
 import { allSkillsCooling, dropBlockReason } from '../utils/skills';
+import { compareTrend, equipmentCompare, groupConsumables } from '../utils/inventory';
 
 const NODE_LABEL: Record<NodeType, { icon: string; label: string }> = {
   BATTLE: { icon: 'sword', label: '전투' }, ELITE: { icon: 'skull', label: '강적' },
@@ -109,6 +111,7 @@ export default function GamePage() {
   const [discardSlotId, setDiscardSlotId] = useState<number | null>(null);
   // 스킬 정리 창 / 되돌릴 수 없는 행동(도망, 원정 포기, 스킬 버리기)의 확인 창
   const [managingSkills, setManagingSkills] = useState(false);
+  const [viewingInventory, setViewingInventory] = useState(false);
   const [confirming, setConfirming] = useState<ConfirmRequest | null>(null);
 
   // 배경 장면: 스테이지 깊이 / 가호 세력 / 보스전 / 모닥불에 따라 달라진다
@@ -444,7 +447,8 @@ export default function GamePage() {
     );
   }
 
-  const usableConsumables = status.consumableInventoryDTO ?? [];
+  // 같은 소모품은 한 묶음으로 보여 주고, 쓸 때는 그중 첫 칸을 쓴다
+  const usableConsumables = groupConsumables(status.consumableInventoryDTO ?? []);
   const skillSlots = status.skillSlotDTO ?? [];
   const maxSkillSlots = status.maxSkillSlots ?? DEFAULT_SKILL_SLOTS;
   const isBossNode = nodeType === 'BOSS';
@@ -502,6 +506,7 @@ export default function GamePage() {
                   title={c.consumable.description}
                   onClick={() => drinkConsumable(c.slotId)}>
                   <Px s={consumableSprite(c.consumable.effectType, c.consumable.name)} /> {c.consumable.name}
+                  {c.count > 1 && <span className="stack-count">x{c.count}</span>}
                 </button>
               ))}
             </div>
@@ -577,7 +582,7 @@ export default function GamePage() {
                 onClick={() => drinkConsumable(c.slotId)}>
                 <span className="skill-icon"><Px s={consumableSprite(c.consumable.effectType, c.consumable.name)} size={32} /></span>
                 <span className="skill-name">{c.consumable.name}</span>
-                <span className="skill-meta">아이템</span>
+                <span className="skill-meta">{c.count > 1 ? `아이템 x${c.count}` : '아이템'}</span>
               </button>
             ))}
           </div>
@@ -684,7 +689,7 @@ export default function GamePage() {
       {/* ===== 상점 ===== */}
       {phase === 'SHOP' && (
         <div className="shop-panel animate-in">
-          <h3><Px s="pouch" /> 떠돌이 상인 <span className="dim small">— 보유 골드 {status.stateDTO.gold}</span></h3>
+          <h3><Px s="pouch" /> 떠돌이 상인 <span className="dim small">보유 골드 {status.stateDTO.gold}</span></h3>
           {shop.length === 0 ? (
             <p className="dim">상인이 짐을 푸는 중...</p>
           ) : (
@@ -695,6 +700,9 @@ export default function GamePage() {
                   <span className="reward-kind">{shopTypeLabel(item.itemType)}</span>
                   <span className="reward-name">{item.name}</span>
                   <span className="reward-desc">{item.description}</span>
+                  {equipmentCompare(item) && (
+                    <span className={`equip-compare ${compareTrend(item)}`}>{equipmentCompare(item)}</span>
+                  )}
                   <button className="buy-btn"
                     disabled={busy || item.sold || status.stateDTO.gold < item.price}
                     onClick={() => item.itemType === 'SKILL'
@@ -751,6 +759,9 @@ export default function GamePage() {
       {!advancing && (
         <div className="run-menu">
           <button className="ghost" onClick={() => navigate('/')}>메뉴로 (진행 저장됨)</button>
+          <button className="ghost" onClick={() => setViewingInventory(true)}>
+            <Px s="pouch" /> 인벤토리
+          </button>
           <button className="ghost" disabled={busy || phase === 'BATTLE' || phase === 'ENCOUNTER'}
             title={phase === 'BATTLE' || phase === 'ENCOUNTER' ? '전투나 조우 중에는 스킬을 정리할 수 없다' : undefined}
             onClick={() => setManagingSkills(true)}>
@@ -780,6 +791,9 @@ export default function GamePage() {
           </button>
         </div>
       )}
+
+      {/* ===== 인벤토리: 착용 장비, 스킬, 유물, 소모품 ===== */}
+      {viewingInventory && <InventoryDialog status={status} onClose={() => setViewingInventory(false)} />}
 
       {/* ===== 스킬 정리: 원하는 스킬을 버린다 ===== */}
       {managingSkills && (

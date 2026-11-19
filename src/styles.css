@@ -1811,3 +1811,38 @@ a.link-btn { display: inline; }
 /* 결과 화면: 연대기 장 제목 */
 .chronicle-new .chapter-title { display: block; margin: 6px 0 4px; font-family: var(--display); font-size: 17px; color: #f0e2c4; }
 .home-page .kingdom-scale { max-width: none; width: 100%; margin: 0 0 22px; }
+
+/* ===== 인벤토리 / 소모품 묶음 / 상점 장비 비교 ===== */
+.stack-count {
+  margin-left: 4px; padding: 0 4px; font-size: .85em; color: var(--gold);
+  border: 1px solid var(--border); background: var(--bg-deep);
+}
+.equip-compare { font-size: .85rem; color: var(--text-dim); }
+.equip-compare.up { color: var(--hp); }
+.equip-compare.down { color: var(--abyss); }
+
+.inventory-panel { max-width: 640px; }
+.inventory-stats { margin: 0; text-align: center; }
+.inventory-stats b { color: var(--gold); }
+.inventory-section h4 {
+  margin: 0 0 6px; padding-bottom: 4px; font-size: .95rem; color: var(--text);
+  border-bottom: 2px solid var(--border);
+}
+.inventory-gear, .inventory-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.inventory-gear li {
+  display: grid; grid-template-columns: 3.5em 32px 1fr auto; align-items: center; gap: 4px 10px;
+  padding: 6px 8px; background: var(--bg-card); border: 2px solid var(--border);
+}
+.inventory-gear li.empty { grid-template-columns: 3.5em 1fr; }
+.inventory-part { color: var(--text-dim); font-size: .85rem; }
+.inventory-name { color: var(--text); }
+.inventory-bonus { color: var(--gold); white-space: nowrap; }
+.inventory-gear .inventory-desc { grid-column: 3 / -1; }
+.inventory-list { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.inventory-list.wide { grid-template-columns: 1fr; }
+.inventory-list li { padding: 4px 8px; background: var(--bg-card); border: 2px solid var(--border); }
+.inventory-list .inventory-desc { display: block; color: var(--text-dim); }
+@media (max-width: 480px) {
+  .inventory-gear li { grid-template-columns: 3em 32px 1fr; }
+  .inventory-bonus { grid-column: 3; }
+}

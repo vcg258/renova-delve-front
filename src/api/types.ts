@@ -321,6 +321,8 @@ export interface ShopItem {
   description: string;
   price: number;
   sold: boolean;
+  bonus?: number | null;        // 장비의 능력치 보너스 (장비가 아니면 null)
+  currentBonus?: number | null; // 지금 착용 중인 같은 부위 장비의 보너스
 }
 
 export interface GameSummary {
