@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getKingdom, getSetupOptions, getWraith, newGame } from '../api/game';
 import { errorMessage } from '../api/client';
@@ -7,6 +7,7 @@ import KingdomScale from '../components/KingdomScale';
 import PixelSprite from '../components/PixelSprite';
 import Px from '../components/Px';
 import { armorSprite, helmetSprite, relicSprite, skillSprite, weaponSprite } from '../utils/sprites';
+import { isBasicSkill } from '../utils/skills';
 
 const DIFFICULTIES: { value: Difficulty; label: string; desc: string }[] = [
   { value: 'EASY', label: '쉬움', desc: '보상 0.7배, 랭킹에 오르지 않음' },
@@ -18,6 +19,26 @@ const DIFFICULTIES: { value: Difficulty; label: string; desc: string }[] = [
 /** 고를 수 없는 카드에 이유를 적는다. 비활성 버튼은 흐려질 뿐 왜 안 눌리는지 알려주지 않는다 */
 function Blocked({ reason }: { reason: string | null }) {
   return reason ? <span className="option-blocked">{reason}</span> : null;
+}
+
+/**
+ * 원정 준비의 카드 하나. 막힌 이유를 한 번만 계산해 버튼 잠금과 이유 문구에 같이 쓴다.
+ */
+function OptionCard({ block, selected, className = '', title, onClick, children }: {
+  block: string | null;
+  selected: boolean;
+  className?: string;
+  title?: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button className={`option-card ${className} ${selected ? 'selected' : ''}`}
+      disabled={block != null} onClick={onClick} title={title}>
+      {children}
+      <Blocked reason={block} />
+    </button>
+  );
 }
 
 /** 지난 원정에서 쓰러진 자리에 남은 망령 안내. 나타날 노드는 알려 주지 않는다 */
@@ -162,14 +183,13 @@ export default function SetupPage() {
         <h3>무기</h3>
         <div className="option-row">
           {options.weapons.map((w) => (
-            <button key={w.weaponId}
-              className={`option-card ${weaponId === w.weaponId ? 'selected' : ''}`}
-              disabled={swapBlock(w.scoreCost, weaponCost, weaponId === w.weaponId) != null}
+            <OptionCard key={w.weaponId}
+              selected={weaponId === w.weaponId}
+              block={swapBlock(w.scoreCost, weaponCost, weaponId === w.weaponId)}
               onClick={() => setWeaponId(w.weaponId)} title={w.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={weaponSprite(w.type, w.name)} size={32} /> {w.name}</span>
               <span className="option-desc"><span><Px s="sword" /> 공격 +{w.atkBonus}</span><span className="option-cost">{w.scoreCost}pt</span></span>
-              <Blocked reason={swapBlock(w.scoreCost, weaponCost, weaponId === w.weaponId)} />
-            </button>
+            </OptionCard>
           ))}
         </div>
       </section>
@@ -178,14 +198,13 @@ export default function SetupPage() {
         <h3>갑옷</h3>
         <div className="option-row">
           {options.armors.map((a) => (
-            <button key={a.armorId}
-              className={`option-card ${armorId === a.armorId ? 'selected' : ''}`}
-              disabled={swapBlock(a.scoreCost, armorCost, armorId === a.armorId) != null}
+            <OptionCard key={a.armorId}
+              selected={armorId === a.armorId}
+              block={swapBlock(a.scoreCost, armorCost, armorId === a.armorId)}
               onClick={() => setArmorId(a.armorId)} title={a.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={armorSprite(a.type)} size={32} /> {a.name}</span>
               <span className="option-desc"><span><Px s="crest:steel" /> 방어 +{a.defBonus}</span><span className="option-cost">{a.scoreCost}pt</span></span>
-              <Blocked reason={swapBlock(a.scoreCost, armorCost, armorId === a.armorId)} />
-            </button>
+            </OptionCard>
           ))}
         </div>
       </section>
@@ -194,14 +213,13 @@ export default function SetupPage() {
         <h3>투구</h3>
         <div className="option-row">
           {options.helmets.map((h) => (
-            <button key={h.helmetId}
-              className={`option-card ${helmetId === h.helmetId ? 'selected' : ''}`}
-              disabled={swapBlock(h.scoreCost, helmetCost, helmetId === h.helmetId) != null}
+            <OptionCard key={h.helmetId}
+              selected={helmetId === h.helmetId}
+              block={swapBlock(h.scoreCost, helmetCost, helmetId === h.helmetId)}
               onClick={() => setHelmetId(h.helmetId)} title={h.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={helmetSprite(h.type)} size={32} /> {h.name}</span>
               <span className="option-desc"><span><Px s="heart" /> 체력 +{h.hpBonus}</span><span className="option-cost">{h.scoreCost}pt</span></span>
-              <Blocked reason={swapBlock(h.scoreCost, helmetCost, helmetId === h.helmetId)} />
-            </button>
+            </OptionCard>
           ))}
         </div>
       </section>
@@ -209,15 +227,14 @@ export default function SetupPage() {
       <section className="setup-section">
         <h3>스킬 <span className="dim small">{basicSkillNote}</span></h3>
         <div className="option-row">
-          {options.skills.filter((s) => s.cost > 0).map((s) => (
-            <button key={s.skillId}
-              className={`option-card ${skillIds.includes(s.skillId) ? 'selected' : ''}`}
-              disabled={skillBlock(s.cost, skillIds.includes(s.skillId)) != null}
+          {options.skills.filter((s) => !isBasicSkill(s)).map((s) => (
+            <OptionCard key={s.skillId}
+              selected={skillIds.includes(s.skillId)}
+              block={skillBlock(s.cost, skillIds.includes(s.skillId))}
               onClick={() => toggleSkill(s.skillId)} title={s.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={skillSprite(s)} size={32} /> {s.name}</span>
               <span className="option-desc"><span>계수 x{s.coefficient}, 쿨타임 {s.cooldown}</span><span className="option-cost">{s.cost}pt</span></span>
-              <Blocked reason={skillBlock(s.cost, skillIds.includes(s.skillId))} />
-            </button>
+            </OptionCard>
           ))}
         </div>
       </section>
@@ -226,14 +243,13 @@ export default function SetupPage() {
         <h3>유물</h3>
         <div className="option-row">
           {options.relics.map((r) => (
-            <button key={r.relicId}
-              className={`option-card rarity-${r.rarity.toLowerCase()} ${relicIds.includes(r.relicId) ? 'selected' : ''}`}
-              disabled={addBlock(r.scoreCost, relicIds.includes(r.relicId)) != null}
+            <OptionCard key={r.relicId} className={`rarity-${r.rarity.toLowerCase()}`}
+              selected={relicIds.includes(r.relicId)}
+              block={addBlock(r.scoreCost, relicIds.includes(r.relicId))}
               onClick={() => toggleRelic(r.relicId)} title={r.effectDesc}>
               <span className="option-name with-sprite"><PixelSprite sprite={relicSprite(r.name)} size={32} /> {r.name}</span>
               <span className="option-desc"><span>{r.effectDesc}</span><span className="option-cost">{r.scoreCost}pt</span></span>
-              <Blocked reason={addBlock(r.scoreCost, relicIds.includes(r.relicId))} />
-            </button>
+            </OptionCard>
           ))}
         </div>
       </section>
