@@ -117,6 +117,7 @@ export interface SkillInfo {
   statusEffect: number;
   effectStack: number;
   description: string;
+  basic?: boolean; // 기본 공격 (서버 v0.11.0부터. 없으면 비용 0으로 판정)
 }
 
 export interface SkillDTO {
@@ -129,6 +130,7 @@ export interface SkillDTO {
   statusEffect: number;
   effectStack: number;
   description: string;
+  basic?: boolean; // 기본 공격 (서버 v0.11.0부터. 없으면 비용 0으로 판정)
 }
 
 export interface RelicDTO {
@@ -215,6 +217,7 @@ export interface StatusDTO {
   relicSynergies?: string[]; // 발동 중인 유물 조합 시너지 ("이름 — 설명")
   skillSynergies?: string[]; // 발동 중인 스킬 조합 시너지 ("이름 — 설명")
   maxSkillSlots?: number;    // 스킬 슬롯 상한. 가득 차면 새 스킬은 기존 스킬과 교체한다
+  minSlotsToDropBasic?: number; // 기본 공격을 버리거나 바꿀 수 있는 최소 스킬 수 (서버 규칙 값)
   alignment?: Alignment;     // 성향 (천상 / 마계 / 인간)
   pacts?: string[];          // 이번 원정에 건 서약 이름
   contract?: ContractInfo | null; // 걸린 악마의 계약
@@ -440,4 +443,11 @@ export interface Encyclopedia {
   relicDTO: (CollectionBase & { relic: RelicDTO })[];
   skillDTO: (CollectionBase & { skill: SkillDTO })[];
   weaponDTO: (CollectionBase & { weapon: WeaponDTO })[];
+}
+
+/** 전투 키워드 설명 (상태이상, 보스 격노). 규칙과 함께 서버가 내려준다 */
+export interface BattleKeyword {
+  key: string;
+  label: string;
+  description: string;
 }

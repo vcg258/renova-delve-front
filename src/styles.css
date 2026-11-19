@@ -1846,3 +1846,6 @@ a.link-btn { display: inline; }
   .inventory-gear li { grid-template-columns: 3em 32px 1fr; }
   .inventory-bonus { grid-column: 3; }
 }
+
+/* ===== 갈림길: 조우에는 길의 효과가 없다는 안내 ===== */
+.path-hint { margin: -4px 0 12px; font-size: 12px; color: var(--text-dim); text-align: center; }
