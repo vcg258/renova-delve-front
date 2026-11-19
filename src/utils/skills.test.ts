@@ -5,7 +5,12 @@ const basic = { skill: { cost: 0 } };
 const other = { skill: { cost: 100 } };
 
 describe('isBasicSkill', () => {
-  it('비용이 0인 스킬만 기본 공격이다', () => {
+  it('서버가 준 표시를 따른다 (비용 0이어도 표시가 false면 기본 공격이 아니다)', () => {
+    expect(isBasicSkill({ cost: 0, basic: true })).toBe(true);
+    expect(isBasicSkill({ cost: 0, basic: false })).toBe(false);
+  });
+
+  it('예전 서버라 표시가 없으면 비용 0으로 판정한다', () => {
     expect(isBasicSkill({ cost: 0 })).toBe(true);
     expect(isBasicSkill({ cost: 120 })).toBe(false);
   });
@@ -49,5 +54,12 @@ describe('allSkillsCooling', () => {
 
   it('스킬이 없으면 false (숨 고르기 버튼을 띄울 근거가 없다)', () => {
     expect(allSkillsCooling([])).toBe(false);
+  });
+});
+
+describe('서버 규칙 값', () => {
+  it('최소 스킬 수를 서버가 4로 바꾸면 3개일 때도 기본 공격을 버릴 수 없다', () => {
+    expect(dropBlockReason([basic, other, other], basic, false, 4)).toContain('4개부터');
+    expect(dropBlockReason([basic, other, other, other], basic, false, 4)).toBeNull();
   });
 });

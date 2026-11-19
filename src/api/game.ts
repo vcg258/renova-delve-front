@@ -1,12 +1,15 @@
 import { api } from './client';
 import type {
-  CatalogTotals,
-  Difficulty, EncounterOutcome, Encyclopedia, GameHistory, GameSummary, GameView, ItemType,
-  Achievement, ChronicleChapter, KingdomInfo, NodeInfo, WraithInfo, PathChoice, RankingRow, RestChoice, RunReview, SetupOptions, ShopItem, StatusDTO, TurnResult,
+  Achievement, BattleKeyword, CatalogTotals, ChronicleChapter, Difficulty, EncounterOutcome, Encyclopedia, GameHistory, GameSummary, GameView, ItemType, KingdomInfo, NodeInfo, PathChoice, RankingRow, RestChoice, RunReview, SetupOptions, ShopItem, StatusDTO, TurnResult, WraithInfo,
 } from './types';
 
 export async function getSetupOptions(): Promise<SetupOptions> {
   return (await api.get<SetupOptions>('/game/options')).data;
+}
+
+/** 전투 키워드(상태이상, 격노) 설명 */
+export async function getBattleKeywords(): Promise<BattleKeyword[]> {
+  return (await api.get<BattleKeyword[]>('/game/keywords')).data;
 }
 
 /** 왕국의 저울: 지금의 정세 */

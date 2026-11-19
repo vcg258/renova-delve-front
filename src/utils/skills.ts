@@ -1,15 +1,15 @@
 import type { SkillDTO } from '../api/types';
 
-/** 기본 공격은 스킬을 이만큼(기본 공격 포함) 가졌을 때만 버리거나 바꿀 수 있다. 서버 SkillSlotService와 같은 값 */
-export const MIN_SLOTS_TO_DROP_BASIC = 3;
+/** 서버가 규칙 값을 주지 않을 때(예전 서버)만 쓰는 기본값. 평소에는 상태 응답의 minSlotsToDropBasic을 쓴다 */
+export const DEFAULT_MIN_SLOTS_TO_DROP_BASIC = 3;
 
-/** 기본 공격인지. 스타팅 포인트 비용이 0인 스킬은 기본 공격 하나뿐이다 (서버와 같은 기준) */
-export function isBasicSkill(skill: Pick<SkillDTO, 'cost'>): boolean {
-  return skill.cost === 0;
+/** 기본 공격인지. 서버가 표시를 주면 그것을, 예전 서버면 비용 0으로 판정한다 */
+export function isBasicSkill(skill: Pick<SkillDTO, 'cost' | 'basic'>): boolean {
+  return skill.basic ?? skill.cost === 0;
 }
 
 interface SlotLike {
-  skill: Pick<SkillDTO, 'cost'>;
+  skill: Pick<SkillDTO, 'cost' | 'basic'>;
 }
 
 /**
@@ -17,11 +17,13 @@ interface SlotLike {
  * 서버가 최종 판정하지만, 눌러 보고 거절당하기 전에 화면에서 먼저 막고 이유를 적는다.
  *
  * @param replacing true면 다른 스킬로 바꾸는 중(슬롯 수가 줄지 않는다), false면 그냥 버리는 중
+ * @param minSlotsToDropBasic 서버 규칙 값 (상태 응답의 minSlotsToDropBasic)
  */
-export function dropBlockReason(slots: SlotLike[], slot: SlotLike, replacing: boolean): string | null {
+export function dropBlockReason(slots: SlotLike[], slot: SlotLike, replacing: boolean,
+  minSlotsToDropBasic: number = DEFAULT_MIN_SLOTS_TO_DROP_BASIC): string | null {
   if (!replacing && slots.length <= 1) return '마지막 스킬은 버릴 수 없다';
-  if (isBasicSkill(slot.skill) && slots.length < MIN_SLOTS_TO_DROP_BASIC) {
-    return `기본 공격은 스킬 ${MIN_SLOTS_TO_DROP_BASIC}개부터 버릴 수 있다`;
+  if (isBasicSkill(slot.skill) && slots.length < minSlotsToDropBasic) {
+    return `기본 공격은 스킬 ${minSlotsToDropBasic}개부터 버릴 수 있다`;
   }
   return null;
 }

@@ -2,12 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { resetScene, setScene } from '../utils/scene';
 import { useNavigate } from 'react-router-dom';
 import {
-  abandonGame, breakContract, buyItem, chooseEncounter, chooseRest, discardSkill, fleeBattle, getCurrentGame, getShop, guardTurn,
+  abandonGame, breakContract, buyItem, chooseEncounter, chooseRest, discardSkill, fleeBattle, getBattleKeywords, getCurrentGame,
+  getShop, guardTurn,
   leaveShop, nextNode, passTurn, rerollShop, selectReward, useConsumable, useSkill,
 } from '../api/game';
 import { errorMessage } from '../api/client';
 import type {
-  BattleMonster, EncounterInfo, ItemType, NodeType, PathChoice, Phase, RestChoice, RewardView, ShopItem, SkillDTO, StatusDTO,
+  BattleKeyword, BattleMonster, EncounterInfo, ItemType, NodeType, PathChoice, Phase, RestChoice, RewardView, ShopItem, SkillDTO, StatusDTO,
   TurnResult,
 } from '../api/types';
 import StatusBar from '../components/StatusBar';
@@ -20,7 +21,7 @@ import HoverTip from '../components/HoverTip';
 import Dialog from '../components/Dialog';
 import InventoryDialog from '../components/InventoryDialog';
 import { consumableSprite, relicSprite, shopSprite, skillSprite } from '../utils/sprites';
-import { allSkillsCooling, dropBlockReason } from '../utils/skills';
+import { DEFAULT_MIN_SLOTS_TO_DROP_BASIC, allSkillsCooling, dropBlockReason } from '../utils/skills';
 import { compareTrend, equipmentCompare, groupConsumables } from '../utils/inventory';
 
 const NODE_LABEL: Record<NodeType, { icon: string; label: string }> = {
@@ -38,6 +39,9 @@ const ADVANCE_MESSAGES = [
   '발밑에서 낮은 속삭임이 따라온다...',
   '빛과 그림자가 당신을 지켜본다...',
 ];
+
+/** 달아난 뒤 적의 마지막 공격 로그를 읽을 시간 */
+const FLEE_EXIT_DELAY_MS = 900;
 
 /** 갈림길 선택지 (수치는 서버 PathChoice와 동일. 실제 적용은 서버가 한다) */
 const PATHS: { value: PathChoice; icon: string; title: string; desc: string; className: string }[] = [
@@ -103,6 +107,8 @@ export default function GamePage() {
   const [shop, setShop] = useState<ShopItem[]>([]);
   const [rerollCost, setRerollCost] = useState<number | null>(null);
   const [battleLog, setBattleLog] = useState<string[]>([]);
+  // 전투 키워드 설명 (서버가 규칙과 함께 준다). 받지 못해도 전투는 그대로 된다
+  const [keywords, setKeywords] = useState<Record<string, BattleKeyword>>({});
   // 이번 노드에 적용된 갈림길 안내 (서버가 내려준다. 새로고침해도 복원된다)
   const [pathNote, setPathNote] = useState<{ path: PathChoice | null; text: string } | null>(null);
   const [contractNote, setContractNote] = useState<string | null>(null);
@@ -196,6 +202,12 @@ export default function GamePage() {
     resync().catch((err) => setError(errorMessage(err)));
   }, [resync]);
 
+  useEffect(() => {
+    getBattleKeywords()
+      .then((list) => setKeywords(Object.fromEntries(list.map((k) => [k.key, k]))))
+      .catch(() => setKeywords({}));
+  }, []);
+
   // 안전망: 단계와 데이터가 어긋나면 자동 재동기화 (멈춤 방지)
   useEffect(() => {
     if (phase === 'REWARD' && !reward) resync().catch(() => {});
@@ -268,7 +280,7 @@ export default function GamePage() {
         setPathNote(null);
         setSelectedTarget(null);
         setPhase('EXPLORE');
-      }, 900);
+      }, FLEE_EXIT_DELAY_MS);
       return;
     }
     if (result.result === 'WIN') {
@@ -319,7 +331,10 @@ export default function GamePage() {
   const runAway = () => guard(async () => {
     const before = monsters;
     const prevHp = status?.characterDTO?.currentHp ?? 0;
-    handleTurnResult(await fleeBattle(), before, prevHp);
+    const result = await fleeBattle();
+    handleTurnResult(result, before, prevHp);
+    // 갈림길로 넘어가기 전 0.9초 동안 전투 버튼이 다시 눌리지 않게 guard의 busy를 유지한다
+    if (result.result === 'FLED') await new Promise((done) => setTimeout(done, FLEE_EXIT_DELAY_MS + 50));
   });
 
   const dropSkill = (slotId: number) => guard(async () => {
@@ -451,6 +466,7 @@ export default function GamePage() {
   const usableConsumables = groupConsumables(status.consumableInventoryDTO ?? []);
   const skillSlots = status.skillSlotDTO ?? [];
   const maxSkillSlots = status.maxSkillSlots ?? DEFAULT_SKILL_SLOTS;
+  const minSlotsToDropBasic = status.minSlotsToDropBasic ?? DEFAULT_MIN_SLOTS_TO_DROP_BASIC;
   const isBossNode = nodeType === 'BOSS';
   const banner = phase === 'EXPLORE' ? { icon: 'door', label: '탐험' }
     : phase === 'SHOP' ? { icon: 'pouch', label: '상점' }
@@ -512,6 +528,7 @@ export default function GamePage() {
             </div>
           )}
           <p className="path-heading">어느 길로 나아갈 것인가</p>
+          <p className="path-hint">길의 효과는 전투에만 걸린다. 그 길 끝이 전투가 아닌 만남이라면 어느 길이든 같다.</p>
           <div className="path-row">
             {PATHS.map((p) => (
               <button key={p.value} className={`path-card ${p.className}`} disabled={busy}
@@ -530,7 +547,7 @@ export default function GamePage() {
         <div className="battle-panel animate-in">
           <div className="monster-row">
             {monsters.map((m) => (
-              <MonsterCard key={m.key} monster={m}
+              <MonsterCard key={m.key} monster={m} keywords={keywords}
                 selected={selectedTarget === m.key}
                 onSelect={(key) => setSelectedTarget(key)}
                 fxKind={fx && fx.targets.includes(m.key) ? fx.kind : null}
@@ -803,7 +820,7 @@ export default function GamePage() {
             <p className="path-heading">버린 스킬은 돌아오지 않는다</p>
             <div className="swap-grid">
               {skillSlots.map((slot) => {
-                const blocked = dropBlockReason(skillSlots, slot, false);
+                const blocked = dropBlockReason(skillSlots, slot, false, minSlotsToDropBasic);
                 return (
                   <div key={slot.slotId} className={`swap-card static ${blocked ? 'blocked' : ''}`}>
                     <span className="skill-icon"><PixelSprite sprite={skillSprite(slot.skill)} size={32} /></span>
@@ -848,12 +865,14 @@ export default function GamePage() {
             </div>
             <p className="path-heading">버릴 스킬을 고른다. 버린 스킬은 돌아오지 않는다.</p>
             <div className="swap-grid">
-              {skillSlots.map((slot) => (
+              {skillSlots.map((slot) => {
+                const blocked = dropBlockReason(skillSlots, slot, true, minSlotsToDropBasic);
+                return (
                 <button key={slot.slotId}
                   className={`swap-card ${discardSlotId === slot.slotId ? 'selected' : ''}`}
                   aria-pressed={discardSlotId === slot.slotId}
-                  disabled={dropBlockReason(skillSlots, slot, true) != null}
-                  title={dropBlockReason(skillSlots, slot, true) ?? undefined}
+                  disabled={blocked != null}
+                  title={blocked ?? undefined}
                   onClick={() => setDiscardSlotId(slot.slotId)}>
                   <span className="skill-icon"><PixelSprite sprite={skillSprite(slot.skill)} size={32} /></span>
                   <span className="reward-name">{slot.skill.name}</span>
@@ -862,7 +881,8 @@ export default function GamePage() {
                     {slot.skill.target === 'EnemyAll' ? '전체 공격' : '단일 공격'}, 쿨타임 {slot.skill.cooldown}턴
                   </span>
                 </button>
-              ))}
+                );
+              })}
             </div>
             <div className="shop-actions">
               <button className="ghost" onClick={() => setPendingSkill(null)}>그만둔다</button>

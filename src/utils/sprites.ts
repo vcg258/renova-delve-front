@@ -42,6 +42,8 @@ const MONSTER_SPRITE_RULES: [string[], SpriteKey][] = [
   [['얼음 마법사'], 'mage:ice'],
   [['피의 연금술사', '피의 갈증'], 'mage:blood'],
   [['사제'], 'mage:priest'],
+  // '연금술 실패작'은 살점 괴물이다. '연금술'(마법사)보다 먼저 본다
+  [['실패작'], 'zombie:flesh'],
   [['마법사', '연금술'], 'mage'],
   // 영체
   [['전생의 망령'], 'wraith:past'],

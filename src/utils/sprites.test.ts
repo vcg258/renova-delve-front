@@ -39,7 +39,7 @@ describe('monsterSprite', () => {
     ['식인 식물', 'plant'],
     ['뒤틀린 정원 식목', 'plant:thorn'],
     ['좀비', 'zombie'],
-    ['연금술 실패작', 'mage'],                 // '연금술'이 '실패작'(살점)보다 위에 있다
+    ['연금술 실패작', 'zombie:flesh'],         // '실패작'(살점)을 '연금술'(마법사)보다 먼저 본다
     ['실패한 융합체', 'zombie:flesh'],
     ['망령', 'wraith'],
   ];

@@ -1,21 +1,13 @@
-import type { BattleMonster } from '../api/types';
+import type { BattleKeyword, BattleMonster } from '../api/types';
 import PixelSprite from './PixelSprite';
 import Px from './Px';
 import HoverTip from './HoverTip';
 import { monsterSprite } from '../utils/sprites';
 
 const TYPE_LABEL = ['일반', '엘리트', '보스'];
-const BUFF_LABEL: Record<string, string> = {
-  BLEED: '출혈', BURN: '화상', POISON: '독', STUN: '기절',
-};
-
-/** 상태이상 키워드 설명 (서버 BattleServiceImpl의 규칙과 같은 내용). 칩에 마우스를 올리면 펼쳐진다 */
-export const BUFF_HELP: Record<string, string> = {
-  BLEED: '공격을 받을 때마다 스택만큼 추가 피해를 입는다.',
-  BURN: '턴이 끝날 때 최대 HP의 1% × 스택만큼 피해(방어 무시). 30% 확률로 1스택씩 꺼진다.',
-  POISON: '턴이 끝날 때 스택만큼 피해(방어 무시). 사라지지 않는다.',
-  STUN: '이번 턴 행동하지 못한다. 한 턴 쉴 때마다 1스택씩 줄어든다.',
-  ENRAGED: '보스의 HP가 절반 아래로 떨어져 공격력이 30% 올랐다.',
+/** 설명을 아직 받지 못했을 때(또는 받지 못했을 때) 칩에 쓰는 이름. 규칙 설명은 서버가 준다 */
+const FALLBACK_LABEL: Record<string, string> = {
+  BLEED: '출혈', BURN: '화상', POISON: '독', STUN: '기절', ENRAGED: '격노',
 };
 
 /** 이번 턴 행동 예고 표시 (강공 수치는 서버 계산식과 같은 1.6배) */
@@ -39,9 +31,12 @@ interface Props {
   fxId?: number;
   /** 이번 턴 받은 피해량 (플로팅 데미지) */
   damage?: number | null;
+  /** 전투 키워드 설명 (서버 GET /api/game/keywords). 없으면 칩에 이름만 쓴다 */
+  keywords?: Record<string, BattleKeyword>;
 }
 
-export default function MonsterCard({ monster, selected, onSelect, fxKind, fxId, damage }: Props) {
+export default function MonsterCard({ monster, selected, onSelect, fxKind, fxId, damage, keywords = {} }: Props) {
+  const label = (key: string) => keywords[key]?.label ?? FALLBACK_LABEL[key] ?? key;
   const dead = monster.currentHp <= 0;
   const hpPercent = Math.max(0, Math.min(100, (monster.currentHp / monster.maxHp) * 100));
   const typeClass = monster.monsterType === 2 ? 'boss' : monster.monsterType === 1 ? 'elite' : '';
@@ -71,14 +66,14 @@ export default function MonsterCard({ monster, selected, onSelect, fxKind, fxId,
       {!dead && <div className={`monster-intent ${intent.className}`}><Px s={intent.icon} /> {intent.text}</div>}
       <div className="monster-buffs">
         {monster.enraged && !dead && (
-          <HoverTip tip={BUFF_HELP.ENRAGED} focusable={false}>
-            <span className="buff-chip enraged">격노</span>
+          <HoverTip tip={keywords.ENRAGED?.description ?? label('ENRAGED')} focusable={false}>
+            <span className="buff-chip enraged">{label('ENRAGED')}</span>
           </HoverTip>
         )}
         {Object.entries(monster.buffs ?? {}).map(([buff, stack]) => (
-          <HoverTip key={buff} tip={<><strong>{BUFF_LABEL[buff] ?? buff} {stack}</strong><br />{BUFF_HELP[buff] ?? ''}</>}
+          <HoverTip key={buff} tip={<><strong>{label(buff)} {stack}</strong><br />{keywords[buff]?.description ?? ''}</>}
             focusable={false}>
-            <span className={`buff-chip ${buff.toLowerCase()}`}>{BUFF_LABEL[buff] ?? buff} {stack}</span>
+            <span className={`buff-chip ${buff.toLowerCase()}`}>{label(buff)} {stack}</span>
           </HoverTip>
         ))}
       </div>
