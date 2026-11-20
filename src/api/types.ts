@@ -84,6 +84,7 @@ export interface WeaponDTO {
   specialEffect: number;
   scoreCost: number;
   description: string;
+  rarity?: Rarity; // 등급 (서버 v0.12.0부터)
 }
 
 export interface ArmorDTO {
@@ -94,6 +95,7 @@ export interface ArmorDTO {
   specialEffect: number;
   scoreCost: number;
   description: string;
+  rarity?: Rarity; // 등급 (서버 v0.12.0부터)
 }
 
 export interface HelmetDTO {
@@ -104,6 +106,7 @@ export interface HelmetDTO {
   specialEffect: number;
   scoreCost: number;
   description: string;
+  rarity?: Rarity; // 등급 (서버 v0.12.0부터)
 }
 
 export interface SkillInfo {
@@ -118,6 +121,7 @@ export interface SkillInfo {
   effectStack: number;
   description: string;
   basic?: boolean; // 기본 공격 (서버 v0.11.0부터. 없으면 비용 0으로 판정)
+  rarity?: Rarity; // 등급 (서버 v0.12.0부터)
 }
 
 export interface SkillDTO {
@@ -131,13 +135,17 @@ export interface SkillDTO {
   effectStack: number;
   description: string;
   basic?: boolean; // 기본 공격 (서버 v0.11.0부터. 없으면 비용 0으로 판정)
+  rarity?: Rarity; // 등급 (서버 v0.12.0부터)
 }
+
+/** 등급. 상점과 전리품은 스테이지별 확률로 등급을 먼저 정한다 (서버 v0.12.0) */
+export type Rarity = 'COMMON' | 'RARE' | 'EPIC';
 
 export interface RelicDTO {
   relicId: number;
   name: string;
   effectDesc: string;
-  rarity: 'COMMON' | 'RARE' | 'EPIC';
+  rarity: Rarity;
   scoreCost: number;
 }
 
@@ -326,6 +334,7 @@ export interface ShopItem {
   sold: boolean;
   bonus?: number | null;        // 장비의 능력치 보너스 (장비가 아니면 null)
   currentBonus?: number | null; // 지금 착용 중인 같은 부위 장비의 보너스
+  rarity?: Rarity | null;       // 등급 (소모품은 null)
 }
 
 export interface GameSummary {

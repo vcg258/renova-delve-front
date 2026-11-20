@@ -23,6 +23,7 @@ import InventoryDialog from '../components/InventoryDialog';
 import { consumableSprite, relicSprite, shopSprite, skillSprite } from '../utils/sprites';
 import { DEFAULT_MIN_SLOTS_TO_DROP_BASIC, allSkillsCooling, dropBlockReason } from '../utils/skills';
 import { compareTrend, equipmentCompare, groupConsumables } from '../utils/inventory';
+import { rarityClass, rarityKind } from '../utils/rarity';
 
 const NODE_LABEL: Record<NodeType, { icon: string; label: string }> = {
   BATTLE: { icon: 'sword', label: '전투' }, ELITE: { icon: 'skull', label: '강적' },
@@ -31,7 +32,6 @@ const NODE_LABEL: Record<NodeType, { icon: string; label: string }> = {
   CONTRACT: { icon: 'scroll', label: '악마의 계약서' },
 };
 
-const RARITY_LABEL: Record<string, string> = { COMMON: '흔한', RARE: '희귀한', EPIC: '전설의' };
 
 const ADVANCE_MESSAGES = [
   '당신의 선택이 다음 장을 쓰고 있다...',
@@ -667,20 +667,20 @@ export default function GamePage() {
           )}
           <div className="reward-grid">
             {reward.skills.map((s) => (
-              <button key={`s-${s.skillId}`} className="reward-card" disabled={busy}
+              <button key={`s-${s.skillId}`} className={`reward-card ${rarityClass(s.rarity)}`} disabled={busy}
                 title={s.description}
                 onClick={() => acquireSkill({ source: 'REWARD', skillId: s.skillId, name: s.name, description: s.description })}>
                 <span className="card-icon"><PixelSprite sprite={skillSprite(s)} size={48} /></span>
-                <span className="reward-kind">스킬</span>
+                <span className="reward-kind">{rarityKind('스킬', s.rarity)}</span>
                 <span className="reward-name">{s.name}</span>
                 <span className="reward-desc">{s.description}</span>
               </button>
             ))}
             {reward.relics.map((r) => (
-              <button key={`r-${r.relicId}`} className={`reward-card rarity-${r.rarity.toLowerCase()}`} disabled={busy}
+              <button key={`r-${r.relicId}`} className={`reward-card ${rarityClass(r.rarity)}`} disabled={busy}
                 onClick={() => takeReward('RELIC', r.relicId)}>
                 <span className="card-icon"><Px s={relicSprite(r.name)} size={48} /></span>
-                <span className="reward-kind">{RARITY_LABEL[r.rarity] ?? r.rarity} 유물</span>
+                <span className="reward-kind">{rarityKind('유물', r.rarity)}</span>
                 <span className="reward-name">{r.name}</span>
                 <span className="reward-desc">{r.effectDesc}</span>
               </button>
@@ -712,9 +712,9 @@ export default function GamePage() {
           ) : (
             <div className="shop-grid">
               {shop.map((item) => (
-                <div key={`${item.itemType}-${item.itemId}`} className={`shop-card ${item.sold ? 'sold' : ''}`}>
+                <div key={`${item.itemType}-${item.itemId}`} className={`shop-card ${rarityClass(item.rarity)} ${item.sold ? 'sold' : ''}`}>
                   <span className="card-icon"><Px s={shopSprite(item.itemType, item.name)} size={48} /></span>
-                  <span className="reward-kind">{shopTypeLabel(item.itemType)}</span>
+                  <span className="reward-kind">{rarityKind(shopTypeLabel(item.itemType), item.rarity)}</span>
                   <span className="reward-name">{item.name}</span>
                   <span className="reward-desc">{item.description}</span>
                   {equipmentCompare(item) && (
