@@ -8,6 +8,7 @@ import PixelSprite from '../components/PixelSprite';
 import Px from '../components/Px';
 import { armorSprite, helmetSprite, relicSprite, skillSprite, weaponSprite } from '../utils/sprites';
 import { isBasicSkill } from '../utils/skills';
+import { rarityClass } from '../utils/rarity';
 
 const DIFFICULTIES: { value: Difficulty; label: string; desc: string }[] = [
   { value: 'EASY', label: '쉬움', desc: '보상 0.7배, 랭킹에 오르지 않음' },
@@ -183,7 +184,7 @@ export default function SetupPage() {
         <h3>무기</h3>
         <div className="option-row">
           {options.weapons.map((w) => (
-            <OptionCard key={w.weaponId}
+            <OptionCard key={w.weaponId} className={rarityClass(w.rarity)}
               selected={weaponId === w.weaponId}
               block={swapBlock(w.scoreCost, weaponCost, weaponId === w.weaponId)}
               onClick={() => setWeaponId(w.weaponId)} title={w.description}>
@@ -198,7 +199,7 @@ export default function SetupPage() {
         <h3>갑옷</h3>
         <div className="option-row">
           {options.armors.map((a) => (
-            <OptionCard key={a.armorId}
+            <OptionCard key={a.armorId} className={rarityClass(a.rarity)}
               selected={armorId === a.armorId}
               block={swapBlock(a.scoreCost, armorCost, armorId === a.armorId)}
               onClick={() => setArmorId(a.armorId)} title={a.description}>
@@ -213,7 +214,7 @@ export default function SetupPage() {
         <h3>투구</h3>
         <div className="option-row">
           {options.helmets.map((h) => (
-            <OptionCard key={h.helmetId}
+            <OptionCard key={h.helmetId} className={rarityClass(h.rarity)}
               selected={helmetId === h.helmetId}
               block={swapBlock(h.scoreCost, helmetCost, helmetId === h.helmetId)}
               onClick={() => setHelmetId(h.helmetId)} title={h.description}>
@@ -228,7 +229,7 @@ export default function SetupPage() {
         <h3>스킬 <span className="dim small">{basicSkillNote}</span></h3>
         <div className="option-row">
           {options.skills.filter((s) => !isBasicSkill(s)).map((s) => (
-            <OptionCard key={s.skillId}
+            <OptionCard key={s.skillId} className={rarityClass(s.rarity)}
               selected={skillIds.includes(s.skillId)}
               block={skillBlock(s.cost, skillIds.includes(s.skillId))}
               onClick={() => toggleSkill(s.skillId)} title={s.description}>
@@ -243,7 +244,7 @@ export default function SetupPage() {
         <h3>유물</h3>
         <div className="option-row">
           {options.relics.map((r) => (
-            <OptionCard key={r.relicId} className={`rarity-${r.rarity.toLowerCase()}`}
+            <OptionCard key={r.relicId} className={rarityClass(r.rarity)}
               selected={relicIds.includes(r.relicId)}
               block={addBlock(r.scoreCost, relicIds.includes(r.relicId))}
               onClick={() => toggleRelic(r.relicId)} title={r.effectDesc}>

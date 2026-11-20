@@ -1461,6 +1461,8 @@ input[type="checkbox"] { box-shadow: none; }
 .reward-card:hover:not(:disabled), .shop-card:hover { border-color: var(--gold); }
 .reward-card.rarity-rare, .option-card.rarity-rare { border-color: var(--rare); }
 .reward-card.rarity-epic, .option-card.rarity-epic { border-color: var(--epic); }
+.shop-card.rarity-rare { border-color: var(--rare); }
+.shop-card.rarity-epic { border-color: var(--epic); }
 .card-icon { display: flex; justify-content: center; filter: none; }
 .buy-btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
 .shop-card.sold { opacity: .45; }
