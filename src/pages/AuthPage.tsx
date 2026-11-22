@@ -123,7 +123,8 @@ export default function AuthPage() {
         <h2 className="auth-heading">{mode === 'login' ? '로그인' : '모험가 등록'}</h2>
 
         <div className="field">
-          <input placeholder="아이디" value={loginId} autoComplete="username"
+          <input placeholder="아이디" aria-label="아이디" value={loginId} autoComplete="username"
+            spellCheck={false} autoCapitalize="off"
             onChange={(e) => setLoginId(e.target.value)} />
           {mode === 'signup' && loginId.length > 0 &&
             hint(idStatus, idValid, '영문·숫자·밑줄 4~20자', '이미 사용 중인 아이디입니다')}
@@ -131,7 +132,7 @@ export default function AuthPage() {
 
         {mode === 'signup' && (
           <div className="field">
-            <input placeholder="닉네임 (랭킹에 표시됩니다)" value={nickname} maxLength={12}
+            <input placeholder="닉네임 (랭킹에 표시됩니다)" aria-label="닉네임" value={nickname} maxLength={12}
               onChange={(e) => setNickname(e.target.value)} />
             {nickname.length > 0 &&
               hint(nickStatus, nickValid, '한글·영문·숫자 2~12자', '이미 사용 중인 닉네임입니다')}
@@ -141,12 +142,12 @@ export default function AuthPage() {
         {mode === 'signup' && (
           <>
             <div className="field">
-              <input placeholder="이름 (아이디를 찾을 때 확인합니다)" value={name} maxLength={30} autoComplete="name"
+              <input placeholder="이름 (아이디를 찾을 때 확인합니다)" aria-label="이름" value={name} maxLength={30} autoComplete="name"
                 onChange={(e) => setName(e.target.value)} />
               {name.length > 0 && !nameValid && <span className="field-hint">한글·영문 2~30자</span>}
             </div>
             <div className="field">
-              <input type="email" placeholder="이메일 (아이디·비밀번호를 찾을 때 씁니다)" value={email} maxLength={254}
+              <input type="email" placeholder="이메일 (아이디·비밀번호를 찾을 때 씁니다)" aria-label="이메일" spellCheck={false} value={email} maxLength={254}
                 autoComplete="email" onChange={(e) => setEmail(e.target.value)} />
               {email.length > 0 && !emailValid && <span className="field-hint">이메일 형식을 확인해주세요</span>}
             </div>
@@ -154,7 +155,7 @@ export default function AuthPage() {
         )}
 
         <div className="field">
-          <input type="password" placeholder="비밀번호" value={password}
+          <input type="password" placeholder="비밀번호" aria-label="비밀번호" value={password}
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && mode === 'login' && submit()} />
@@ -164,7 +165,7 @@ export default function AuthPage() {
 
         {mode === 'signup' && (
           <div className="field">
-            <input type="password" placeholder="비밀번호 확인" value={passwordConfirm}
+            <input type="password" placeholder="비밀번호 확인" aria-label="비밀번호 확인" value={passwordConfirm}
               autoComplete="new-password"
               onChange={(e) => setPasswordConfirm(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && submit()} />
@@ -207,11 +208,12 @@ export default function AuthPage() {
           </div>
         )}
 
-        {message && <p className="auth-message">{message}</p>}
+        {/* 로그인 실패·가입 결과를 화면 낭독기도 읽도록 알림 영역으로 둔다 */}
+        <p className="auth-message" role="status" aria-live="polite">{message}</p>
 
         <button className="primary wide" onClick={submit}
           disabled={busy || (mode === 'signup' && !canSignup)}>
-          {busy ? '...' : mode === 'login' ? '왕궁으로 들어가기' : '모험가 등록'}
+          {busy ? '…' : mode === 'login' ? '왕궁으로 들어가기' : '모험가 등록'}
         </button>
 
         {mode === 'login' && (
