@@ -273,11 +273,18 @@ export default function SetupPage() {
         </div>
       </section>
 
-      {error && <p className="error-text">{error}</p>}
+      {error && <p className="error-text" role="alert">{error}</p>}
+
+      {/* 포인트를 하나도 쓰지 않으면 기본 공격만으로 출발해 첫 전투에서 쓰러지기 쉽다 (2026-11-21 실기동에서 확인) */}
+      {options && options.budget > 0 && usedPoints === 0 && (
+        <p className="setup-empty-warning">
+          아무것도 고르지 않으면 기본 장비와 기본 공격 하나로 출발합니다. 첫 전투부터 버거울 수 있습니다.
+        </p>
+      )}
 
       <footer className="setup-footer">
         <button className="primary wide" onClick={start} disabled={overBudget || busy}>
-          {busy ? '왕궁의 문이 열린다...' : overBudget ? '스타팅 포인트 초과' : '잠입 시작'}
+          {busy ? '왕궁의 문이 열린다…' : overBudget ? '스타팅 포인트 초과' : '잠입 시작'}
         </button>
       </footer>
     </div>

@@ -375,6 +375,7 @@ export interface GameView {
   shop: ShopItem[] | null;
   summary: GameSummary | null;
   shopRerollCost: number | null; // 상점 단계일 때 다음 재입고 비용
+  story?: string | null;         // 마지막 노드의 서사 (노드가 없는 단계에서 새로고침할 때 복원용)
 }
 
 /** 갈림길 선택 */

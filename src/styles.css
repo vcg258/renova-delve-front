@@ -195,7 +195,7 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
   color: var(--gold); font-weight: 700;
   background: rgba(217, 174, 62, .06);
   box-shadow: 0 0 14px rgba(217, 174, 62, .1);
-  transition: all .25s ease;
+  transition: color .25s ease, border-color .25s ease, background-color .25s ease, box-shadow .25s ease;
 }
 .budget.over {
   border-color: var(--accent); color: var(--accent-hover);
@@ -1150,7 +1150,8 @@ body::before {
 /* 성향 표시 */
 .alignment-pip {
   padding: 3px 11px; border-radius: 20px; border: 1px solid var(--border);
-  background: rgba(10, 7, 15, .55); color: var(--text-dim); transition: all .3s ease;
+  background: rgba(10, 7, 15, .55); color: var(--text-dim);
+  transition: color .3s ease, border-color .3s ease, background-color .3s ease;
 }
 .alignment-pip.heaven { border-color: rgba(201, 176, 106, .45); }
 .alignment-pip.human { border-color: rgba(93, 107, 124, .6); }
@@ -1851,3 +1852,20 @@ a.link-btn { display: inline; }
 
 /* ===== 갈림길: 조우에는 길의 효과가 없다는 안내 ===== */
 .path-hint { margin: -4px 0 12px; font-size: 12px; color: var(--text-dim); text-align: center; }
+
+/* ===== 접근성·모바일 (2026-11-22 점검) ===== */
+/* 알림 영역은 비어 있어도 자리를 지켜야 화면 낭독기가 새 문구를 읽는다. 빈 동안은 여백만 없앤다 */
+.auth-message:empty { margin: 0; }
+/* 관리자 필터의 선택 상자도 키보드 포커스가 보이게 한다 */
+.admin-filters select:focus-visible { border-color: var(--gold); outline: 2px solid var(--gold); outline-offset: 2px; }
+/* 안내자 힌트는 버튼이 되었으므로 버튼 기본 글꼴을 덮어쓴다 */
+button.guide-hint { font-family: inherit; line-height: 1.4; }
+button.guide-hint:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+/* 휴대폰 폭에서는 힌트 말풍선이 화면 아래 카드의 버튼을 가리므로 숨기고 안내자 버튼만 둔다.
+   마지막 카드가 떠 있는 안내자 버튼 아래로 숨지 않게 아래 여백을 더 둔다 */
+@media (max-width: 640px) {
+  .guide-hint { display: none; }
+  .game-page { padding-bottom: 120px; }
+}
+/* 원정 준비: 포인트를 쓰지 않고 출발하려 할 때의 안내 */
+.setup-empty-warning { margin: 0 0 10px; text-align: center; font-size: 13px; color: var(--gold); }

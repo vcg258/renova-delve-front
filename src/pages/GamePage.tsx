@@ -188,6 +188,8 @@ export default function GamePage() {
       setPathNote(view.node.pathNote ? { path: view.node.path ?? null, text: view.node.pathNote } : null);
       setContractNote(view.node.contractNote ?? null);
     } else {
+      // 노드가 없는 단계(전리품·상점·탐험)에서도 마지막 노드의 서사를 서사 칸에 되살린다
+      if (view.story) setStory(view.story);
       setMonsters([]);
       setEncounter(null);
       setPathNote(null);
@@ -454,7 +456,7 @@ export default function GamePage() {
       <div className="page-center dim">
         {error ? (
           <>
-            <p className="error-text">{error}</p>
+            <p className="error-text" role="alert">{error}</p>
             <button className="primary" onClick={() => resync().catch(() => navigate('/'))}>다시 시도</button>
           </>
         ) : '천상과 마계 사이, 왕궁의 어둠 속으로 들어가는 중...'}
@@ -502,7 +504,7 @@ export default function GamePage() {
         <TypewriterText text={story} />
       </div>
 
-      {error && <p className="error-text">{error}</p>}
+      {error && <p className="error-text" role="alert">{error}</p>}
 
       {/* ===== 전진 중 오버레이 ===== */}
       {advancing && (
@@ -556,7 +558,7 @@ export default function GamePage() {
             ))}
           </div>
 
-          <div className="battle-log" ref={logRef}>
+          <div className="battle-log" ref={logRef} role="log" aria-live="polite">
             {battleLog.length === 0
               ? <span className="dim">적 카드의 예고 행동을 보고 대응하세요. 강공이 예고되면 방어, 방어 태세인 적은 다른 대상을 노리는 것이 유리합니다.</span>
               : battleLog.map((line, i) => <div key={i} className="log-line">{line}</div>)}
