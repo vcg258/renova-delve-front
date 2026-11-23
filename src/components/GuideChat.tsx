@@ -128,9 +128,9 @@ export default function GuideChat({ phase }: Props) {
       {!open && (
         <div className="guide-launcher">
           {!seen ? null : (
-            <span className="guide-hint" onClick={() => setOpen(true)}>
+            <button type="button" className="guide-hint" onClick={() => setOpen(true)}>
               도움이 필요한가, 모험가여?
-            </span>
+            </button>
           )}
           <button className="guide-toggle" onClick={() => setOpen(true)} title="AI 안내자에게 물어보기">
             <Px s="candle" size={32} />
