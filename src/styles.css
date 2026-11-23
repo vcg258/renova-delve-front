@@ -1278,8 +1278,9 @@ body::before {
   --accent-hover: #ff6a5a;
   --gold: #e8c860;
   --ink: #05040a;
-  --serif: 'Galmuri14', 'Galmuri11', 'DungGeunMo', 'NeoDunggeunmo', ui-monospace, monospace;
+  --serif: 'Galmuri14', 'Galmuri11', ui-monospace, monospace;
   --display: 'Galmuri11', 'Galmuri14', ui-monospace, monospace;
+  --narrative: 'NeoDunggeunmo', 'Galmuri14', ui-monospace, monospace;
   --hard-shadow: 4px 4px 0 var(--ink);
 }
 
@@ -1869,3 +1870,11 @@ button.guide-hint:focus-visible { outline: 2px solid var(--gold); outline-offset
 }
 /* 원정 준비: 포인트를 쓰지 않고 출발하려 할 때의 안내 */
 .setup-empty-warning { margin: 0 0 10px; text-align: center; font-size: 13px; color: var(--gold); }
+
+/* ===== 서사 글꼴: AI가 쓴 글은 Neo둥근모, 게임 화면은 Galmuri (2026-11-23) =====
+   둥근모꼴은 16px 격자에 맞춰 그린 글꼴이라 16px에서만 획이 흐려지지 않는다 */
+.story-text, .encounter-text, .review-epitaph, .review-analysis, .chapter-body {
+  font-family: var(--narrative);
+  font-size: 16px;
+  line-height: 1.75;
+}

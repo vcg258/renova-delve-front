@@ -29,3 +29,16 @@
   font-display: swap;
   src: url('../node_modules/galmuri/dist/Galmuri14.woff2') format('woff2');
 }
+
+/*
+ * 서사 글꼴 Neo둥근모 (SIL Open Font License 1.1, (c) Eunbin Jeong (Dalgona.))
+ * 90년대 한글 PC 게임의 둥근모꼴을 이은 글꼴이다. AI가 쓰는 글(노드 서사, 조우 장면, 회고, 연대기)에만 쓰고,
+ * 게임 화면의 버튼·수치·이름표는 Galmuri로 둔다. 16px 격자에서 가장 또렷하다.
+ */
+@font-face {
+  font-family: 'NeoDunggeunmo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../node_modules/@kfonts/neodgm/neodgm.woff2') format('woff2');
+}
