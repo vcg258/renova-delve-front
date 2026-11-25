@@ -27,7 +27,7 @@ function status(overrides: Partial<StatusDTO> = {}): StatusDTO {
       heaven: 1, abyss: 6, human: 2, dominant: 'ABYSS', tier: 2, nextTierAt: 9,
       blessing: '마계의 낙인 2단계 — 공격력 +18%, 대신 받는 피해 +12%',
       factions: [
-        { code: 'HEAVEN', label: '천상', tendency: '질서와 자비.', tiers: tiers('천상의 가호') },
+        { code: 'HEAVEN', label: '천상', tendency: '질서와 자비.', tiers: tiers('천상의 가호'), devotion: '성향 12를 넘긴 뒤에는 고를 때마다 최대 HP +6' },
         { code: 'ABYSS', label: '마계', tendency: '욕망과 거래.', tiers: tiers('마계의 낙인') },
         { code: 'HUMAN', label: '인간', tendency: '의지와 실리.', tiers: tiers('인간의 의지') },
       ],
@@ -46,6 +46,13 @@ describe('StatusBar', () => {
     expect(html).not.toMatch(/alignment-pip[^>]*title=/);
     // 가호가 붙은 세력의 현재 단계만 강조된다
     expect(html.match(/tip-tier active/g)).toHaveLength(1);
+  });
+
+  it('세력 말풍선 끝에 서버가 보낸 헌신 보상이 붙는다 (없으면 생략)', () => {
+    const html = renderToStaticMarkup(<StatusBar status={status()} />);
+
+    expect(html).toContain('헌신: 성향 12를 넘긴 뒤에는 고를 때마다 최대 HP +6');
+    expect(html.match(/헌신: /g)).toHaveLength(1);
   });
 
   it('가호 칩에는 이름만 쓰고, 효과와 다음 단계는 말풍선에 넣는다', () => {

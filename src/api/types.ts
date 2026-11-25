@@ -270,6 +270,7 @@ export interface FactionInfo {
   label: string;
   tendency: string;
   tiers: { tier: number; requiredScore: number; description: string }[];
+  devotion?: string;  // 3단계를 넘긴 뒤 이 세력을 고를 때마다 받는 헌신 보상
 }
 
 export interface BattleMonster {

@@ -22,7 +22,7 @@ function scoreOf(alignment: Alignment, faction: Faction): number {
   return faction === 'HEAVEN' ? alignment.heaven : faction === 'ABYSS' ? alignment.abyss : alignment.human;
 }
 
-/** 세력 말풍선: 조우에서의 경향과 단계별 가호. 수치는 서버가 내려준 것을 그대로 쓴다 */
+/** 세력 말풍선: 조우에서의 경향, 단계별 가호, 헌신 보상. 수치는 서버가 내려준 것을 그대로 쓴다 */
 function FactionTip({ info, score, activeTier }: { info: FactionInfo | undefined; score: number; activeTier: number }) {
   if (!info) return <span className="tip-text">조우에서 이 세력의 방식을 택하면 점수가 쌓인다.</span>;
   return (
@@ -35,6 +35,7 @@ function FactionTip({ info, score, activeTier }: { info: FactionInfo | undefined
             <b>{t.requiredScore}</b> {t.description}
           </span>
         ))}
+        {info.devotion && <span className="tip-tier">헌신: {info.devotion}</span>}
       </span>
       <span className="tip-note">가호는 한 세력이 단독 1위일 때만 붙는다. 동률이면 어느 가호도 없다.</span>
     </>
