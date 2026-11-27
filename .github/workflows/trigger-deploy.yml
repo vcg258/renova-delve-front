@@ -1,0 +1,21 @@
+# 프론트 main에 병합되면 백엔드 저장소의 Deploy 워크플로를 실행한다.
+# 화면은 백엔드 이미지 안에 함께 들어가므로(백엔드 Deploy가 이 저장소의 main을 받아 빌드) 배포는 백엔드 쪽에서 한다.
+#
+# 시크릿 BACKEND_DEPLOY_TOKEN: fine-grained 개인 토큰. 저장소 vcg258/RenovaNDelve만, 권한은 Actions: Read and write.
+name: Trigger backend deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  trigger:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Run backend Deploy
+        env:
+          GH_TOKEN: ${{ secrets.BACKEND_DEPLOY_TOKEN }}
+        run: |
+          gh workflow run deploy.yml --repo vcg258/RenovaNDelve --ref main
+          echo "백엔드 Deploy 실행 요청: https://github.com/vcg258/RenovaNDelve/actions/workflows/deploy.yml"
