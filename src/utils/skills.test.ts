@@ -1,45 +1,42 @@
 import { describe, expect, it } from 'vitest';
 import { allSkillsCooling, dropBlockReason, isBasicSkill } from './skills';
 
-const basic = { skill: { cost: 0 } };
-const other = { skill: { cost: 100 } };
+const basic = { skill: { basic: true } };
+const other = { skill: { basic: false } };
+/** 서버가 상태 응답으로 주는 규칙 값 (minSlotsToDropBasic) */
+const MIN = 3;
 
 describe('isBasicSkill', () => {
-  it('서버가 준 표시를 따른다 (비용 0이어도 표시가 false면 기본 공격이 아니다)', () => {
-    expect(isBasicSkill({ cost: 0, basic: true })).toBe(true);
-    expect(isBasicSkill({ cost: 0, basic: false })).toBe(false);
-  });
-
-  it('예전 서버라 표시가 없으면 비용 0으로 판정한다', () => {
-    expect(isBasicSkill({ cost: 0 })).toBe(true);
-    expect(isBasicSkill({ cost: 120 })).toBe(false);
+  it('서버가 준 표시를 따른다', () => {
+    expect(isBasicSkill({ basic: true })).toBe(true);
+    expect(isBasicSkill({ basic: false })).toBe(false);
   });
 });
 
 describe('dropBlockReason', () => {
   it('스킬이 3개 이상이면 기본 공격도 버릴 수 있다', () => {
-    expect(dropBlockReason([basic, other, other], basic, false)).toBeNull();
+    expect(dropBlockReason([basic, other, other], basic, false, MIN)).toBeNull();
   });
 
   it('스킬이 2개뿐이면 기본 공격은 버릴 수 없다', () => {
-    expect(dropBlockReason([basic, other], basic, false)).toContain('기본 공격');
+    expect(dropBlockReason([basic, other], basic, false, MIN)).toContain('기본 공격');
   });
 
   it('스킬이 2개여도 기본 공격이 아닌 스킬은 버릴 수 있다', () => {
-    expect(dropBlockReason([basic, other], other, false)).toBeNull();
+    expect(dropBlockReason([basic, other], other, false, MIN)).toBeNull();
   });
 
   it('마지막 남은 스킬은 버릴 수 없다', () => {
-    expect(dropBlockReason([other], other, false)).toContain('마지막');
+    expect(dropBlockReason([other], other, false, MIN)).toContain('마지막');
   });
 
   it('교체할 때도 기본 공격 규칙은 같다', () => {
-    expect(dropBlockReason([basic, other], basic, true)).toContain('기본 공격');
-    expect(dropBlockReason([basic, other, other], basic, true)).toBeNull();
+    expect(dropBlockReason([basic, other], basic, true, MIN)).toContain('기본 공격');
+    expect(dropBlockReason([basic, other, other], basic, true, MIN)).toBeNull();
   });
 
   it('교체는 슬롯 수가 줄지 않으므로 마지막 스킬도 바꿀 수 있다', () => {
-    expect(dropBlockReason([other], other, true)).toBeNull();
+    expect(dropBlockReason([other], other, true, MIN)).toBeNull();
   });
 });
 

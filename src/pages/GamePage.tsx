@@ -21,7 +21,7 @@ import HoverTip from '../components/HoverTip';
 import Dialog from '../components/Dialog';
 import InventoryDialog from '../components/InventoryDialog';
 import { consumableSprite, relicSprite, shopSprite, skillSprite } from '../utils/sprites';
-import { DEFAULT_MIN_SLOTS_TO_DROP_BASIC, allSkillsCooling, dropBlockReason } from '../utils/skills';
+import { allSkillsCooling, dropBlockReason } from '../utils/skills';
 import { compareTrend, equipmentCompare, groupConsumables } from '../utils/inventory';
 import { rarityClass, rarityKind } from '../utils/rarity';
 
@@ -74,7 +74,6 @@ interface PendingSkill {
   shopItem?: ShopItem;
 }
 
-const DEFAULT_SKILL_SLOTS = 8;
 
 /** 스킬 정보 -> 이펙트 종류 결정 */
 function resolveFxKind(skill: SkillDTO): FxKind {
@@ -411,7 +410,7 @@ export default function GamePage() {
       s.itemType === item.itemType && s.itemId === item.itemId ? { ...s, sold: true } : s));
   });
 
-  const slotsFull = (status?.skillSlotDTO?.length ?? 0) >= (status?.maxSkillSlots ?? DEFAULT_SKILL_SLOTS);
+  const slotsFull = (status?.skillSlotDTO?.length ?? 0) >= (status?.maxSkillSlots ?? Infinity);
 
   /** 스킬을 얻으려 할 때: 빈 슬롯이 있으면 바로, 가득 찼으면 버릴 스킬을 고르는 창을 연다 */
   const acquireSkill = (pending: PendingSkill) => {
@@ -467,8 +466,8 @@ export default function GamePage() {
   // 같은 소모품은 한 묶음으로 보여 주고, 쓸 때는 그중 첫 칸을 쓴다
   const usableConsumables = groupConsumables(status.consumableInventoryDTO ?? []);
   const skillSlots = status.skillSlotDTO ?? [];
-  const maxSkillSlots = status.maxSkillSlots ?? DEFAULT_SKILL_SLOTS;
-  const minSlotsToDropBasic = status.minSlotsToDropBasic ?? DEFAULT_MIN_SLOTS_TO_DROP_BASIC;
+  const maxSkillSlots = status.maxSkillSlots;
+  const minSlotsToDropBasic = status.minSlotsToDropBasic;
   const isBossNode = nodeType === 'BOSS';
   const banner = phase === 'EXPLORE' ? { icon: 'door', label: '탐험' }
     : phase === 'SHOP' ? { icon: 'pouch', label: '상점' }
