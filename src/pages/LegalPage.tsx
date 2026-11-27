@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 /** 약관·처리방침 시행일. 백엔드 PersonalDataService.POLICY_VERSION 과 맞춘다. */
-export const POLICY_VERSION = '2026-11-26';
+export const POLICY_VERSION = '2026-11-27';
 
 /**
  * 운영자 정보. 실제로 서비스를 공개하기 전에 반드시 채워야 한다.
@@ -18,7 +18,7 @@ const OPERATOR = {
 /** 서버 호스팅 사업자와 서버 위치. 배포처가 바뀌면 함께 고친다. */
 const HOSTING = {
   name: 'Oracle Corporation (Oracle Cloud Infrastructure)',
-  region: '대한민국',
+  region: '일본 (도쿄)',
 };
 
 interface Props {
@@ -218,12 +218,26 @@ function Privacy() {
         </thead>
         <tbody>
           <tr><td>네이버 주식회사</td><td>아이디 안내, 비밀번호 재설정·변경 알림 메일 발송</td></tr>
-          <tr><td>{HOSTING.name}</td><td>서버와 데이터베이스 운영 (서버 위치: {HOSTING.region})</td></tr>
+          <tr><td>{HOSTING.name}</td><td>서버와 데이터베이스 운영 (서버 위치: {HOSTING.region}, 국외 이전, 5조)</td></tr>
           <tr><td>OpenAI OpCo, LLC</td><td>AI 서사·안내자 답변 생성 (국외 이전, 5조)</td></tr>
         </tbody>
       </table>
 
       <h3>5. 국외 이전</h3>
+      <p>서비스의 서버가 일본에 있어, 가입과 이용 중에 처리하는 모든 정보가 아래와 같이 국외에 보관됩니다.</p>
+      <table className="legal-table">
+        <tbody>
+          <tr><th>이전받는 자</th><td>{HOSTING.name}</td></tr>
+          <tr><th>연락처</th><td>www.oracle.com/legal/privacy</td></tr>
+          <tr><th>이전 국가</th><td>{HOSTING.region}</td></tr>
+          <tr><th>이전 항목</th><td>1조의 수집 항목 전부</td></tr>
+          <tr><th>목적</th><td>서버와 데이터베이스 운영 (정보 보관)</td></tr>
+          <tr><th>시기·방법</th><td>가입과 서비스 이용 시 암호화된 통신(HTTPS)으로 서버에 저장</td></tr>
+          <tr><th>보유 기간</th><td>2조의 보유 기간과 같음</td></tr>
+          <tr><th>법적 근거</th><td>개인정보 보호법 제28조의8 제1항 제3호 (서비스 제공에 필요한 처리 위탁·보관으로서 이 처리방침에 공개)</td></tr>
+          <tr><th>거부 방법과 효과</th><td>서버 보관은 서비스 제공에 꼭 필요해 따로 거부할 수 없습니다. 원하지 않으면 가입하지 않거나 탈퇴하면 됩니다.</td></tr>
+        </tbody>
+      </table>
       <p>AI 서사와 안내자 답변을 생성하기 위해 아래와 같이 정보가 국외로 전송됩니다.</p>
       <table className="legal-table">
         <tbody>
@@ -318,6 +332,7 @@ function Privacy() {
         다시 동의를 받습니다.
       </p>
       <ul className="dim small">
+        <li>2026-11-27: 서버 위치를 일본(도쿄)으로 바로잡고 서버 보관을 국외 이전에 추가</li>
         <li>2026-11-26: 처리 위탁과 국외 이전을 나누고 이전받는 자의 연락처·법적 근거·거부 방법, 보호책임자 직책, 권익 침해 구제 기관, AI 학습 미사용을 추가</li>
         <li>2026-11-14: 이름·이메일 수집 (아이디·비밀번호 찾기)</li>
       </ul>
