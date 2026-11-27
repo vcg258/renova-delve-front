@@ -50,7 +50,7 @@ export default function StatusBar({ status }: { status: StatusDTO }) {
   const c = status.characterDTO;
   const s = status.stateDTO;
   const hpPercent = c ? Math.max(0, Math.min(100, (c.currentHp / c.maxHp) * 100)) : 0;
-  const expNeed = c ? c.level * 100 : 100;
+  const expNeed = c ? c.expToNext : 1;
   const expPercent = c ? Math.max(0, Math.min(100, (c.currentExp / expNeed) * 100)) : 0;
   const relics = status.relicInventoryDTO ?? [];
   const alignment = status.alignment;

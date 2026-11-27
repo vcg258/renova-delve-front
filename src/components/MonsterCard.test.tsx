@@ -9,7 +9,7 @@ function monster(overrides: Partial<BattleMonster> = {}): BattleMonster {
   return {
     key: 0, monsterId: 1, name: '광증의 기사', monsterType: 0,
     maxHp: 50, currentHp: 30, atk: 10, def: 2,
-    buffs: {}, description: '', intent: 'ATTACK', enraged: false,
+    buffs: {}, description: '', intent: 'ATTACK', intentAtk: 10, enraged: false,
     ...overrides,
   } as BattleMonster;
 }

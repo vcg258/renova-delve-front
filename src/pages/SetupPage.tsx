@@ -116,7 +116,7 @@ export default function SetupPage() {
   const addBlock = (cost: number, selected: boolean) =>
     !selected && cost > remaining ? `${cost - remaining}pt 부족` : null;
   const skillBlock = (cost: number, selected: boolean) =>
-    !selected && skillIds.length >= 3 ? '스킬은 3개까지' : addBlock(cost, selected);
+    options && !selected && skillIds.length >= options.maxSkillPicks ? `스킬은 ${options.maxSkillPicks}개까지` : addBlock(cost, selected);
 
   const toggleSkill = (id: number) => {
     setSkillIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : prev.length >= 3 ? prev : [...prev, id]);

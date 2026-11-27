@@ -120,7 +120,7 @@ export interface SkillInfo {
   statusEffect: number;
   effectStack: number;
   description: string;
-  basic?: boolean; // 기본 공격 (서버 v0.11.0부터. 없으면 비용 0으로 판정)
+  basic: boolean; // 기본 공격 (서버가 판정)
   rarity?: Rarity; // 등급 (서버 v0.12.0부터)
 }
 
@@ -134,7 +134,7 @@ export interface SkillDTO {
   statusEffect: number;
   effectStack: number;
   description: string;
-  basic?: boolean; // 기본 공격 (서버 v0.11.0부터. 없으면 비용 0으로 판정)
+  basic: boolean; // 기본 공격 (서버가 판정)
   rarity?: Rarity; // 등급 (서버 v0.12.0부터)
 }
 
@@ -161,6 +161,7 @@ export interface ConsumableDTO {
 export interface SetupOptions {
   budget: number;       // 총 예산 (기본 + 도감 보너스)
   bonusBudget: number;  // 도감 수집 보너스
+  maxSkillPicks: number; // 고를 수 있는 스킬 수 (기본 공격 제외, 서버 규칙 값)
   pacts: PactInfo[];    // 선택 가능한 서약
   weapons: WeaponDTO[];
   armors: ArmorDTO[];
@@ -185,6 +186,7 @@ export interface CharacterDTO {
   characterId: number;
   level: number;
   currentExp: number;
+  expToNext: number; // 다음 레벨까지 필요한 경험치 (서버 규칙 값)
   currentHp: number;
   maxHp: number;
   attack: number;
@@ -224,8 +226,8 @@ export interface StatusDTO {
   skillSlotDTO: SkillSlotDTO[];
   relicSynergies?: string[]; // 발동 중인 유물 조합 시너지 ("이름 — 설명")
   skillSynergies?: string[]; // 발동 중인 스킬 조합 시너지 ("이름 — 설명")
-  maxSkillSlots?: number;    // 스킬 슬롯 상한. 가득 차면 새 스킬은 기존 스킬과 교체한다
-  minSlotsToDropBasic?: number; // 기본 공격을 버리거나 바꿀 수 있는 최소 스킬 수 (서버 규칙 값)
+  maxSkillSlots: number;    // 스킬 슬롯 상한. 가득 차면 새 스킬은 기존 스킬과 교체한다
+  minSlotsToDropBasic: number; // 기본 공격을 버리거나 바꿀 수 있는 최소 스킬 수 (서버 규칙 값)
   alignment?: Alignment;     // 성향 (천상 / 마계 / 인간)
   pacts?: string[];          // 이번 원정에 건 서약 이름
   contract?: ContractInfo | null; // 걸린 악마의 계약
@@ -285,6 +287,7 @@ export interface BattleMonster {
   buffs: Record<string, number>;
   description: string;
   intent: MonsterIntent; // 이번 턴 행동 예고
+  intentAtk: number;     // 예고대로 움직일 때의 공격력 (강공 배율 적용, 서버 계산)
   enraged: boolean;      // 보스 격노
 }
 
