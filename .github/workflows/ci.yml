@@ -1,0 +1,29 @@
+# CI: PR과 dev 푸시마다 테스트와 빌드(타입 검사 포함)를 돌린다.
+# 배포는 백엔드 저장소의 Deploy 워크플로가 이 저장소의 main을 받아 함께 빌드한다.
+name: CI
+
+on:
+  pull_request:
+    branches: [ "dev", "main" ]
+  push:
+    branches: [ "dev" ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
