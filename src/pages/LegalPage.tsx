@@ -8,11 +8,14 @@ export const POLICY_VERSION = '2026-11-26';
  * (개인정보 처리방침에는 처리자와 보호책임자의 연락처가 있어야 한다)
  *
  * 소스에 적지 않고 빌드 환경변수로 받는다: .env 의 VITE_OPERATOR_NAME / VITE_OPERATOR_CONTACT (.env.example 참고).
+ * 운영자명은 닉네임이어도 되지만, 처리방침의 보호책임자 성명은 실명이어야 해서 따로 받는다
+ * (VITE_PRIVACY_OFFICER_NAME, 비우면 운영자명을 쓴다).
  * 비어 있으면 자리표시자가 그대로 보이므로, 빠뜨린 채 배포하면 화면에서 바로 드러난다.
  */
 const OPERATOR = {
   name: import.meta.env.VITE_OPERATOR_NAME || '[운영자명 기입]',
   contact: import.meta.env.VITE_OPERATOR_CONTACT || '[문의 이메일 기입]',
+  officer: import.meta.env.VITE_PRIVACY_OFFICER_NAME || import.meta.env.VITE_OPERATOR_NAME || '[보호책임자 성명 기입]',
 };
 
 /** 서버 호스팅 사업자와 서버 위치. 배포처가 바뀌면 함께 고친다. */
@@ -297,7 +300,7 @@ function Privacy() {
       <h3>11. 개인정보 보호책임자</h3>
       <table className="legal-table">
         <tbody>
-          <tr><th>성명</th><td>{OPERATOR.name}</td></tr>
+          <tr><th>성명</th><td>{OPERATOR.officer}</td></tr>
           <tr><th>직책</th><td>운영자 (개인이 운영하는 서비스로, 운영자가 보호책임자를 겸합니다)</td></tr>
           <tr><th>연락처</th><td>{OPERATOR.contact}</td></tr>
         </tbody>
