@@ -1,5 +1,5 @@
 /* =====================================================
-   Renova & Delve — 마왕성(Demon Castle) 테마
+   Renova & Delve — 천상 · 인간 · 마계 (도트 테마)
    보름달 · 성 실루엣 · 흐르는 안개 · 떠오르는 불씨
    ===================================================== */
 
@@ -40,200 +40,6 @@ body {
   font-family: var(--serif);
   min-height: 100vh;
   overflow-x: hidden;
-}
-
-/* ===================== 배경 연출 레이어 ===================== */
-
-.atmosphere {
-  position: fixed; inset: 0; z-index: -1;
-  pointer-events: none; overflow: hidden;
-}
-
-/* 보름달 (핏기 도는 창백한 달) */
-.moon {
-  position: absolute; top: 6%; right: 12%;
-  width: 140px; height: 140px; border-radius: 50%;
-  background: radial-gradient(circle at 38% 34%, #e9ddc4 0%, #c7b394 42%, #8f7a63 78%, #6e5a4c 100%);
-  box-shadow:
-    inset -14px -10px 30px rgba(90, 60, 50, .45),
-    0 0 50px 14px rgba(230, 210, 180, 0.10),
-    0 0 140px 50px rgba(190, 120, 100, 0.08);
-  animation: moonGlow 11s ease-in-out infinite;
-}
-@keyframes moonGlow {
-  0%, 100% { box-shadow: 0 0 60px 18px rgba(240,230,200,.14), 0 0 160px 60px rgba(200,170,220,.10); }
-  50% { box-shadow: 0 0 80px 26px rgba(240,230,200,.20), 0 0 200px 80px rgba(200,170,220,.14); }
-}
-
-/* 밤하늘 별 (구름 낀 밤처럼 희미하게) */
-.stars { position: absolute; inset: 0; }
-.star {
-  position: absolute; border-radius: 50%;
-  background: #c9c2d8;
-  animation: twinkle ease-in-out infinite;
-  opacity: .1;
-}
-@keyframes twinkle {
-  0%, 100% { opacity: .06; }
-  50% { opacity: .45; }
-}
-
-/* 달을 스치는 먹구름 */
-.storm-cloud {
-  position: absolute; top: 3%;
-  width: 420px; height: 110px; border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(14, 10, 22, .92) 0%, rgba(14, 10, 22, .5) 45%, transparent 72%);
-  filter: blur(7px);
-  animation: cloudDrift linear infinite;
-}
-.storm-cloud.c1 { animation-duration: 85s; top: 4%; }
-.storm-cloud.c2 { animation-duration: 130s; top: 10%; width: 560px; opacity: .8; animation-delay: -40s; }
-@keyframes cloudDrift {
-  0% { right: -30%; }
-  100% { right: 115%; }
-}
-
-/* 마른 번개 (이따금 하늘이 갈라진다) */
-.lightning {
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 55% 38% at 68% 6%, rgba(205, 195, 255, .55), transparent 60%),
-    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(160, 150, 220, .25), transparent 65%);
-  opacity: 0;
-  animation: lightningFlash 19s infinite;
-}
-@keyframes lightningFlash {
-  0%, 91% { opacity: 0; }
-  91.6% { opacity: .9; }
-  92.1% { opacity: .05; }
-  92.7% { opacity: .55; }
-  93.4% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-/* 성 뒤 마력 발광 */
-.castle-glow {
-  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 150%; height: 58vh;
-  background:
-    radial-gradient(ellipse 42% 60% at 50% 100%, rgba(140, 70, 210, 0.20) 0%, rgba(80, 40, 130, 0.10) 45%, transparent 72%),
-    radial-gradient(ellipse 18% 42% at 50% 100%, rgba(255, 120, 60, 0.10) 0%, transparent 65%);
-  animation: castleGlowPulse 7s ease-in-out infinite;
-}
-@keyframes castleGlowPulse {
-  0%, 100% { opacity: .8; }
-  50% { opacity: 1; }
-}
-
-/* 원경: 산맥과 무너진 폐탑 */
-.castle-far {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 42vh;
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 400' preserveAspectRatio='xMidYMax slice'><g fill='%231e1338'><path d='M0 400 L0 310 L120 235 L230 300 L330 225 L430 310 L455 310 L455 245 L472 245 L472 225 L487 225 L487 245 L505 245 L505 400 Z'/><path d='M600 400 L700 338 L820 378 L950 328 L1060 400 Z'/><path d='M1600 400 L1600 295 L1490 235 L1375 300 L1295 245 L1185 318 L1148 318 L1148 255 L1130 255 L1130 235 L1115 235 L1115 255 L1097 255 L1097 400 Z'/></g><g fill='%23b06ae5' opacity='0.35'><rect x='477' y='255' width='4' height='7'/><rect x='1120' y='265' width='4' height='7'/></g></svg>");
-  background-size: cover; background-position: bottom center; background-repeat: no-repeat;
-  opacity: .9;
-}
-
-/* 근경: 마왕성 본성 (성문 불빛 · 장미창 · 첨탑 깃발) */
-.castle-silhouette {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 54vh;
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 560' preserveAspectRatio='xMidYMax slice'><g fill='%23150c26'><rect x='0' y='430' width='1600' height='130'/><rect x='0' y='412' width='30' height='20'/><rect x='60' y='412' width='30' height='20'/><rect x='120' y='412' width='30' height='20'/><rect x='180' y='412' width='30' height='20'/><rect x='240' y='412' width='30' height='20'/><rect x='1330' y='412' width='30' height='20'/><rect x='1390' y='412' width='30' height='20'/><rect x='1450' y='412' width='30' height='20'/><rect x='1510' y='412' width='30' height='20'/><rect x='1570' y='412' width='30' height='20'/></g><g fill='%23180e2c'><rect x='340' y='340' width='920' height='170'/><rect x='352' y='320' width='26' height='22'/><rect x='420' y='320' width='26' height='22'/><rect x='488' y='320' width='26' height='22'/><rect x='556' y='320' width='26' height='22'/><rect x='1018' y='320' width='26' height='22'/><rect x='1086' y='320' width='26' height='22'/><rect x='1154' y='320' width='26' height='22'/><rect x='1222' y='320' width='26' height='22'/></g><g fill='%231a0f2e'><rect x='320' y='250' width='95' height='260'/><rect x='1185' y='250' width='95' height='260'/></g><g fill='%23110a20'><polygon points='310,250 425,250 367,162'/><polygon points='1175,250 1290,250 1232,162'/></g><g fill='%231c1032'><rect x='558' y='180' width='86' height='330'/><rect x='956' y='180' width='86' height='330'/></g><g fill='%23130b24'><polygon points='548,180 654,180 601,84'/><polygon points='946,180 1052,180 999,84'/></g><rect x='600' y='58' width='2.5' height='28' fill='%23241740'/><polygon points='603,60 603,76 632,68' fill='%23641f33'/><rect x='997' y='58' width='2.5' height='28' fill='%23241740'/><polygon points='1000,60 1000,76 1029,68' fill='%23641f33'/><rect x='700' y='150' width='200' height='360' fill='%231e1136'/><g fill='%231e1136'><rect x='706' y='132' width='24' height='20'/><rect x='746' y='132' width='24' height='20'/><rect x='786' y='132' width='24' height='20'/><rect x='826' y='132' width='24' height='20'/><rect x='866' y='132' width='24' height='20'/></g><polygon points='756,150 844,150 800,32' fill='%23140c26'/><rect x='798.5' y='4' width='3' height='30' fill='%23241740'/><polygon points='802,6 802,26 840,15' fill='%237e2430'/><g fill='%23d97a34' opacity='0.5'><rect x='736' y='200' width='9' height='22' rx='4'/><rect x='795' y='200' width='9' height='22' rx='4'/><rect x='854' y='200' width='9' height='22' rx='4'/><rect x='736' y='305' width='9' height='22' rx='4'/><rect x='854' y='305' width='9' height='22' rx='4'/><rect x='595' y='230' width='9' height='20' rx='4'/><rect x='595' y='295' width='9' height='20' rx='4'/><rect x='995' y='230' width='9' height='20' rx='4'/><rect x='995' y='295' width='9' height='20' rx='4'/><rect x='360' y='300' width='8' height='17' rx='3'/><rect x='1230' y='300' width='8' height='17' rx='3'/></g><g fill='%23d97a34' opacity='0.26'><rect x='430' y='380' width='7' height='14' rx='3'/><rect x='500' y='380' width='7' height='14' rx='3'/><rect x='1095' y='380' width='7' height='14' rx='3'/><rect x='1165' y='380' width='7' height='14' rx='3'/><rect x='95' y='450' width='7' height='13' rx='3'/><rect x='1495' y='450' width='7' height='13' rx='3'/></g><circle cx='800' cy='268' r='15' fill='%23ff4b3a' opacity='0.75'/><circle cx='800' cy='268' r='8' fill='%238a140d' opacity='0.95'/><circle cx='800' cy='268' r='3.5' fill='%23ffb0a0' opacity='0.9'/><path d='M758 510 L758 428 Q800 388 842 428 L842 510 Z' fill='%23090512'/><path d='M770 510 L770 436 Q800 408 830 436 L830 510 Z' fill='%23ff6a26' opacity='0.38'/><g fill='%23090512'><rect x='783' y='412' width='3.5' height='98'/><rect x='798' y='406' width='3.5' height='104'/><rect x='813' y='412' width='3.5' height='98'/></g></svg>");
-  background-size: cover; background-position: bottom center; background-repeat: no-repeat;
-  filter: drop-shadow(0 -10px 40px rgba(130, 65, 200, 0.16));
-}
-
-/* 흐르는 안개 */
-.fog {
-  position: absolute; left: -60%; width: 220%; height: 34vh; bottom: 0;
-  background: radial-gradient(ellipse 45% 90% at 50% 100%, rgba(140, 110, 190, 0.10) 0%, transparent 70%),
-              radial-gradient(ellipse 30% 70% at 20% 100%, rgba(100, 80, 140, 0.10) 0%, transparent 70%),
-              radial-gradient(ellipse 35% 80% at 80% 100%, rgba(90, 70, 130, 0.08) 0%, transparent 70%);
-  animation: fogDrift 46s linear infinite;
-}
-.fog-2 { animation-duration: 70s; animation-direction: reverse; opacity: .7; height: 26vh; }
-.fog-3 { animation-duration: 95s; opacity: .5; height: 44vh; }
-@keyframes fogDrift {
-  0% { transform: translateX(-6%); }
-  50% { transform: translateX(6%); }
-  100% { transform: translateX(-6%); }
-}
-
-/* 하늘에서 떨어지는 재 (불탄 왕국의 잔해) */
-.ash {
-  position: absolute; top: -12px; border-radius: 50%;
-  background: #5e5668;
-  animation-name: ashFall; animation-timing-function: linear;
-  animation-iteration-count: infinite; opacity: 0;
-}
-@keyframes ashFall {
-  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
-  8% { opacity: .45; }
-  85% { opacity: .3; }
-  100% { transform: translateY(106vh) translateX(var(--drift, 0px)) rotate(180deg); opacity: 0; }
-}
-
-/* 성문 근처에서만 낮게 흩날리는 잔불 */
-.low-ember {
-  position: absolute; bottom: 4vh; border-radius: 50%;
-  background: #b3572a;
-  box-shadow: 0 0 5px 1px rgba(200, 90, 40, .45);
-  animation-name: lowEmberDrift; animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite; opacity: 0;
-}
-@keyframes lowEmberDrift {
-  0% { transform: translateY(0) translateX(0); opacity: 0; }
-  12% { opacity: .55; }
-  60% { opacity: .35; }
-  100% { transform: translateY(-22vh) translateX(var(--drift, 0px)); opacity: 0; }
-}
-
-/* 전경의 죽은 나무 (뒤틀린 가지) */
-.dead-tree {
-  position: absolute; bottom: -2vh;
-  width: min(34vw, 430px); height: 64vh;
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 500' preserveAspectRatio='xMidYMax meet'><path fill='%23050309' d='M150 500 L138 380 L90 330 L96 322 L134 356 L128 300 L70 260 L40 200 L48 196 L78 250 L130 282 L126 210 L96 150 L102 146 L134 200 L146 240 L152 160 L142 90 L120 40 L127 36 L150 80 L158 30 L165 32 L160 100 L168 170 L186 130 L214 96 L220 102 L192 150 L172 210 L176 280 L226 240 L262 180 L270 185 L236 254 L180 300 L172 360 L216 330 L250 310 L254 318 L206 352 L166 390 L160 500 Z'/><path fill='%23050309' d='M40 200 L20 170 L24 166 L46 194 Z M262 180 L284 150 L288 154 L268 186 Z M96 150 L82 110 L87 107 L104 145 Z M214 96 L228 60 L233 63 L221 100 Z'/></svg>");
-  background-size: contain; background-position: bottom; background-repeat: no-repeat;
-  transform-origin: bottom center;
-  filter: drop-shadow(0 0 14px rgba(0, 0, 0, .9));
-}
-.dead-tree.left { left: -5vw; animation: treeSwayL 10s ease-in-out infinite; }
-.dead-tree.right { right: -5vw; animation: treeSwayR 12s ease-in-out infinite; }
-@keyframes treeSwayL {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(.7deg); }
-}
-@keyframes treeSwayR {
-  0%, 100% { transform: scaleX(-1) rotate(0deg); }
-  50% { transform: scaleX(-1) rotate(.7deg); }
-}
-
-/* 필름 그레인 (실사 질감) */
-.grain {
-  position: absolute; inset: 0;
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.55'/></svg>");
-  background-size: 180px 180px;
-  opacity: .055;
-  mix-blend-mode: overlay;
-}
-
-/* 하늘을 가로지르는 박쥐 */
-.bat {
-  position: absolute; left: -5%;
-  opacity: .5; filter: brightness(.55) drop-shadow(0 0 4px rgba(0, 0, 0, .8));
-  animation: batFly linear infinite;
-}
-@keyframes batFly {
-  0% { left: -5%; transform: translateY(0) scaleX(1); }
-  20% { transform: translateY(-34px) scaleX(1); }
-  40% { transform: translateY(8px) scaleX(1); }
-  60% { transform: translateY(-26px) scaleX(1); }
-  80% { transform: translateY(4px) scaleX(1); }
-  100% { left: 105%; transform: translateY(-12px) scaleX(1); }
-}
-
-/* 비네트 (가장자리 어둡게) */
-.vignette {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 90% 80% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
 }
 
 /* ===================== 공통 요소 ===================== */
@@ -296,7 +102,6 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
 }
 .primary.wide { width: 100%; padding: 14px; font-size: 16px; }
 .primary.big { padding: 17px 46px; font-size: 17px; letter-spacing: 1px; }
-.primary.glow { animation: pulseGlow 2.6s ease-in-out infinite; }
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 12px var(--accent-glow); }
   50% { box-shadow: 0 0 26px var(--accent-glow), 0 0 46px rgba(224, 76, 66, .18); }
@@ -390,7 +195,7 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
   color: var(--gold); font-weight: 700;
   background: rgba(217, 174, 62, .06);
   box-shadow: 0 0 14px rgba(217, 174, 62, .1);
-  transition: all .25s ease;
+  transition: color .25s ease, border-color .25s ease, background-color .25s ease, box-shadow .25s ease;
 }
 .budget.over {
   border-color: var(--accent); color: var(--accent-hover);
@@ -728,18 +533,74 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
 /* ===================== 가이드 챗봇 ===================== */
 
 .guide-chat { position: fixed; right: 22px; bottom: 22px; z-index: 50; }
+.guide-launcher { display: flex; align-items: center; gap: 10px; }
 .guide-toggle {
-  width: 54px; height: 54px; border-radius: 50%; font-size: 23px;
-  background: var(--bg-card); border: 1px solid var(--gold);
-  box-shadow: 0 4px 22px rgba(0, 0, 0, .6), 0 0 16px rgba(217, 174, 62, .2);
-  animation: candleFloat 4s ease-in-out infinite;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  width: 66px; height: 66px; border-radius: 50%; font-size: 25px;
+  background: radial-gradient(circle at 50% 35%, rgba(217, 174, 62, .2), var(--bg-card) 70%);
+  border: 1px solid var(--gold);
+  box-shadow: 0 4px 22px rgba(0, 0, 0, .6), 0 0 22px rgba(217, 174, 62, .3);
+  animation: candleFloat 4s ease-in-out infinite, guidePulse 3s ease-in-out infinite;
+}
+.guide-toggle-label {
+  font-size: 9px; letter-spacing: 1px; color: var(--gold);
+  font-family: var(--serif);
 }
 @keyframes candleFloat {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
 }
+@keyframes guidePulse {
+  0%, 100% { box-shadow: 0 4px 22px rgba(0, 0, 0, .6), 0 0 18px rgba(217, 174, 62, .22); }
+  50% { box-shadow: 0 4px 22px rgba(0, 0, 0, .6), 0 0 34px rgba(217, 174, 62, .5); }
+}
+
+/* 첫 방문 힌트 말풍선 */
+.guide-hint {
+  position: relative; cursor: pointer;
+  background: var(--bg-panel); border: 1px solid rgba(217, 174, 62, .5);
+  color: #e8c97e; font-size: 12.5px; padding: 8px 14px; border-radius: 18px;
+  white-space: nowrap; backdrop-filter: blur(6px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .5);
+  animation: fadeSlideUp .5s ease both, hintBob 3.4s ease-in-out infinite 1s;
+}
+.guide-hint::after {
+  content: ''; position: absolute; right: -6px; top: 50%;
+  width: 10px; height: 10px; transform: translateY(-50%) rotate(45deg);
+  background: var(--bg-panel);
+  border-right: 1px solid rgba(217, 174, 62, .5); border-top: 1px solid rgba(217, 174, 62, .5);
+}
+@keyframes hintBob {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-4px); }
+}
+
+/* 상황별 추천 질문 */
+.guide-suggestions {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  padding: 9px 11px 0; border-top: 1px solid var(--border);
+}
+.suggestion-chip {
+  font-size: 11.5px; padding: 5px 11px; border-radius: 16px;
+  background: rgba(126, 87, 194, .12); border: 1px solid var(--border);
+  color: #c7bcd8;
+}
+.suggestion-chip:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+
+/* 응답 대기 점 애니메이션 */
+.guide-msg.thinking { display: flex; gap: 5px; align-items: center; padding: 13px 15px; }
+.guide-msg.thinking .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim);
+  animation: thinkBounce 1.3s ease-in-out infinite;
+}
+.guide-msg.thinking .dot:nth-child(2) { animation-delay: .18s; }
+.guide-msg.thinking .dot:nth-child(3) { animation-delay: .36s; }
+@keyframes thinkBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: .45; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
 .guide-panel {
-  width: min(370px, calc(100vw - 44px)); height: 470px;
+  width: min(390px, calc(100vw - 44px)); height: 520px;
   background: var(--bg-panel); backdrop-filter: blur(10px);
   border: 1px solid var(--border); border-radius: 14px;
   display: flex; flex-direction: column; overflow: hidden;
@@ -759,8 +620,10 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
 }
 .guide-msg.ai { background: var(--bg-card); align-self: flex-start; border: 1px solid var(--border); }
 .guide-msg.user { background: rgba(192, 58, 50, .28); align-self: flex-end; }
-.guide-input { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--border); }
+.guide-input { display: flex; gap: 8px; padding: 10px; }
 .guide-input input { flex: 1; padding: 9px 12px; font-size: 13px; }
+.guide-input .primary { padding: 9px 16px; }
+.guide-title { font-family: var(--display); letter-spacing: 1px; }
 
 /* ===================== 스크롤바 ===================== */
 
@@ -788,12 +651,112 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
   .option-card { min-width: calc(50% - 6px); max-width: none; flex: 1; }
   .setup-header { justify-content: center; }
   .guide-panel { height: 400px; }
-  .castle-silhouette { height: 30vh; }
-  .castle-far { height: 24vh; }
-  .dead-tree { width: 42vw; height: 38vh; opacity: .85; }
-  .storm-cloud { display: none; }
   .primary.big { width: 100%; }
 }
+
+/* ===================== 폼 / 입력 보조 ===================== */
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field-hint { font-size: 11.5px; color: var(--text-dim); padding-left: 4px; }
+.field-hint.ok { color: #7ec98a; }
+.field-hint.error { color: #ef8a80; }
+.inline-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.inline-form input { flex: 1; min-width: 200px; }
+.stacked-form { display: flex; flex-direction: column; gap: 10px; max-width: 420px; }
+
+/* ===================== 권한 / 상태 칩 ===================== */
+
+.role-chip {
+  display: inline-block; margin-left: 7px;
+  font-size: 10.5px; padding: 2px 9px; border-radius: 12px;
+  border: 1px solid var(--border); color: var(--text-dim); letter-spacing: .5px;
+}
+.role-chip.admin {
+  border-color: var(--gold); color: var(--gold);
+  background: rgba(217, 174, 62, .12);
+}
+.status-chip {
+  font-size: 11px; padding: 2px 10px; border-radius: 12px; border: 1px solid var(--border);
+}
+.status-chip.active { color: #7ec98a; border-color: #4a7a52; background: rgba(76, 175, 110, .1); }
+.status-chip.suspended { color: #ef8a80; border-color: #8a3c36; background: rgba(192, 58, 50, .12); }
+.status-chip.withdrawn { color: var(--text-dim); }
+.badge.playing {
+  margin-left: 7px; font-size: 10px; padding: 2px 8px;
+  background: rgba(126, 87, 194, .2); border-color: var(--purple); color: #c0aee8;
+}
+
+/* ===================== 관리자 콘솔 ===================== */
+
+.admin-menu { border-left-color: var(--gold); }
+.admin-toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100;
+  background: var(--bg-panel); border: 1px solid var(--gold); color: #e8c97e;
+  padding: 11px 22px; border-radius: 10px; font-size: 13.5px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .7); backdrop-filter: blur(8px);
+  animation: fadeSlideUp .3s ease both;
+}
+
+.stat-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 11px; margin-bottom: 14px;
+}
+.stat-card {
+  display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
+  padding: 14px 16px; border-radius: 10px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  backdrop-filter: blur(3px);
+}
+.stat-card.ok { border-left: 3px solid var(--hp); }
+.stat-card.warn { border-left: 3px solid var(--accent); }
+.stat-card.gold { border-left: 3px solid var(--gold); }
+.stat-label { font-size: 11.5px; color: var(--text-dim); letter-spacing: .5px; }
+.stat-value { font-size: 24px; font-family: var(--display); }
+.stat-sub { font-size: 11px; color: var(--text-dim); }
+.difficulty-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.admin-filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.admin-filters input { flex: 1; min-width: 200px; }
+.admin-filters select {
+  background: rgba(12, 8, 20, .9); border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px; padding: 11px 13px;
+  font-family: var(--serif); font-size: 14px; outline: none;
+}
+
+.admin-table-wrap { overflow-x: auto; }
+.admin-table { min-width: 780px; }
+.admin-table td { vertical-align: top; }
+.admin-table tr.row-suspended { background: rgba(192, 58, 50, .05); }
+.admin-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+.mini { font-size: 11.5px; padding: 4px 11px; border-radius: 6px; }
+.mini.danger { color: #ef8a80; border-color: #7a332e; }
+.mini.danger:hover:not(:disabled) { border-color: var(--accent); background: rgba(192, 58, 50, .15); }
+
+.pagination {
+  display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px;
+}
+
+/* ===================== 마이페이지 ===================== */
+
+.profile-summary {
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  padding: 22px; border-radius: 12px;
+  background: var(--bg-panel); border: 1px solid var(--border);
+  backdrop-filter: blur(6px);
+}
+.profile-avatar {
+  width: 62px; height: 62px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-family: var(--display);
+  background: radial-gradient(circle at 50% 35%, rgba(126, 87, 194, .35), var(--bg-card) 70%);
+  border: 1px solid var(--border-glow); color: #e0d2b8;
+}
+.profile-meta { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 160px; }
+.profile-name { font-size: 18px; }
+.profile-stats { display: flex; gap: 24px; }
+.profile-stats div { display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.danger-zone { border-top: 1px solid rgba(192, 58, 50, .3); padding-top: 20px; }
+.danger-zone h3 { border-left-color: var(--accent); }
 
 /* ===================== 아이콘 / 시너지 ===================== */
 
@@ -807,10 +770,6 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
   box-shadow: inset 0 4px 14px rgba(0, 0, 0, .7);
   margin-bottom: 2px;
 }
-.monster-emoji {
-  font-size: 38px; line-height: 1;
-  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .8)) saturate(.85);
-}
 .monster-portrait.elite {
   border-color: var(--elite);
   background: radial-gradient(circle at 50% 42%, rgba(217, 174, 62, .22) 0%, rgba(20, 12, 34, .9) 72%);
@@ -821,8 +780,6 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
   background: radial-gradient(circle at 50% 42%, rgba(169, 53, 201, .3) 0%, rgba(20, 12, 34, .95) 72%);
   animation: bossBreathe 3s ease-in-out infinite;
 }
-.monster-portrait.boss .monster-emoji { font-size: 46px; }
-.monster-card.dead .monster-emoji { filter: grayscale(1) brightness(.5); }
 
 /* 스킬 버튼 아이콘 */
 .skill-icon { font-size: 21px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .7)); }
@@ -842,25 +799,6 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
   cursor: help;
 }
 .relic-dot { font-size: 14px; line-height: 1; }
-
-/* 유물 조합 시너지 칩 */
-.synergy-row {
-  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
-  margin: -6px 0 14px;
-}
-.synergy-chip {
-  font-size: 12px; padding: 5px 14px; border-radius: 20px;
-  color: #e8c97e;
-  background: linear-gradient(180deg, rgba(217, 174, 62, .14), rgba(217, 174, 62, .05));
-  border: 1px solid rgba(217, 174, 62, .5);
-  box-shadow: 0 0 12px rgba(217, 174, 62, .12);
-  animation: synergyGlow 3.5s ease-in-out infinite, fadeSlideUp .5s ease both;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
-}
-@keyframes synergyGlow {
-  0%, 100% { box-shadow: 0 0 10px rgba(217, 174, 62, .1); }
-  50% { box-shadow: 0 0 20px rgba(217, 174, 62, .28); }
-}
 
 /* ===================== 전투 이펙트 (VFX) ===================== */
 
@@ -1040,4 +978,903 @@ input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126, 87, 1
 /* 모션 최소화 선호 사용자 배려 */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* =========================================================
+   약관 · 개인정보 처리방침 / 가입 동의
+   ========================================================= */
+.consent-box {
+  display: flex; flex-direction: column; gap: 8px;
+  margin: 4px 0 14px; padding: 12px 14px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: rgba(10, 7, 15, .5); text-align: left;
+}
+.consent-row { display: flex; gap: 9px; align-items: flex-start; font-size: 13px; line-height: 1.5; cursor: pointer; }
+.consent-row input[type="checkbox"] { width: 16px; height: 16px; margin-top: 3px; flex-shrink: 0; accent-color: var(--accent); }
+.consent-row a { color: var(--gold); text-decoration: underline; }
+.consent-detail { display: block; margin-top: 3px; font-size: 11.5px; color: var(--text-dim); line-height: 1.55; }
+
+.legal-links {
+  display: flex; gap: 8px; justify-content: center; align-items: center;
+  margin-top: 18px; font-size: 12px; color: var(--text-dim);
+}
+.legal-links.left { justify-content: flex-start; margin-top: 12px; }
+.legal-links a { color: var(--text-dim); text-decoration: none; }
+.legal-links a:hover { color: var(--gold); }
+
+.legal-page { max-width: 820px; }
+.legal-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+.legal-tabs button { flex: 1; }
+.legal-tabs button.active { border-color: var(--gold); color: var(--gold); }
+.legal-body {
+  background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px;
+  padding: 22px 26px; line-height: 1.8; font-size: 14px;
+}
+.legal-body h3 { margin: 26px 0 8px; font-size: 15.5px; color: var(--gold); }
+.legal-body p { margin: 8px 0; }
+.legal-body ul { margin: 8px 0; padding-left: 20px; }
+.legal-body li { margin: 4px 0; }
+.legal-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+.legal-table th, .legal-table td {
+  border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top;
+}
+.legal-table th { background: rgba(55, 42, 82, .35); color: var(--text); font-weight: 600; white-space: nowrap; }
+
+.guide-notice {
+  margin: 0; padding: 6px 12px; font-size: 10.5px; line-height: 1.45;
+  color: var(--text-dim); border-top: 1px solid var(--border);
+}
+
+/* =========================================================
+   전투: 적 행동 예고 / 방어 태세 / 격노
+   ========================================================= */
+.monster-intent {
+  margin-top: 6px; padding: 3px 8px; border-radius: 6px;
+  font-size: 11.5px; font-weight: 600; text-align: center;
+  border: 1px solid var(--border); background: rgba(10, 7, 15, .55);
+}
+.monster-intent.attack { color: #e6c9c5; border-color: #6d4541; }
+.monster-intent.heavy {
+  color: #ffb199; border-color: var(--accent); background: rgba(192, 58, 50, .2);
+  animation: intentPulse 1.1s ease-in-out infinite;
+}
+.monster-intent.guard { color: #a9c8ee; border-color: #48689a; background: rgba(79, 143, 208, .12); }
+.monster-intent.stunned { color: #fff59d; border-color: #a89b4a; }
+@keyframes intentPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(224, 76, 66, 0); }
+  50% { box-shadow: 0 0 12px rgba(224, 76, 66, .55); }
+}
+.buff-chip.enraged { color: #ff8a80; border-color: var(--accent); background: rgba(192, 58, 50, .25); font-weight: 700; }
+.skill-btn.guard { border-color: #48689a; }
+.skill-btn.guard:hover:not(:disabled) { border-color: var(--rare); box-shadow: 0 0 14px rgba(79, 143, 208, .35); }
+
+.budget-bonus { display: block; margin-top: 2px; font-size: 11px; color: var(--gold); font-weight: 400; }
+
+/* =========================================================
+   내 정보: 모험 기록
+   ========================================================= */
+.history-list { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto; }
+.history-row {
+  display: grid; grid-template-columns: 92px 70px 1fr auto 86px; gap: 10px; align-items: center;
+  padding: 8px 12px; font-size: 13px;
+  border: 1px solid var(--border); border-radius: 7px; background: rgba(10, 7, 15, .45);
+}
+.history-row.clear { border-color: var(--gold); }
+.history-row.playing { border-color: var(--hp); }
+.history-result { font-weight: 600; }
+.history-score { color: var(--gold); }
+@media (max-width: 640px) {
+  .history-row { grid-template-columns: 1fr 1fr; }
+  .legal-body { padding: 16px; }
+}
+
+/* =========================================================
+   갈림길 / 상점 재입고 / AI 런 회고
+   ========================================================= */
+.path-heading { margin: 0 0 10px; font-size: 13px; color: var(--text-dim); text-align: center; letter-spacing: .5px; }
+.path-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; margin-bottom: 12px; }
+.path-card {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 16px 10px; border-radius: 10px; text-align: center;
+  background: var(--bg-card); border: 1px solid var(--border);
+}
+.path-card:hover:not(:disabled) { border-color: var(--gold); transform: translateY(-2px); }
+.path-card.danger { border-color: #7a332e; }
+.path-card.danger:hover:not(:disabled) { border-color: var(--accent); box-shadow: 0 0 18px var(--accent-glow); }
+.path-card.ambush { border-color: #48406a; }
+.path-card.ambush:hover:not(:disabled) { border-color: var(--purple); box-shadow: 0 0 18px rgba(126, 87, 194, .4); }
+.path-icon { font-size: 26px; }
+.path-title { font-weight: 700; font-size: 14.5px; }
+.path-desc { font-size: 11.5px; color: var(--text-dim); line-height: 1.5; }
+@media (max-width: 640px) { .path-row { grid-template-columns: 1fr; } }
+
+.shop-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+
+.review-box {
+  margin: 16px 0; padding: 16px 18px; text-align: left;
+  border: 1px solid var(--border-glow); border-radius: 10px; background: rgba(10, 7, 15, .55);
+}
+.review-title { display: block; font-family: var(--display); font-size: 18px; color: var(--gold); text-align: center; }
+.review-epitaph { margin: 6px 0 12px; text-align: center; font-style: italic; color: var(--text-dim); }
+.review-analysis { margin: 0 0 10px; line-height: 1.7; font-size: 14px; }
+.review-tips { margin: 0 0 10px; padding-left: 20px; font-size: 13.5px; line-height: 1.7; }
+
+/* =========================================================
+   세계관 테마: 천상(백금) · 인간(강철) · 마계(진홍)
+   화면 위쪽은 천상의 빛, 아래쪽은 마계의 불씨, 그 사이가 인간의 땅
+   ========================================================= */
+:root {
+  --heaven: #f2e6c2;
+  --heaven-deep: #c9b06a;
+  --heaven-glow: rgba(242, 230, 194, .38);
+  --abyss: #e0483c;
+  --abyss-deep: #7d1f1a;
+  --abyss-glow: rgba(224, 72, 60, .42);
+  --human: #a9b8c8;
+  --human-deep: #5d6b7c;
+  --human-glow: rgba(169, 184, 200, .32);
+}
+
+body {
+  background:
+    radial-gradient(ellipse 90% 38% at 50% -6%, rgba(242, 230, 194, .13) 0%, rgba(242, 230, 194, .04) 45%, transparent 72%),
+    radial-gradient(ellipse 100% 42% at 50% 108%, rgba(192, 58, 50, .20) 0%, rgba(125, 31, 26, .07) 48%, transparent 74%),
+    linear-gradient(180deg, #100c1a 0%, #0a070f 48%, #0c0508 100%);
+  background-attachment: fixed;
+}
+
+/* 천상에서 내려오는 빛줄기 */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: repeating-linear-gradient(100deg,
+    transparent 0 7%, rgba(242, 230, 194, .028) 7% 8.2%, transparent 8.2% 15%, rgba(242, 230, 194, .018) 15% 15.8%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 55%);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 55%);
+  animation: heavenRays 14s ease-in-out infinite;
+}
+@keyframes heavenRays {
+  0%, 100% { opacity: .55; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(1.2%); }
+}
+
+/* 제목: 위는 천상의 백금, 아래는 마계의 진홍 */
+.game-title {
+  background: linear-gradient(180deg, #fff6dc 0%, var(--heaven) 32%, #d9ae3e 52%, #c0564a 78%, var(--abyss-deep) 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  filter: drop-shadow(0 0 18px rgba(242, 230, 194, .16)) drop-shadow(0 6px 22px rgba(192, 58, 50, .22));
+}
+.game-title .amp { -webkit-text-fill-color: var(--human); color: var(--human); }
+.tagline { text-align: center; color: var(--text-dim); font-size: 12.5px; margin-top: 6px; letter-spacing: .5px; }
+
+/* 성향 표시 */
+.alignment-pip {
+  padding: 3px 11px; border-radius: 20px; border: 1px solid var(--border);
+  background: rgba(10, 7, 15, .55); color: var(--text-dim);
+  transition: color .3s ease, border-color .3s ease, background-color .3s ease;
+}
+.alignment-pip.heaven { border-color: rgba(201, 176, 106, .45); }
+.alignment-pip.human { border-color: rgba(93, 107, 124, .6); }
+.alignment-pip.abyss { border-color: rgba(125, 31, 26, .75); }
+.alignment-pip.heaven.dominant { color: var(--heaven); border-color: var(--heaven); box-shadow: 0 0 14px var(--heaven-glow); }
+.alignment-pip.human.dominant { color: #dbe5ef; border-color: var(--human); box-shadow: 0 0 14px var(--human-glow); }
+.alignment-pip.abyss.dominant { color: #ff9a8f; border-color: var(--abyss); box-shadow: 0 0 14px var(--abyss-glow); }
+.blessing-chip {
+  padding: 3px 12px; border-radius: 20px; font-weight: 600;
+  border: 1px solid var(--border-glow); animation: fadeSlideUp .5s ease both;
+}
+.blessing-chip.heaven { color: #1c1608; background: linear-gradient(90deg, #fff6dc, var(--heaven-deep)); border-color: var(--heaven); }
+.blessing-chip.abyss { color: #ffd9d4; background: linear-gradient(90deg, var(--abyss-deep), #2a0b0a); border-color: var(--abyss); }
+.blessing-chip.human { color: #0f1418; background: linear-gradient(90deg, #dbe5ef, var(--human-deep)); border-color: var(--human); }
+
+/* 조우 선택지: 세력별 */
+.choice-body { display: flex; flex-direction: column; gap: 3px; line-height: 1.55; }
+.choice-faction { font-size: 11px; letter-spacing: 1.5px; font-weight: 700; }
+.choice-btn.faction-heaven { border-color: rgba(201, 176, 106, .5); background: linear-gradient(90deg, rgba(242, 230, 194, .09), var(--bg-panel) 62%); }
+.choice-btn.faction-heaven .choice-faction { color: var(--heaven); }
+.choice-btn.faction-heaven:hover:not(:disabled) { border-color: var(--heaven); box-shadow: 0 0 20px var(--heaven-glow); }
+.choice-btn.faction-abyss { border-color: rgba(125, 31, 26, .85); background: linear-gradient(90deg, rgba(192, 58, 50, .14), var(--bg-panel) 62%); }
+.choice-btn.faction-abyss .choice-faction { color: #ff8a7d; }
+.choice-btn.faction-abyss:hover:not(:disabled) { border-color: var(--abyss); box-shadow: 0 0 20px var(--abyss-glow); }
+.choice-btn.faction-human { border-color: rgba(93, 107, 124, .7); background: linear-gradient(90deg, rgba(169, 184, 200, .09), var(--bg-panel) 62%); }
+.choice-btn.faction-human .choice-faction { color: var(--human); }
+.choice-btn.faction-human:hover:not(:disabled) { border-color: var(--human); box-shadow: 0 0 20px var(--human-glow); }
+
+/* 갈림길도 같은 색 체계로: 위험한 길 = 마계의 색, 은밀한 길 = 인간의 색 */
+.path-card.ambush { border-color: rgba(93, 107, 124, .7); }
+.path-card.ambush:hover:not(:disabled) { border-color: var(--human); box-shadow: 0 0 18px var(--human-glow); }
+
+@media (prefers-reduced-motion: reduce) {
+  body::before, .monster-intent.heavy { animation: none; }
+}
+
+/* =========================================================
+   도트 스프라이트 (몬스터 초상 / 스킬 아이콘)
+   ========================================================= */
+.pixel-sprite { display: block; image-rendering: pixelated; overflow: visible; }
+
+/* 초상 틀: 원형 메달 대신 도트와 어울리는 각진 석판 + 바닥 그림자 */
+.monster-portrait {
+  width: 84px; height: 84px; border-radius: 6px; position: relative;
+  background:
+    linear-gradient(180deg, rgba(60, 46, 92, .5) 0%, rgba(16, 10, 26, .95) 100%);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .55), inset 0 -14px 18px rgba(0, 0, 0, .55);
+  overflow: hidden;
+}
+.monster-portrait::after {
+  content: ''; position: absolute; left: 18%; right: 18%; bottom: 7px; height: 6px;
+  background: rgba(0, 0, 0, .55); border-radius: 50%; filter: blur(2px);
+}
+.monster-portrait.boss { width: 100px; height: 100px; }
+.monster-portrait.elite { background: linear-gradient(180deg, rgba(150, 118, 40, .38) 0%, rgba(16, 10, 26, .95) 100%); }
+.monster-portrait.boss { background: linear-gradient(180deg, rgba(126, 40, 150, .45) 0%, rgba(16, 10, 26, .96) 100%); }
+
+/* 도트 게임 특유의 2프레임 숨쉬기 (steps로 부드럽게 보간하지 않는다) */
+.monster-sprite {
+  position: relative; z-index: 1;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .55));
+  animation: spriteIdle 1.1s steps(2, jump-none) infinite;
+}
+@keyframes spriteIdle { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+.monster-card:nth-child(2n) .monster-sprite { animation-delay: -.55s; }
+.monster-card.being-hit .monster-sprite { animation: spriteHit .28s steps(2) 2; }
+@keyframes spriteHit {
+  from { transform: translateX(-3px); filter: brightness(3) saturate(0); }
+  to { transform: translateX(3px); filter: none; }
+}
+.monster-card.dead .monster-sprite { animation: none; filter: grayscale(1) brightness(.4); transform: translateY(4px) rotate(90deg); }
+
+.skill-icon { display: flex; justify-content: center; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .6)); }
+.skill-btn:hover:not(:disabled) .pixel-sprite { animation: spriteIdle .5s steps(2, jump-none) infinite; }
+.skill-btn.cooling .pixel-sprite { filter: grayscale(1); }
+.card-icon .pixel-sprite { margin: 0 auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .monster-sprite, .skill-btn:hover:not(:disabled) .pixel-sprite { animation: none; }
+}
+.option-name.with-sprite { display: flex; align-items: center; gap: 8px; }
+
+/* =========================================================
+   배경: 도트로 그린 세 겹의 세계 (AtmosphereFX)
+   ========================================================= */
+.atmosphere { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: #0f0c18; }
+.atmosphere .world { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.world-stars { animation: starBlink 3.2s steps(2, jump-none) infinite; }
+@keyframes starBlink { from { opacity: 1; } to { opacity: .35; } }
+/* 본문이 읽히도록 배경 전체를 한 톤 눌러 준다 */
+.world-shade { position: absolute; inset: 0; background: rgba(12, 9, 20, .48); }
+
+/* 천상에서 떨어지는 깃털 조각 / 마계에서 솟는 불씨 (steps: 도트답게 뚝뚝 끊겨 움직인다) */
+.pixel-fall, .pixel-rise { position: absolute; display: block; }
+.pixel-fall { top: -2%; background: #f2e6c2; opacity: .5; animation: pixelFall linear infinite; animation-timing-function: steps(60); }
+.pixel-rise { bottom: -2%; background: #ff7a4a; opacity: .65; animation: pixelRise linear infinite; animation-timing-function: steps(50); }
+@keyframes pixelFall {
+  0% { transform: translate(0, 0); opacity: 0; }
+  8% { opacity: .5; }
+  100% { transform: translate(-36px, 56vh); opacity: 0; }
+}
+@keyframes pixelRise {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: .7; }
+  100% { transform: translate(24px, -42vh); opacity: 0; }
+}
+
+/* =========================================================
+   도트 테마
+   - 글꼴: 픽셀 폰트(Galmuri). 본문 14px, 제목은 11px의 배수
+   - 면: 둥근 모서리·흐림·그라데이션 없이 단색 면 + 2px 테두리 + 딱 떨어지는 그림자
+   - 색: 천상(백금) / 인간(강철) / 마계(진홍) 세 가지를 의미에 맞춰서만 쓴다
+   ========================================================= */
+:root {
+  --bg: #0f0c18;
+  --bg-deep: #0a0812;
+  --bg-panel: #17132a;
+  --bg-card: #1e1936;
+  --border: #3b3358;
+  --border-glow: #6a5fa0;
+  --text: #ece3cd;
+  --text-dim: #9d95b3;
+  --accent: #e0483c;
+  --accent-hover: #ff6a5a;
+  --gold: #e8c860;
+  --ink: #05040a;
+  --serif: 'Galmuri14', 'Galmuri11', ui-monospace, monospace;
+  --display: 'Galmuri11', 'Galmuri14', ui-monospace, monospace;
+  --narrative: 'NeoDunggeunmo', 'Galmuri14', ui-monospace, monospace;
+  --hard-shadow: 4px 4px 0 var(--ink);
+}
+
+*, *::before, *::after { border-radius: 0 !important; }
+
+html { font-size: 14px; }
+body {
+  background: #0f0c18;
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.7;
+  letter-spacing: 0;
+}
+body::before { display: none; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: 0; }
+h2 { font-size: 22px; }
+h3 { font-size: 16px; }
+strong { font-weight: 700; }
+
+.px { display: inline-block; vertical-align: -3px; flex-shrink: 0; }
+
+/* ---------- 버튼 ---------- */
+button {
+  font-family: var(--serif); font-size: 14px;
+  background: var(--bg-card); color: var(--text);
+  border: 2px solid var(--border);
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: none; text-shadow: none; overflow: visible;
+}
+button:not(.ghost):not(:disabled)::after { display: none; }
+button:hover:not(:disabled) {
+  border-color: var(--gold); background: #262046;
+  transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink);
+}
+button:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+button:disabled { opacity: .42; }
+
+.primary {
+  background: var(--gold); color: #1a1408; font-weight: 700; text-shadow: none;
+  border-color: #fff3b0 #8a6a1c #8a6a1c #fff3b0;
+}
+.primary:hover:not(:disabled) { background: #fff3b0; border-color: #ffffff #8a6a1c #8a6a1c #ffffff; box-shadow: 4px 4px 0 var(--ink); }
+.primary.big { letter-spacing: 0; }
+.ghost { background: transparent; box-shadow: none; color: var(--text-dim); }
+.ghost:hover:not(:disabled) { background: var(--bg-card); color: var(--text); box-shadow: none; transform: none; }
+.mini { font-size: 12px; padding: 5px 10px; box-shadow: 2px 2px 0 var(--ink); }
+
+input {
+  font-family: var(--serif); font-size: 14px;
+  background: var(--bg-deep); border: 2px solid var(--border); color: var(--text);
+  box-shadow: inset 2px 2px 0 var(--ink); transition: none;
+}
+input:focus { border-color: var(--gold); box-shadow: inset 2px 2px 0 var(--ink); }
+input[type="checkbox"] { box-shadow: none; }
+
+.error-text { background: #2a0c10; border: 2px solid var(--accent); color: #ffb0a8; }
+
+/* ---------- 패널 공통 ---------- */
+.auth-card, .story-panel, .battle-log, .monster-card, .reward-card, .shop-card, .option-card,
+.menu-btn, .status-bar, .guide-panel, .result-card, .legal-body, .review-box, .narrative-box,
+.path-card, .choice-btn, .skill-btn, .consent-box, .history-row, .achievement, .advancing-overlay,
+.ranking-table, .profile-summary {
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  box-shadow: var(--hard-shadow);
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+.story-panel { background: #15112a; }
+.option-card.selected, .monster-card.selected { border-color: var(--gold); background: #262046; box-shadow: 4px 4px 0 #6a4f14; }
+.option-card.static { box-shadow: 2px 2px 0 var(--ink); }
+.choice-btn, .skill-btn, .path-card, .menu-btn, .option-card, .reward-card { transition: none; }
+.choice-btn:hover:not(:disabled) { transform: translate(-1px, -1px); }
+.setup-section h3 { border-left: 4px solid var(--gold); padding-left: 10px; }
+.danger-zone h3 { border-left-color: var(--accent); }
+
+/* ---------- 제목: RENOVA(천상) & DELVE(마계) ---------- */
+.game-title {
+  font-family: var(--display); font-weight: 700; font-size: 44px; letter-spacing: 2px; line-height: 1.3;
+  background: none; -webkit-background-clip: border-box; background-clip: border-box;
+  -webkit-text-fill-color: currentColor; color: var(--text);
+  filter: none; text-shadow: none; text-transform: uppercase;
+}
+.game-title .t-heaven { color: #fff6dc; -webkit-text-fill-color: #fff6dc; text-shadow: 0 3px 0 #b8902e, 0 6px 0 #5a4410; }
+.game-title .t-abyss { color: #ff6a5a; -webkit-text-fill-color: #ff6a5a; text-shadow: 0 3px 0 #8a1c1c, 0 6px 0 #3a0808; }
+.game-title .amp { color: var(--human); -webkit-text-fill-color: var(--human); text-shadow: 0 3px 0 #3a4654; }
+.subtitle { letter-spacing: 0; font-size: 14px; }
+.tagline { font-size: 12px; }
+@media (max-width: 640px) { .game-title { font-size: 33px; } }
+
+/* ---------- 탭 / 메뉴 ---------- */
+.auth-tabs button.active, .legal-tabs button.active { background: var(--gold); color: #1a1408; border-color: #fff3b0 #8a6a1c #8a6a1c #fff3b0; }
+.menu-btn .menu-title { font-family: var(--display); font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.menu-btn.continue { border-color: var(--gold); box-shadow: 4px 4px 0 #6a4f14; }
+
+/* ---------- 상태 바 ---------- */
+.status-bar { background: #120f22; }
+.badge { border: 2px solid var(--border); background: var(--bg-card); box-shadow: none; }
+.bar { height: 12px; background: var(--ink); border: 2px solid var(--ink); box-shadow: 0 0 0 1px var(--border); overflow: hidden; }
+.bar.exp-bar { height: 6px; margin-top: 3px; }
+.bar-fill { background-image: none; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .28); transition: width .25s steps(6); }
+.bar-fill.hp { background-color: #5fbf6a; }
+.bar-fill.enemy { background-color: #e0483c; }
+.bar-fill.exp { background-color: #b9a0ff; }
+.stat { display: inline-flex; align-items: center; gap: 4px; }
+
+/* 스테이지 진행 트랙: 지나온 칸 / 현재 칸 / 남은 칸, 마지막은 보스 */
+.node-track { display: inline-flex; gap: 3px; align-items: center; margin-left: 4px; }
+.node-track .pip { display: block; width: 8px; height: 8px; background: var(--ink); box-shadow: 0 0 0 1px var(--border); }
+.node-track .pip.done { background: var(--human-deep); }
+.node-track .pip.now { background: var(--gold); box-shadow: 0 0 0 1px #fff3b0; animation: starBlink 1s steps(2, jump-none) infinite; }
+.node-track .pip.boss { width: 12px; height: 12px; box-shadow: 0 0 0 1px var(--abyss); }
+.node-track .pip.boss.now { background: var(--abyss); }
+
+
+.alignment-pip, .blessing-chip, .buff-chip, .chip, .suggestion-chip {
+  border-width: 2px; box-shadow: none; animation: none;
+}
+.alignment-pip { display: inline-flex; align-items: center; gap: 5px; background: var(--bg-deep); }
+.alignment-pip.heaven.dominant { background: #3a3220; box-shadow: none; }
+.alignment-pip.human.dominant { background: #242c36; box-shadow: none; }
+.alignment-pip.abyss.dominant { background: #3a1012; box-shadow: none; }
+.blessing-chip.heaven { background: var(--heaven); }
+.blessing-chip.abyss { background: var(--abyss-deep); }
+.blessing-chip.human { background: var(--human); }
+
+/* ---------- 게임 화면 ---------- */
+.node-label { font-family: var(--display); font-size: 16px; display: inline-flex; align-items: center; gap: 8px; letter-spacing: 0; text-shadow: none; }
+.node-label.boss-label { color: var(--abyss); }
+.story-panel .corner { border-color: var(--gold); }
+.encounter-text { font-style: normal; }
+.battle-log { background: var(--bg-deep); font-size: 13px; }
+.advancing-overlay { background: rgba(10, 8, 18, .92); }
+
+.monster-card { box-shadow: var(--hard-shadow); }
+.monster-card.elite { border-color: var(--elite); }
+.monster-card.boss { border-color: var(--abyss); box-shadow: 4px 4px 0 #4a1216; }
+.monster-portrait { border: 2px solid var(--ink); background: #0d0a18; box-shadow: none; }
+.monster-portrait.elite { background: #1c1608; }
+.monster-portrait.boss { background: #1c0a0c; animation: none; }
+.monster-portrait::after { filter: none; background: var(--ink); height: 4px; }
+.monster-intent { border-width: 2px; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 12px; }
+.monster-intent.heavy { animation: starBlink .7s steps(2, jump-none) infinite; background: #3a1012; }
+.monster-atkdef { display: inline-flex; align-items: center; gap: 3px; }
+.fx-stun { display: flex; gap: 2px; }
+.dead-mark { text-shadow: none; }
+
+.skill-btn { font-size: 13px; }
+.skill-btn .skill-name { font-weight: 700; }
+.skill-btn.guard { border-color: var(--human-deep); }
+.skill-btn.guard:hover:not(:disabled) { border-color: var(--human); box-shadow: 4px 4px 0 var(--ink); }
+.skill-btn.consumable { border-style: dashed; }
+
+/* 조우 선택지: 세력 색은 왼쪽 띠로만 표시한다 */
+.choice-btn.faction-heaven, .choice-btn.faction-abyss, .choice-btn.faction-human { background: var(--bg-panel); border-left-width: 8px; }
+.choice-btn.faction-heaven { border-color: var(--border); border-left-color: var(--heaven); }
+.choice-btn.faction-abyss { border-color: var(--border); border-left-color: var(--abyss); }
+.choice-btn.faction-human { border-color: var(--border); border-left-color: var(--human); }
+.choice-btn.faction-heaven:hover:not(:disabled) { border-color: var(--heaven); background: #2a2618; box-shadow: var(--hard-shadow); }
+.choice-btn.faction-abyss:hover:not(:disabled) { border-color: var(--abyss); background: #2a1014; box-shadow: var(--hard-shadow); }
+.choice-btn.faction-human:hover:not(:disabled) { border-color: var(--human); background: #1c222c; box-shadow: var(--hard-shadow); }
+.choice-num { min-width: 32px; display: flex; justify-content: center; }
+
+/* 갈림길 / 모닥불 */
+.path-card { gap: 6px; }
+.path-card:hover:not(:disabled) { transform: translate(-1px, -1px); border-color: var(--gold); box-shadow: var(--hard-shadow); }
+.path-card.danger { border-color: var(--abyss-deep); }
+.path-card.danger:hover:not(:disabled) { border-color: var(--abyss); background: #2a1014; box-shadow: var(--hard-shadow); }
+.path-card.ambush:hover:not(:disabled) { border-color: var(--human); background: #1c222c; box-shadow: var(--hard-shadow); }
+.path-icon { font-size: inherit; display: flex; justify-content: center; }
+.path-title { font-family: var(--display); font-size: 15px; }
+.rest-panel { width: 100%; display: flex; flex-direction: column; align-items: center; }
+.vow-card { cursor: default; }
+.vow-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+.vow-row .mini { display: inline-flex; align-items: center; gap: 4px; }
+.vow-row .faction-heaven:hover:not(:disabled) { border-color: var(--heaven); }
+.vow-row .faction-abyss:hover:not(:disabled) { border-color: var(--abyss); }
+.vow-row .faction-human:hover:not(:disabled) { border-color: var(--human); }
+
+/* 보상 / 상점 */
+.reward-card:hover:not(:disabled), .shop-card:hover { border-color: var(--gold); }
+.reward-card.rarity-rare, .option-card.rarity-rare { border-color: var(--rare); }
+.reward-card.rarity-epic, .option-card.rarity-epic { border-color: var(--epic); }
+.shop-card.rarity-rare { border-color: var(--rare); }
+.shop-card.rarity-epic { border-color: var(--epic); }
+.card-icon { display: flex; justify-content: center; filter: none; }
+.buy-btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.shop-card.sold { opacity: .45; }
+.reward-kind { letter-spacing: 0; }
+
+/* 원정 준비: 서약 */
+.budget { border: 2px solid var(--gold); background: #2a2210; box-shadow: 3px 3px 0 var(--ink); }
+.budget.over { border-color: var(--accent); background: #2a0c10; }
+.pact-card.selected { border-color: var(--abyss); background: #2a1014; box-shadow: 4px 4px 0 #4a1216; }
+.pact-bonus { font-size: 12px; color: var(--gold); margin-top: 2px; }
+.pact-total { margin-left: 10px; font-size: 12px; color: #1a1408; background: var(--gold); padding: 1px 8px; }
+.option-desc { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+
+/* 내 정보: 업적 */
+.achievement-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.achievement { display: flex; gap: 10px; align-items: center; padding: 8px 12px; box-shadow: 2px 2px 0 var(--ink); opacity: .5; }
+.achievement.achieved { opacity: 1; border-color: var(--gold); background: #2a2210; }
+.achievement-text { display: flex; flex-direction: column; line-height: 1.45; }
+.history-row { box-shadow: 2px 2px 0 var(--ink); }
+.history-result { display: inline-flex; align-items: center; gap: 5px; }
+.profile-avatar { border: 2px solid var(--gold); background: var(--bg-deep); box-shadow: none; }
+
+/* 결과 화면 */
+.result-title { font-family: var(--display); font-size: 22px; letter-spacing: 0; display: flex; align-items: center; justify-content: center; gap: 10px; text-shadow: none; }
+.result-card.clear { border-color: var(--gold); box-shadow: 4px 4px 0 #6a4f14; }
+.result-card.over { border-color: var(--abyss-deep); box-shadow: 4px 4px 0 #2a0808; }
+.review-title { font-family: var(--display); }
+.review-epitaph { font-style: normal; }
+
+/* 랭킹 */
+.ranking-table th { background: var(--bg-card); }
+.ranking-table tr.top-1 td { color: var(--gold); }
+
+/* 안내자 */
+.guide-toggle { background: var(--bg-card); border: 2px solid var(--gold); box-shadow: 3px 3px 0 var(--ink); animation: none; }
+.guide-hint { background: var(--bg-card); border: 2px solid var(--border); box-shadow: 3px 3px 0 var(--ink); }
+.guide-msg { border: 2px solid var(--border); box-shadow: none; }
+.guide-msg.user { background: #2a2210; border-color: var(--gold); }
+.guide-msg.ai { background: var(--bg-deep); }
+.guide-title { display: inline-flex; align-items: center; gap: 6px; font-family: var(--display); }
+
+/* 약관 */
+.legal-body { font-size: 14px; }
+.legal-table th { background: var(--bg-card); }
+
+/* 스크롤바도 각지게 */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border); border: 2px solid var(--bg-deep); }
+::-webkit-scrollbar-thumb:hover { background: var(--border-glow); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel-fall, .pixel-rise, .world-stars, .node-track .pip.now, .monster-intent.heavy { animation: none; }
+}
+
+/* 배경 위에 바로 놓이는 구역은 읽기 쉽게 판을 깐다 */
+.setup-section { background: rgba(18, 15, 32, .93); border: 2px solid var(--border); box-shadow: var(--hard-shadow); padding: 16px 18px; }
+.setup-header h2, .home-header, .node-banner { text-shadow: 2px 2px 0 var(--ink); }
+.world-shade { background: rgba(12, 9, 20, .56); }
+.setup-footer { background: var(--bg-deep); border-top: 2px solid var(--border); }
+
+/* 배경 장면 변화: 보스전에는 마계의 문이 맥동하고, 모닥불은 깜박인다 */
+.gate-pulse { animation: gatePulse 1.2s steps(2, jump-none) infinite; }
+@keyframes gatePulse { from { opacity: 1; } to { opacity: .55; } }
+.campfire { animation: starBlink .6s steps(2, jump-none) infinite; }
+@media (prefers-reduced-motion: reduce) { .gate-pulse, .campfire { animation: none; } }
+
+/* 원정 준비: 남은 포인트로 고를 수 없는 항목 */
+/* 카드 전체를 흐리면 안에 적은 이유까지 안 읽힌다 -> 이유를 뺀 나머지만 흐린다 */
+.option-card:disabled { cursor: not-allowed; box-shadow: none; border-color: #2a2540; }
+.option-card:disabled > :not(.option-blocked) { opacity: .38; }
+.budget-left { display: block; margin-top: 2px; font-size: 11px; font-weight: 400; opacity: .8; }
+
+/* 원정 준비: 고를 수 없는 카드에 적는 이유 */
+.option-blocked { display: block; margin-top: 4px; font-size: 11px; color: var(--accent); }
+
+/* 배경 위에 바로 놓이는 안내 문구(빈 랭킹, 도감 안내)는 판을 깔아 읽히게 한다 */
+.ranking-page p.page-center, .collection-page p.page-center, .collection-sections > p {
+  min-height: 0; margin: 24px auto 0; padding: 14px 18px; max-width: 520px;
+  background: rgba(18, 15, 32, .93); border: 2px solid var(--border); box-shadow: var(--hard-shadow);
+}
+.collection-sections > p { margin: 0; max-width: none; }
+
+/* ===================== 플레이 피드백 반영 ===================== */
+
+/* ---------- 말풍선: 마우스를 올리면 펼쳐지는 설명 (브라우저 기본 툴팁 대신) ---------- */
+.hovertip { position: relative; display: inline-flex; align-items: center; gap: 5px; cursor: help; outline: none; }
+.hovertip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.hovertip-panel {
+  display: none; position: absolute; z-index: 60; top: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+  width: max-content; max-width: min(340px, 86vw);
+  padding: 10px 12px; text-align: left; white-space: normal;
+  font-size: 12px; font-weight: 400; line-height: 1.55; letter-spacing: 0; color: var(--text);
+  background: var(--bg-deep); border: 2px solid var(--border-glow); box-shadow: var(--hard-shadow);
+  cursor: default;
+}
+/* 말풍선 꼬리 */
+.hovertip-panel::before {
+  content: ''; position: absolute; top: -8px; left: 50%; margin-left: -6px; width: 10px; height: 10px;
+  background: var(--bg-deep); border: 2px solid var(--border-glow); border-right: 0; border-bottom: 0;
+  transform: rotate(45deg);
+}
+.hovertip-panel.align-left { left: 0; transform: none; }
+.hovertip-panel.align-left::before { left: 18px; }
+.hovertip-panel.align-right { left: auto; right: 0; transform: none; }
+.hovertip-panel.align-right::before { left: auto; right: 14px; }
+.hovertip-panel.side-top { top: auto; bottom: calc(100% + 10px); }
+.hovertip-panel.side-top::before { top: auto; bottom: -8px; transform: rotate(225deg); }
+.hovertip:hover > .hovertip-panel, .hovertip:focus > .hovertip-panel, .hovertip:focus-within > .hovertip-panel {
+  display: flex; flex-direction: column; gap: 6px; animation: tipOpen .12s steps(2, jump-none) both;
+}
+@keyframes tipOpen { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .hovertip-panel { animation: none !important; } }
+.tip-title { color: var(--gold); font-size: 13px; }
+.tip-kind { color: var(--text-dim); font-size: 11px; margin-top: -4px; }
+.tip-text { color: var(--text); }
+.tip-note { color: var(--text-dim); font-size: 11px; }
+.tip-list { display: flex; flex-direction: column; gap: 4px; }
+.tip-tier { display: block; padding: 3px 6px; color: var(--text-dim); border-left: 4px solid var(--border); }
+.tip-tier b { display: inline-block; min-width: 14px; color: var(--text); }
+.tip-tier.reached { color: var(--text); }
+.tip-tier.active { color: var(--gold); border-left-color: var(--gold); background: #2a2210; }
+.tip-relic { display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap; color: var(--text-dim); }
+.tip-relic b { color: var(--text); }
+
+/* ---------- 성향 / 서약 / 조합 시너지: 한 판에 모아 줄바꿈한다 ---------- */
+/* 예전에는 줄마다 여백을 따로 잡았고(시너지 줄은 음수 여백) 칩이 nowrap이라, 개수가 늘면 서로 겹쳤다 */
+.trait-panel { display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; }
+.trait-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 8px; font-size: 12px; }
+.trait-row > * { flex: 0 0 auto; max-width: 100%; }
+.alignment-pip, .blessing-chip, .trait-chip { padding: 3px 10px; line-height: 1.5; }
+.trait-chip { border: 2px solid var(--border); background: var(--bg-deep); color: var(--text); }
+.trait-chip.pact { color: #ffb0a8; background: #2a0c10; border-color: var(--abyss-deep); }
+.trait-chip.relic { color: var(--gold); background: #2a2210; border-color: var(--gold); }
+.trait-chip.skill { color: #b9d4ff; background: #131c30; border-color: var(--rare); }
+.trait-more {
+  padding: 3px 10px; font-size: 12px; line-height: 1.5; color: var(--text-dim);
+  background: transparent; border: 2px dashed var(--border); box-shadow: none;
+}
+.trait-more:hover { color: var(--text); border-color: var(--border-glow); }
+.status-right { flex-wrap: wrap; }
+.relic-tray.hovertip { gap: 2px; }
+
+/* ---------- 갈림길 안내: 고른 길이 이번 노드에서 무엇을 바꿨는가 ---------- */
+.node-banner { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.path-note {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 100%;
+  padding: 4px 12px; font-size: 12px; line-height: 1.5; text-shadow: none;
+  background: var(--bg-deep); border: 2px solid var(--border); color: var(--text);
+}
+.path-note.danger { border-color: var(--abyss); color: #ffb0a8; background: #2a0c10; }
+.path-note.ambush { border-color: var(--human); color: #dbe5ef; background: #1c222c; }
+.path-note.ignored { border-style: dashed; color: var(--text-dim); }
+
+/* ---------- 조우 선택지 말풍선 ---------- */
+.choice-tip { display: flex; cursor: default; }
+.choice-tip > .choice-btn { flex: 1; }
+.choice-list .choice-tip:nth-child(2) .choice-btn { animation-delay: .1s; }
+.choice-list .choice-tip:nth-child(3) .choice-btn { animation-delay: .2s; }
+
+/* ---------- 스킬 교체 ---------- */
+.slot-full-note { margin: 0; padding: 6px 12px; font-size: 12px; color: var(--gold); background: #2a2210; border: 2px solid var(--gold); }
+.swap-overlay {
+  position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(5, 4, 10, .82);
+}
+.swap-panel {
+  display: flex; flex-direction: column; gap: 12px; width: min(760px, 100%); max-height: 92vh; overflow-y: auto;
+  padding: 18px; background: var(--bg-panel); border: 2px solid var(--border-glow); box-shadow: var(--hard-shadow);
+}
+.swap-panel h3 { margin: 0; text-align: center; }
+.swap-new { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; background: #2a2210; border: 2px solid var(--gold); }
+.swap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.swap-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px; text-align: left;
+  background: var(--bg-card); border: 2px solid var(--border);
+}
+.swap-card:hover { border-color: var(--border-glow); }
+.swap-card.selected { border-color: var(--accent); background: #2a1014; box-shadow: var(--hard-shadow); }
+.swap-card.selected .reward-name { text-decoration: line-through; color: #ffb0a8; }
+
+/* ---------- 로그인 / 회원가입 전환 ---------- */
+.auth-heading { margin: 14px 0 10px; font-family: var(--display); font-size: 16px; font-weight: 400; text-align: center; color: var(--text); }
+.auth-switch { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 14px 0 0; font-size: 13px; color: var(--text-dim); }
+.link-btn {
+  padding: 0; background: none; border: 0; box-shadow: none; font: inherit;
+  color: var(--gold); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+.link-btn:hover:not(:disabled) { color: #fff3b0; background: none; transform: none; box-shadow: none; }
+button.link-btn::after { display: none; }
+
+/* ---------- 아이디 찾기 / 비밀번호 재설정 ---------- */
+.recovery-note { margin: 0 0 12px; font-size: 13px; line-height: 1.6; color: var(--text-dim); text-align: center; }
+/* 링크를 버튼 모양으로 (완료 화면의 "로그인으로 돌아가기") */
+.button-link { display: block; box-sizing: border-box; text-align: center; text-decoration: none; border-style: solid; border-width: 2px; font-family: var(--display); cursor: pointer; }
+a.link-btn { display: inline; }
+.contact-warning { margin: 0 0 10px; padding: 8px 12px; font-size: 12px; line-height: 1.6; color: var(--gold); background: #2a2210; border: 2px solid var(--gold); }
+
+/* 전투: 숨 고르기 / 도망치기 */
+.skill-btn.breath { border-color: var(--gold); }
+.battle-escape { display: flex; justify-content: center; margin-top: 10px; }
+
+/* 어느 단계에서나 쓰는 원정 메뉴 (메뉴로 / 스킬 정리 / 원정 포기) */
+.run-menu { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 18px auto 0; }
+.ghost.danger, .mini.danger { border-color: var(--accent); color: #ffb0a8; }
+.ghost.danger:hover:not(:disabled), .mini.danger:hover:not(:disabled) { background: #2a0c10; }
+.primary.danger { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* 스킬 정리 창: 카드 자체는 누르는 대상이 아니고, 안의 버리기 버튼만 누른다 */
+.swap-card.static { cursor: default; }
+.swap-card.static:hover { border-color: var(--border); }
+.swap-card.blocked > :not(.swap-blocked) { opacity: .45; }
+.swap-card:disabled { cursor: not-allowed; opacity: .45; }
+.swap-blocked { font-size: 11px; color: var(--accent); }
+
+/* 확인 창: 스킬 정리 창보다 위 */
+.swap-overlay.confirm { z-index: 80; }
+.swap-panel.narrow { max-width: 420px; }
+.confirm-body { margin: 0; text-align: center; line-height: 1.6; color: var(--text-dim); }
+
+/* 관리자 화면: 본인 계정 표시 */
+.badge.self { margin-left: 6px; border-color: var(--gold); color: var(--gold); }
+
+/* 결과 화면: 원정 통계 */
+.run-stats { margin: 14px 0; padding: 12px 14px; border: 2px solid var(--border); background: rgba(10, 8, 18, .6); }
+.run-stats h3 { margin: 0 0 8px; font-size: 14px; }
+.run-stats dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 14px; margin: 0; }
+.run-stats dl > div { display: flex; flex-direction: column; gap: 2px; }
+.run-stats dt { font-size: 11px; }
+.run-stats dd { margin: 0; font-size: 15px; }
+
+/* 도감: 미발견 칸과 수집률 */
+.codex-rate { color: var(--gold); font-weight: 400; }
+.codex-unknown { opacity: .55; border-style: dashed; }
+.codex-silhouette { filter: brightness(0) opacity(.5); display: inline-flex; }
+
+/* 화면 아래 링크: 문의 · 피드백 */
+.legal-links a[href^="mailto:"] { color: var(--gold); }
+
+/* 전생의 망령 안내 (원정 준비) */
+.wraith-notice { border-color: #8c9cb8; }
+.wraith-notice h3 { border-left-color: #e0483c; }
+.wraith-notice p { margin: 4px 0; line-height: 1.6; }
+
+/* 레노바 연대기 */
+.chronicle-page { max-width: 760px; margin: 0 auto; }
+.chronicle-intro { margin: 0 0 18px; line-height: 1.6; }
+.chronicle-book { display: flex; flex-direction: column; gap: 16px; }
+.chronicle-chapter {
+  background: rgba(30, 24, 18, .94); border: 2px solid #8a6a3a; box-shadow: var(--hard-shadow);
+  padding: 16px 18px;
+}
+.chronicle-chapter.cleared { border-color: var(--accent); }
+.chronicle-chapter header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.chronicle-chapter h3 { margin: 0; color: #f0e2c4; }
+.chapter-no { color: #c9a86a; font-size: .85em; white-space: nowrap; }
+.chapter-body { line-height: 1.8; color: #e6dccb; margin: 0 0 10px; white-space: pre-line; }
+.chronicle-new { border-color: #8a6a3a; }
+@media (max-width: 600px) {
+  .chronicle-chapter { padding: 12px; }
+  .chronicle-chapter header { flex-direction: column; gap: 2px; }
+}
+
+/* 악마의 계약서 */
+.path-note.contract { border-color: #a8322c; color: #f0b0a8; }
+.trait-chip.contract { border-color: #a8322c; color: #f0b0a8; }
+
+/* 왕국의 저울 */
+.kingdom-scale {
+  max-width: 560px; margin: 0 auto 18px; padding: 14px 16px;
+  background: rgba(18, 15, 32, .93); border: 2px solid var(--border); box-shadow: var(--hard-shadow);
+}
+.kingdom-scale.compact { max-width: none; margin: 0 0 28px; }
+.kingdom-scale h3 { margin: 0 0 10px; color: #e0d6ca; }
+.kingdom-scale.state-heaven_rising { border-color: #f0cf62; }
+.kingdom-scale.state-abyss_widening { border-color: #a8322c; }
+.kingdom-scale.state-human_resolve { border-color: #8a93a3; }
+.kingdom-bars { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.kingdom-bar { display: grid; grid-template-columns: 64px 1fr 44px; align-items: center; gap: 8px; }
+.kingdom-bar-track { height: 10px; background: #1a1424; border: 2px solid #2e2640; }
+.kingdom-bar-fill { display: block; height: 100%; }
+.kingdom-bar.heaven .kingdom-bar-fill { background: #f0cf62; }
+.kingdom-bar.abyss .kingdom-bar-fill { background: #c8402c; }
+.kingdom-bar.human .kingdom-bar-fill { background: #9aa6b8; }
+.kingdom-bar-value { text-align: right; font-size: .9em; }
+.kingdom-desc { margin: 0 0 6px; line-height: 1.6; }
+.trait-chip.kingdom { border-color: #c9a86a; color: #f0e2c4; }
+
+/* =====================================================================
+   디자인 점검 (frontend-design 기준)
+   - 움직임은 배경 제단화(천상의 빛, 마계의 불씨)와 행동에 대한 반응(피격, 피해 숫자, 창 열림)에만 둔다.
+     정적인 화면 요소가 들어올 때마다 미끄러져 올라오는 등장 효과와, 계속 반복되는 장식 움직임은 뺐다.
+   - 한글 제목·라벨은 자간을 벌리지 않는다 (한글은 자간을 벌리면 오히려 읽기 어렵다).
+   - 홈 메뉴는 같은 카드의 반복 대신 위계로 나눈다: 주 행동 / 기록과 설정 목록 / 로그아웃 링크.
+   ===================================================================== */
+.animate-in, .auth-card, .home-header, .menu-btn, .setup-section, .ranking-table, .choice-btn, .blessing-chip {
+  animation: none;
+}
+.game-title, .guide-toggle, .badge.phoenix { animation: none; }
+.bar-fill.hp::after, .bar-fill.enemy::after { animation: none; display: none; }
+.guide-hint { animation: none; }
+
+.subtitle, .tagline, .menu-title, .setup-header h2, .setup-section h3, .monster-type, .reward-panel h3, .shop-panel h3,
+.reward-kind, .result-title, .ranking-table th, .guide-title, .stat-label, .path-heading, .choice-faction, .node-label {
+  letter-spacing: 0;
+}
+
+/* 홈: 주 행동은 크게, 나머지는 한 판의 목록으로 */
+.home-menu { gap: 22px; }
+.home-primary { display: flex; flex-direction: column; gap: 12px; }
+.home-primary .menu-btn { padding: 18px 20px; }
+.home-primary .menu-btn .menu-title { font-size: 19px; }
+.home-primary .menu-btn.start { border-color: var(--gold); box-shadow: 4px 4px 0 #6a4f14; }
+
+.home-nav {
+  display: grid; grid-template-columns: 1fr 1fr;
+  background: var(--bg-panel); border: 2px solid var(--border); box-shadow: var(--hard-shadow);
+}
+.home-nav button {
+  display: grid; grid-template-columns: auto 1fr; column-gap: 10px; row-gap: 2px; align-items: center;
+  padding: 13px 16px; text-align: left; background: none; border: 0; border-radius: 0; box-shadow: none;
+  color: var(--text); font: inherit; cursor: pointer;
+}
+.home-nav button:nth-child(odd) { border-right: 2px solid var(--border); }
+.home-nav button:nth-child(n+3) { border-top: 2px solid var(--border); }
+.home-nav button:last-child:nth-child(odd) { grid-column: 1 / -1; border-right: 0; }
+.home-nav button > .px { grid-row: 1 / 3; }
+.home-nav .nav-title { font-family: var(--display); font-size: 15px; }
+.home-nav .nav-desc { font-size: 12px; color: var(--text-dim); }
+.home-nav button:hover, .home-nav button:focus-visible { background: rgba(232, 200, 96, .08); outline: none; }
+.home-nav button:focus-visible { box-shadow: inset 0 0 0 2px var(--gold); }
+.home-nav .admin-menu .nav-title { color: var(--gold); }
+.home-logout { align-self: center; color: var(--text-dim); }
+@media (max-width: 520px) {
+  .home-nav { grid-template-columns: 1fr; }
+  .home-nav button:nth-child(odd) { border-right: 0; }
+  .home-nav button:nth-child(n+2) { border-top: 2px solid var(--border); }
+}
+
+/* 왕국의 저울: 정세 이름이 이 패널의 내용이다 */
+.kingdom-scale h3 { margin-bottom: 4px; font-size: 13px; color: var(--text-dim); }
+.kingdom-state { margin: 0 0 12px; font-family: var(--display); font-size: 20px; color: #f0e2c4; }
+
+/* 원정 준비: 효과와 비용을 양 끝으로 */
+.option-desc { display: flex; justify-content: space-between; gap: 10px; width: 100%; }
+.option-cost { color: var(--gold); white-space: nowrap; }
+
+/* 결과 화면: 연대기 장 제목 */
+.chronicle-new .chapter-title { display: block; margin: 6px 0 4px; font-family: var(--display); font-size: 17px; color: #f0e2c4; }
+.home-page .kingdom-scale { max-width: none; width: 100%; margin: 0 0 22px; }
+
+/* ===== 인벤토리 / 소모품 묶음 / 상점 장비 비교 ===== */
+.stack-count {
+  margin-left: 4px; padding: 0 4px; font-size: .85em; color: var(--gold);
+  border: 1px solid var(--border); background: var(--bg-deep);
+}
+.equip-compare { font-size: .85rem; color: var(--text-dim); }
+.equip-compare.up { color: var(--hp); }
+.equip-compare.down { color: var(--abyss); }
+
+.inventory-panel { max-width: 640px; }
+.inventory-stats { margin: 0; text-align: center; }
+.inventory-stats b { color: var(--gold); }
+.inventory-section h4 {
+  margin: 0 0 6px; padding-bottom: 4px; font-size: .95rem; color: var(--text);
+  border-bottom: 2px solid var(--border);
+}
+.inventory-gear, .inventory-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.inventory-gear li {
+  display: grid; grid-template-columns: 3.5em 32px 1fr auto; align-items: center; gap: 4px 10px;
+  padding: 6px 8px; background: var(--bg-card); border: 2px solid var(--border);
+}
+.inventory-gear li.empty { grid-template-columns: 3.5em 1fr; }
+.inventory-part { color: var(--text-dim); font-size: .85rem; }
+.inventory-name { color: var(--text); }
+.inventory-bonus { color: var(--gold); white-space: nowrap; }
+.inventory-gear .inventory-desc { grid-column: 3 / -1; }
+.inventory-list { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.inventory-list.wide { grid-template-columns: 1fr; }
+.inventory-list li { padding: 4px 8px; background: var(--bg-card); border: 2px solid var(--border); }
+.inventory-list .inventory-desc { display: block; color: var(--text-dim); }
+@media (max-width: 480px) {
+  .inventory-gear li { grid-template-columns: 3em 32px 1fr; }
+  .inventory-bonus { grid-column: 3; }
+}
+
+/* ===== 갈림길: 조우에는 길의 효과가 없다는 안내 ===== */
+.path-hint { margin: -4px 0 12px; font-size: 12px; color: var(--text-dim); text-align: center; }
+
+/* ===== 접근성·모바일 (2026-11-22 점검) ===== */
+/* 알림 영역은 비어 있어도 자리를 지켜야 화면 낭독기가 새 문구를 읽는다. 빈 동안은 여백만 없앤다 */
+.auth-message:empty { margin: 0; }
+/* 관리자 필터의 선택 상자도 키보드 포커스가 보이게 한다 */
+.admin-filters select:focus-visible { border-color: var(--gold); outline: 2px solid var(--gold); outline-offset: 2px; }
+/* 안내자 힌트는 버튼이 되었으므로 버튼 기본 글꼴을 덮어쓴다 */
+button.guide-hint { font-family: inherit; line-height: 1.4; }
+button.guide-hint:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+/* 휴대폰 폭에서는 힌트 말풍선이 화면 아래 카드의 버튼을 가리므로 숨기고 안내자 버튼만 둔다.
+   마지막 카드가 떠 있는 안내자 버튼 아래로 숨지 않게 아래 여백을 더 둔다 */
+@media (max-width: 640px) {
+  .guide-hint { display: none; }
+  .game-page { padding-bottom: 120px; }
+}
+/* 원정 준비: 포인트를 쓰지 않고 출발하려 할 때의 안내 */
+.setup-empty-warning { margin: 0 0 10px; text-align: center; font-size: 13px; color: var(--gold); }
+
+/* ===== 서사 글꼴: AI가 쓴 글은 Neo둥근모, 게임 화면은 Galmuri (2026-11-23) =====
+   둥근모꼴은 16px 격자에 맞춰 그린 글꼴이라 16px에서만 획이 흐려지지 않는다 */
+.story-text, .encounter-text, .review-epitaph, .review-analysis, .chapter-body {
+  font-family: var(--narrative);
+  font-size: 16px;
+  line-height: 1.75;
 }

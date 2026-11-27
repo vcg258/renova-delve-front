@@ -1,0 +1,44 @@
+/*
+ * 픽셀 글꼴 Galmuri (SIL Open Font License 1.1, (c) Lee Minseo)
+ *
+ * 예전에는 jsDelivr CDN에서 버전 고정 없이 불러왔다. CDN이 느리거나 막히면 기본 글꼴로 떨어져
+ * 도트 테마가 무너지고, 패키지가 갱신되면 글꼴이 예고 없이 바뀔 수 있었다.
+ * 지금은 package.json에 버전을 고정한 npm 패키지에서 쓰는 굵기만 골라 번들에 넣는다.
+ * (패키지의 galmuri.css를 통째로 import하면 쓰지 않는 글꼴 7종까지 같이 묶인다)
+ */
+@font-face {
+  font-family: 'Galmuri11';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../node_modules/galmuri/dist/Galmuri11.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Galmuri11';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../node_modules/galmuri/dist/Galmuri11-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Galmuri14';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../node_modules/galmuri/dist/Galmuri14.woff2') format('woff2');
+}
+
+/*
+ * 서사 글꼴 Neo둥근모 (SIL Open Font License 1.1, (c) Eunbin Jeong (Dalgona.))
+ * 90년대 한글 PC 게임의 둥근모꼴을 이은 글꼴이다. AI가 쓰는 글(노드 서사, 조우 장면, 회고, 연대기)에만 쓰고,
+ * 게임 화면의 버튼·수치·이름표는 Galmuri로 둔다. 16px 격자에서 가장 또렷하다.
+ */
+@font-face {
+  font-family: 'NeoDunggeunmo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../node_modules/@kfonts/neodgm/neodgm.woff2') format('woff2');
+}

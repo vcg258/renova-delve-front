@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Px from '../components/Px';
 import { getRanking } from '../api/game';
 import type { Difficulty, RankingRow } from '../api/types';
 
@@ -27,7 +28,7 @@ export default function RankingPage() {
     <div className="page ranking-page">
       <header className="setup-header">
         <button className="ghost" onClick={() => navigate('/')}>← 돌아가기</button>
-        <h2>🏆 명예의 전당</h2>
+        <h2><Px s="trophy" /> 명예의 전당</h2>
         <span />
       </header>
 
@@ -53,9 +54,9 @@ export default function RankingPage() {
           <tbody>
             {rows.map((row) => (
               <tr key={row.rank} className={row.rank <= 3 ? `top-${row.rank}` : ''}>
-                <td>{row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : row.rank === 3 ? '🥉' : row.rank}</td>
+                <td>{row.rank <= 3 ? <Px s={['trophy', 'trophy:silver', 'trophy:bronze'][row.rank - 1]} /> : row.rank}</td>
                 <td>{row.loginId}</td>
-                <td>✦ {row.bestScore}</td>
+                <td><Px s="star" /> {row.bestScore}</td>
                 <td>{row.clearTime != null ? formatTime(row.clearTime) : '—'}</td>
                 <td>{row.achievedAt?.slice(0, 10)}</td>
               </tr>

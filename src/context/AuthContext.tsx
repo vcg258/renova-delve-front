@@ -6,6 +6,7 @@ import type { MemberInfo } from '../api/types';
 interface AuthContextValue {
   member: MemberInfo | null;
   loading: boolean;
+  isAdmin: boolean;
   setMember: (member: MemberInfo | null) => void;
   signOut: () => Promise<void>;
 }
@@ -13,6 +14,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue>({
   member: null,
   loading: true,
+  isAdmin: false,
   setMember: () => {},
   signOut: async () => {},
 });
@@ -51,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ member, loading, setMember, signOut }}>
+    <AuthContext.Provider value={{ member, loading, isAdmin: member?.role === 'ADMIN', setMember, signOut }}>
       {children}
     </AuthContext.Provider>
   );
