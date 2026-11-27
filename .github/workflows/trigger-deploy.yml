@@ -7,6 +7,9 @@ name: Trigger backend deploy
 on:
   push:
     branches: [ "main" ]
+    # 문서만 바뀐 병합은 배포하지 않는다 (하나라도 다른 파일이 섞이면 배포한다)
+    paths-ignore:
+      - '**/*.md'
 
 jobs:
   trigger:
