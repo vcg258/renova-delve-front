@@ -168,6 +168,18 @@ export interface SetupOptions {
   helmets: HelmetDTO[];
   skills: SkillInfo[];
   relics: RelicDTO[];
+  locked: SetupLocks;        // 아직 고를 수 없는 항목 (희귀·영웅은 원정에서 손에 넣으면 해금)
+  budgetPerCollection: number; // 도감 1종마다 늘어나는 예산
+  maxBonusBudget: number;      // 도감 보너스 상한
+  bestCleared: Difficulty | null; // 클리어한 가장 높은 난이도
+}
+
+export interface SetupLocks {
+  weapons: number[];
+  armors: number[];
+  helmets: number[];
+  skills: number[];
+  relics: number[];
 }
 
 export interface GameStateDTO {
