@@ -1878,3 +1878,7 @@ button.guide-hint:focus-visible { outline: 2px solid var(--gold); outline-offset
   font-size: 16px;
   line-height: 1.75;
 }
+
+/* 원정 준비의 다음 목표 (메타 성장) */
+.setup-goals ul { margin: 0; padding-left: 18px; }
+.setup-goals li { margin: 4px 0; line-height: 1.6; }

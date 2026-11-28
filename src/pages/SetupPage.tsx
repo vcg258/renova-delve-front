@@ -17,6 +17,40 @@ const DIFFICULTIES: { value: Difficulty; label: string; desc: string }[] = [
   { value: 'HELL', label: '지옥', desc: '적이 크게 강해지고 보상 2배' },
 ];
 
+const LOCKED_REASON = '원정에서 손에 넣으면 해금';
+
+/** 다음에 노릴 난이도. 지옥까지 깼으면 null */
+export function nextDifficulty(bestCleared: Difficulty | null): Difficulty | null {
+  const order = DIFFICULTIES.map((d) => d.value);
+  if (bestCleared == null) return order[0];
+  const i = order.indexOf(bestCleared);
+  return i < order.length - 1 ? order[i + 1] : null;
+}
+
+/** 원정 준비 맨 위의 목표: 난이도 사다리, 해금, 늘어나는 예산 */
+export function SetupGoals({ options }: { options: SetupOptions }) {
+  const label = (d: Difficulty) => DIFFICULTIES.find((x) => x.value === d)?.label ?? d;
+  const next = nextDifficulty(options.bestCleared);
+  const locked = Object.values(options.locked).reduce((sum, ids) => sum + ids.length, 0);
+  const bonusLeft = options.maxBonusBudget - options.bonusBudget;
+  return (
+    <section className="setup-section setup-goals">
+      <h3>다음 목표</h3>
+      <ul>
+        <li>
+          {next == null
+            ? '지옥까지 모두 클리어했다. 서약을 더 걸고 점수를 노려 보자.'
+            : options.bestCleared == null
+              ? `${label(next)} 난이도로 레노바의 왕좌까지 닿아 보자.`
+              : `${label(options.bestCleared)} 클리어. 다음은 ${label(next)} 난이도다.`}
+        </li>
+        {locked > 0 && <li>잠긴 희귀·영웅 항목이 {locked}개 남았다. 원정에서 한 번 손에 넣으면 다음 원정부터 고를 수 있다.</li>}
+        {bonusLeft > 0 && <li>도감에 새 항목을 올릴 때마다 시작 포인트가 {options.budgetPerCollection}씩 늘어난다 (앞으로 최대 +{bonusLeft}).</li>}
+      </ul>
+    </section>
+  );
+}
+
 /** 고를 수 없는 카드에 이유를 적는다. 비활성 버튼은 흐려질 뿐 왜 안 눌리는지 알려주지 않는다 */
 function Blocked({ reason }: { reason: string | null }) {
   return reason ? <span className="option-blocked">{reason}</span> : null;
@@ -115,6 +149,7 @@ export default function SetupPage() {
   /** 여러 개 고르는 칸: 고른 것은 언제든 뺄 수 있고, 새로 넣으려면 남은 포인트가 있어야 한다 */
   const addBlock = (cost: number, selected: boolean) =>
     !selected && cost > remaining ? `${cost - remaining}pt 부족` : null;
+  const isLocked = (ids: number[] | undefined, id: number) => ids?.includes(id) ?? false;
   const skillBlock = (cost: number, selected: boolean) =>
     options && !selected && skillIds.length >= options.maxSkillPicks ? `스킬은 ${options.maxSkillPicks}개까지` : addBlock(cost, selected);
 
@@ -157,12 +192,13 @@ export default function SetupPage() {
         <div className={`budget ${overBudget ? 'over' : ''}`}>
           스타팅 포인트 {usedPoints} / {options.budget}
           <span className="budget-left">남은 포인트 {Math.max(0, remaining)}</span>
-          <span className="budget-bonus" title="도감에 등록한 항목 1종마다 +5 (최대 +200)">
+          <span className="budget-bonus" title={`도감에 등록한 항목 1종마다 +${options.budgetPerCollection} (최대 +${options.maxBonusBudget})`}>
             {options.bonusBudget > 0 ? `도감 보너스 +${options.bonusBudget}` : '도감을 채우면 예산이 늘어납니다'}
           </span>
         </div>
       </header>
 
+      <SetupGoals options={options} />
       {wraith && <WraithNotice wraith={wraith} />}
       {kingdom && kingdom.state !== 'BALANCE' && <KingdomScale kingdom={kingdom} compact />}
 
@@ -186,7 +222,7 @@ export default function SetupPage() {
           {options.weapons.map((w) => (
             <OptionCard key={w.weaponId} className={rarityClass(w.rarity)}
               selected={weaponId === w.weaponId}
-              block={swapBlock(w.scoreCost, weaponCost, weaponId === w.weaponId)}
+              block={isLocked(options.locked?.weapons, w.weaponId) ? LOCKED_REASON : swapBlock(w.scoreCost, weaponCost, weaponId === w.weaponId)}
               onClick={() => setWeaponId(w.weaponId)} title={w.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={weaponSprite(w.type, w.name)} size={32} /> {w.name}</span>
               <span className="option-desc"><span><Px s="sword" /> 공격 +{w.atkBonus}</span><span className="option-cost">{w.scoreCost}pt</span></span>
@@ -201,7 +237,7 @@ export default function SetupPage() {
           {options.armors.map((a) => (
             <OptionCard key={a.armorId} className={rarityClass(a.rarity)}
               selected={armorId === a.armorId}
-              block={swapBlock(a.scoreCost, armorCost, armorId === a.armorId)}
+              block={isLocked(options.locked?.armors, a.armorId) ? LOCKED_REASON : swapBlock(a.scoreCost, armorCost, armorId === a.armorId)}
               onClick={() => setArmorId(a.armorId)} title={a.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={armorSprite(a.type)} size={32} /> {a.name}</span>
               <span className="option-desc"><span><Px s="crest:steel" /> 방어 +{a.defBonus}</span><span className="option-cost">{a.scoreCost}pt</span></span>
@@ -216,7 +252,7 @@ export default function SetupPage() {
           {options.helmets.map((h) => (
             <OptionCard key={h.helmetId} className={rarityClass(h.rarity)}
               selected={helmetId === h.helmetId}
-              block={swapBlock(h.scoreCost, helmetCost, helmetId === h.helmetId)}
+              block={isLocked(options.locked?.helmets, h.helmetId) ? LOCKED_REASON : swapBlock(h.scoreCost, helmetCost, helmetId === h.helmetId)}
               onClick={() => setHelmetId(h.helmetId)} title={h.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={helmetSprite(h.type)} size={32} /> {h.name}</span>
               <span className="option-desc"><span><Px s="heart" /> 체력 +{h.hpBonus}</span><span className="option-cost">{h.scoreCost}pt</span></span>
@@ -231,7 +267,7 @@ export default function SetupPage() {
           {options.skills.filter((s) => !isBasicSkill(s)).map((s) => (
             <OptionCard key={s.skillId} className={rarityClass(s.rarity)}
               selected={skillIds.includes(s.skillId)}
-              block={skillBlock(s.cost, skillIds.includes(s.skillId))}
+              block={isLocked(options.locked?.skills, s.skillId) ? LOCKED_REASON : skillBlock(s.cost, skillIds.includes(s.skillId))}
               onClick={() => toggleSkill(s.skillId)} title={s.description}>
               <span className="option-name with-sprite"><PixelSprite sprite={skillSprite(s)} size={32} /> {s.name}</span>
               <span className="option-desc"><span>계수 x{s.coefficient}, 쿨타임 {s.cooldown}</span><span className="option-cost">{s.cost}pt</span></span>
@@ -246,7 +282,7 @@ export default function SetupPage() {
           {options.relics.map((r) => (
             <OptionCard key={r.relicId} className={rarityClass(r.rarity)}
               selected={relicIds.includes(r.relicId)}
-              block={addBlock(r.scoreCost, relicIds.includes(r.relicId))}
+              block={isLocked(options.locked?.relics, r.relicId) ? LOCKED_REASON : addBlock(r.scoreCost, relicIds.includes(r.relicId))}
               onClick={() => toggleRelic(r.relicId)} title={r.effectDesc}>
               <span className="option-name with-sprite"><PixelSprite sprite={relicSprite(r.name)} size={32} /> {r.name}</span>
               <span className="option-desc"><span>{r.effectDesc}</span><span className="option-cost">{r.scoreCost}pt</span></span>
