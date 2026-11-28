@@ -47,7 +47,7 @@ const FLEE_EXIT_DELAY_MS = 900;
 const PATHS: { value: PathChoice; icon: string; title: string; desc: string; className: string }[] = [
   { value: 'SAFE', icon: 'door', title: '정면으로 나아간다', desc: '위험도 보상도 그대로', className: '' },
   { value: 'DANGER', icon: 'drop', title: '피 냄새가 짙은 길', desc: '적 HP와 공격력 +10%. 이기면 점수·골드·경험치 +50%, 유물 후보 +1', className: 'danger' },
-  { value: 'AMBUSH', icon: 'moon', title: '그림자 속 샛길', desc: '기습해서 적이 첫 턴에 움직이지 못한다. 대신 점수·골드·경험치 -30%', className: 'ambush' },
+  { value: 'AMBUSH', icon: 'moon', title: '그림자 속 샛길', desc: '그림자를 타고 먼저 덮친다. 적은 첫 턴에 움직이지 못하지만, 서둘러 빠져나가느라 점수·골드·경험치가 20% 줄어든다', className: 'ambush' },
 ];
 
 /** 조우 선택지의 세력별 표시. 결과는 서버만 알고 있으며, 여기서는 세력의 경향만 알려준다 */
